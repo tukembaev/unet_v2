@@ -1,0 +1,296 @@
+UNET_V2 - Complete Project Structure
+=====================================
+
+unet_v2/
+│
+├── 📄 Configuration Files
+│   ├── package.json                 # Dependencies and scripts
+│   ├── tsconfig.json               # TypeScript base config
+│   ├── tsconfig.app.json           # App TypeScript config (with path aliases)
+│   ├── tsconfig.node.json          # Node TypeScript config
+│   ├── vite.config.ts              # Vite config with path aliases
+│   ├── tailwind.config.js          # Tailwind CSS configuration
+│   ├── postcss.config.js           # PostCSS configuration
+│   ├── eslint.config.js            # ESLint configuration (React + TS)
+│   ├── .gitignore                  # Git ignore rules
+│   └── index.html                  # HTML entry point
+│
+├── 📚 Documentation
+│   ├── README.md                   # Main documentation
+│   ├── SETUP_INSTRUCTIONS.md       # Detailed setup guide
+│   ├── QUICK_REFERENCE.md          # Code snippets and examples
+│   ├── FEATURE_EXAMPLE.md          # Complete FSD feature example
+│   ├── PROJECT_SUMMARY.md          # Project overview
+│   └── PROJECT_TREE.txt           # This file
+│
+├── 📁 public/
+│   └── vite.svg                    # Vite logo
+│
+└── 📁 src/
+    │
+    ├── 🎯 app/                      # Application Layer
+    │   ├── providers/
+    │   │   ├── error-boundary.tsx   # Error boundary component
+    │   │   ├── router.tsx          # Router configuration (type-safe)
+    │   │   └── index.tsx           # All providers combined
+    │   ├── layouts/
+    │   │   └── root-layout.tsx     # Main layout (header, footer, outlet)
+    │   ├── styles/
+    │   │   └── globals.css         # Global styles + Tailwind + CSS vars
+    │   └── index.tsx               # App component
+    │
+    ├── 📄 pages/                    # Pages Layer
+    │   ├── home/
+    │   │   └── index.tsx           # Home page (with example form)
+    │   ├── about/
+    │   │   └── index.tsx           # About page (FSD info)
+    │   └── not-found/
+    │       └── index.tsx           # 404 page
+    │
+    ├── 🧩 widgets/                  # Widgets Layer (Complex UI)
+    │   └── .gitkeep                # Placeholder (add your widgets here)
+    │
+    ├── ⚙️ features/                 # Features Layer (User Interactions)
+    │   └── .gitkeep                # Placeholder (add your features here)
+    │
+    ├── 🏢 entities/                 # Entities Layer (Business Entities)
+    │   └── .gitkeep                # Placeholder (add your entities here)
+    │
+    ├── 🔧 shared/                   # Shared Layer (Reusable)
+    │   ├── ui/                     # UI Components (Shadcn)
+    │   │   ├── button.tsx          # Button component (variants)
+    │   │   ├── input.tsx           # Input component
+    │   │   ├── label.tsx           # Label component
+    │   │   ├── card.tsx            # Card components
+    │   │   └── index.ts            # Barrel export
+    │   ├── lib/                    # Utilities
+    │   │   ├── utils.ts            # cn() utility
+    │   │   ├── form.tsx            # Typed form hook + FormField
+    │   │   └── index.ts            # Barrel export
+    │   └── config/                 # Configuration
+    │       ├── axios.ts            # Axios instance (with interceptors)
+    │       ├── query-client.ts     # TanStack Query client
+    │       └── index.ts            # Barrel export
+    │
+    ├── 📦 @/                        # Additional Shared Resources
+    │   └── .gitkeep                # Placeholder
+    │
+    ├── main.tsx                    # Entry point (renders App)
+    └── vite-env.d.ts               # Vite environment types
+
+
+FEATURE-SLICED DESIGN LAYERS (Top to Bottom)
+=============================================
+
+┌─────────────────────────────────────────────────┐
+│  app/        Application initialization         │
+│              Global providers, layouts           │
+└─────────────────────────────────────────────────┘
+                      ↓ uses
+┌─────────────────────────────────────────────────┐
+│  pages/      Route pages                        │
+│              Composition of widgets & features   │
+└─────────────────────────────────────────────────┘
+                      ↓ uses
+┌─────────────────────────────────────────────────┐
+│  widgets/    Complex UI blocks                  │
+│              Composition of features & entities  │
+└─────────────────────────────────────────────────┘
+                      ↓ uses
+┌─────────────────────────────────────────────────┐
+│  features/   User interactions                  │
+│              Business logic, forms, etc.         │
+└─────────────────────────────────────────────────┘
+                      ↓ uses
+┌─────────────────────────────────────────────────┐
+│  entities/   Business entities                  │
+│              Domain models, API calls            │
+└─────────────────────────────────────────────────┘
+                      ↓ uses
+┌─────────────────────────────────────────────────┐
+│  shared/     Reusable code                      │
+│              UI, utils, config                   │
+└─────────────────────────────────────────────────┘
+
+
+PATH ALIASES CONFIGURED
+========================
+
+✅ app/*       → src/app/*
+✅ pages/*     → src/pages/*
+✅ widgets/*   → src/widgets/*
+✅ features/*  → src/features/*
+✅ entities/*  → src/entities/*
+✅ shared/*    → src/shared/*
+✅ @/*         → src/@/*
+✅ lib/*       → src/lib/*
+
+
+TECH STACK
+==========
+
+Frontend Framework:
+  ✅ React 19.0.0
+  ✅ React DOM 19.0.0
+
+Build Tool:
+  ✅ Vite 5.4.5
+  ✅ @vitejs/plugin-react 4.3.1
+
+Language:
+  ✅ TypeScript 5.6.2
+
+Routing:
+  ✅ React Router DOM 6.26.1
+
+Forms:
+  ✅ React Hook Form 7.53.0
+  ✅ Zod 3.23.8
+  ✅ @hookform/resolvers 3.9.0
+
+Data Fetching:
+  ✅ TanStack Query 5.56.2
+  ✅ Axios 1.7.7
+
+Styling:
+  ✅ Tailwind CSS 3.4.11
+  ✅ PostCSS 8.4.47
+  ✅ Autoprefixer 10.4.20
+
+UI Components:
+  ✅ Shadcn UI (custom components)
+  ✅ Class Variance Authority 0.7.0
+  ✅ clsx 2.1.1
+  ✅ tailwind-merge 2.5.2
+
+Icons:
+  ✅ Lucide React 0.441.0
+
+Notifications:
+  ✅ Sonner 1.5.0
+
+Code Quality:
+  ✅ ESLint 9.10.0
+  ✅ typescript-eslint 8.5.0
+  ✅ eslint-plugin-react-hooks 5.1.0-rc.0
+  ✅ eslint-plugin-react-refresh 0.4.11
+
+
+CUSTOM FEATURES IMPLEMENTED
+============================
+
+✅ Typed Form Hook (useForm)
+   - Wrapper around react-hook-form
+   - Built-in Zod validation
+   - Fully typed with generics
+   - Reusable FormField component
+
+✅ Error Boundary
+   - Catches React errors
+   - Fallback UI
+   - Error logging
+   - Reset functionality
+
+✅ Type-Safe Router
+   - Route constants (ROUTES)
+   - TypeScript autocomplete
+   - Helper functions
+
+✅ Axios Instance
+   - Auto auth tokens
+   - Request/response interceptors
+   - Error handling
+   - 401 redirect
+
+✅ Query Client
+   - Pre-configured TanStack Query
+   - Caching strategy
+   - Retry logic
+
+✅ Shadcn UI Components
+   - Button (6 variants, 3 sizes)
+   - Input (styled)
+   - Label (with required indicator)
+   - Card (with sub-components)
+
+✅ Utility Functions
+   - cn() for conditional classes
+
+
+GETTING STARTED
+================
+
+1. Install dependencies:
+   $ npm install
+
+2. Start dev server:
+   $ npm run dev
+
+3. Open browser:
+   http://localhost:5173
+
+4. Build for production:
+   $ npm run build
+
+5. Run linter:
+   $ npm run lint
+
+
+EXAMPLE PAGES INCLUDED
+=======================
+
+✅ Home Page (/)
+   - Tech stack showcase
+   - Features grid
+   - Working example form
+   - Styled with Tailwind
+
+✅ About Page (/about)
+   - FSD architecture explanation
+   - Project overview
+   - Key features list
+
+✅ 404 Page
+   - Not found fallback
+   - Navigation buttons
+   - Clean design
+
+
+NEXT STEPS FOR DEVELOPMENT
+===========================
+
+1. Add your business entities in entities/
+   Example: entities/user/, entities/product/
+
+2. Create features in features/
+   Example: features/auth/, features/search/
+
+3. Build widgets in widgets/
+   Example: widgets/header/, widgets/user-card/
+
+4. Create pages in pages/
+   Example: pages/profile/, pages/dashboard/
+
+5. Customize shared UI components
+   Example: Add more Shadcn components
+
+6. Configure environment variables
+   Example: API URLs, feature flags
+
+
+DOCUMENTATION TO READ
+======================
+
+1. README.md              - Overview and tech stack
+2. SETUP_INSTRUCTIONS.md  - Detailed setup guide
+3. QUICK_REFERENCE.md     - Code snippets and patterns
+4. FEATURE_EXAMPLE.md     - Complete FSD example (Todo app)
+5. PROJECT_SUMMARY.md     - This project overview
+
+
+HAPPY CODING! 🚀
+=================
+
+Built with ❤️ using:
+React 19 + TypeScript + Vite + Feature-Sliced Design
+
