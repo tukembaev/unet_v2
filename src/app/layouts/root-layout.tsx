@@ -1,28 +1,11 @@
-import { Outlet, Link } from 'react-router-dom';
-import { Button } from 'shared/ui';
-import { ROUTES } from 'app/providers/router';
+import { Outlet } from 'react-router-dom';
+import { Navbar } from 'widgets/navbar';
 
 export function RootLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navigation */}
-      <header className="border-b">
-        <nav className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to={ROUTES.HOME} className="text-xl font-bold hover:text-primary transition-colors">
-              Unet V2
-            </Link>
-            <div className="flex gap-4">
-              <Link to={ROUTES.HOME}>
-                <Button variant="ghost">Home</Button>
-              </Link>
-              <Link to={ROUTES.ABOUT}>
-                <Button variant="ghost">About</Button>
-              </Link>
-            </div>
-          </div>
-        </nav>
-      </header>
+      <Navbar />
 
       {/* Main content */}
       <main className="flex-1">
