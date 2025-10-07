@@ -1,49 +1,48 @@
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  useForm as useHookForm,
+  FieldPath,
+  FieldValues,
+  Path,
   UseFormProps,
   UseFormReturn,
-  FieldValues,
-  SubmitHandler,
-  Path,
-  FieldPath,
-} from 'react-hook-form';
-import { ZodSchema, z } from 'zod';
-import React from 'react';
-import { cn } from './utils';
-import { Label } from 'shared/ui/label';
-import { Input } from 'shared/ui/input';
+  useForm as useHookForm,
+} from "react-hook-form";
+import { Input } from "shared/ui/input";
+import { Label } from "shared/ui/label";
+import { ZodSchema, z } from "zod";
+import { cn } from "./utils";
 
 // Extended form configuration with Zod schema
 export interface TypedFormProps<TFormValues extends FieldValues>
-  extends Omit<UseFormProps<TFormValues>, 'resolver'> {
+  extends Omit<UseFormProps<TFormValues>, "resolver"> {
   schema: ZodSchema<TFormValues>;
 }
 
 // Extended form return type with typed submit handler
-export type TypedFormReturn<TFormValues extends FieldValues> = UseFormReturn<TFormValues>;
+export type TypedFormReturn<TFormValues extends FieldValues> =
+  UseFormReturn<TFormValues>;
 
 /**
  * Typed wrapper around react-hook-form's useForm with Zod validation
- * 
+ *
  * @example
  * const loginSchema = z.object({
  *   email: z.string().email(),
  *   password: z.string().min(8),
  * });
- * 
+ *
  * type LoginFormValues = z.infer<typeof loginSchema>;
- * 
+ *
  * function LoginForm() {
  *   const form = useForm<LoginFormValues>({
  *     schema: loginSchema,
  *     defaultValues: { email: '', password: '' }
  *   });
- * 
+ *
  *   const onSubmit = form.handleSubmit((data) => {
  *     console.log(data); // Fully typed!
  *   });
- * 
+ *
  *   return <form onSubmit={onSubmit}>...</form>
  * }
  */
@@ -74,7 +73,7 @@ export function FormField<TFormValues extends FieldValues>({
   name,
   label,
   placeholder,
-  type = 'text',
+  type = "text",
   className,
   description,
   required,
@@ -83,7 +82,7 @@ export function FormField<TFormValues extends FieldValues>({
   const errorMessage = error?.message as string | undefined;
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {label && (
         <Label htmlFor={name}>
           {label}
@@ -95,7 +94,7 @@ export function FormField<TFormValues extends FieldValues>({
         type={type}
         placeholder={placeholder}
         {...form.register(name as FieldPath<TFormValues>)}
-        className={cn(errorMessage && 'border-destructive')}
+        className={cn(errorMessage && "border-destructive")}
         aria-invalid={!!errorMessage}
         aria-describedby={errorMessage ? `${name}-error` : undefined}
       />
@@ -113,4 +112,3 @@ export function FormField<TFormValues extends FieldValues>({
 
 // Helper type to infer form values from Zod schema
 export type InferFormValues<T extends ZodSchema> = z.infer<T>;
-
