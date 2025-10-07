@@ -1,3 +1,4 @@
+import { useAuthUser } from "features/auth/model/queries";
 import { FileText, Home, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { FormField, InferFormValues, useForm } from "shared/lib/form";
@@ -58,7 +59,7 @@ export function HomePage() {
     }
   });
 
-
+  const { data: user } = useAuthUser();
 
   return (
     <div className="container mx-auto px-4 py-12">
