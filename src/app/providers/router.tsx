@@ -3,11 +3,13 @@ import { HomePage } from 'pages/home';
 import { AboutPage } from 'pages/about';
 import { NotFoundPage } from 'pages/not-found';
 import { RootLayout } from 'app/layouts/root-layout';
+import { LoginPage } from 'pages/login';
 
 // Define route paths as constants for type safety
 export const ROUTES = {
-  HOME: '/',
+  HOME: '/home',
   ABOUT: '/about',
+  AUTH: '/',
   // Add more routes here as needed
 } as const;
 
@@ -22,12 +24,17 @@ const routes: RouteObject[] = [
     errorElement: <NotFoundPage />,
     children: [
       {
+        path: ROUTES.HOME,
         index: true,
         element: <HomePage />,
       },
       {
         path: ROUTES.ABOUT,
         element: <AboutPage />,
+      },
+      {
+        path: ROUTES.AUTH,
+        element: <LoginPage />,
       },
     ],
   },

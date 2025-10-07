@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -57,6 +57,8 @@ export function HomePage() {
       setIsSubmitting(false);
     }
   });
+
+
 
   return (
     <div className="container mx-auto px-4 py-12">
