@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().min(1, "Введите ИНН").regex(/^\d+$/, "ИНН должен содержать только цифры"),
+  username: z.string().min(1, "Введите ИНН").regex(/^\d+$/, "ИНН должен содержать только цифры"),
   password: z.string().min(1, "Введите пароль"),
 });
 

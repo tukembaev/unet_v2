@@ -1,6 +1,6 @@
 import axios from "axios";
 import {jwtDecode} from "jwt-decode";
-import { LoginResponse, User } from "./types";
+import { LoginResponse, User } from "../types";
 import { apiClient } from "shared/config";
 
 const API_URL = "https://utask.kstu.kg";
