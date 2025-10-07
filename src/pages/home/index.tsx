@@ -1,14 +1,29 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button } from 'shared/ui';
-import { useForm, FormField, InferFormValues } from 'shared/lib/form';
-import { z } from 'zod';
-import { toast } from 'sonner';
-import { Home, FileText, Sparkles } from 'lucide-react';
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Button,
+} from "shared/ui";
+import { useForm, FormField, InferFormValues } from "shared/lib/form";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Home, FileText, Sparkles } from "lucide-react";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "shared/ui/empty";
 
 // Example form schema
 const exampleFormSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email'),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email"),
 });
 
 type ExampleFormValues = InferFormValues<typeof exampleFormSchema>;
@@ -19,8 +34,8 @@ export function HomePage() {
   const form = useForm<ExampleFormValues>({
     schema: exampleFormSchema,
     defaultValues: {
-      name: '',
-      email: '',
+      name: "",
+      email: "",
     },
   });
 
@@ -28,15 +43,15 @@ export function HomePage() {
     setIsSubmitting(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Form data:', data);
-      toast.success('Form submitted successfully!', {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log("Form data:", data);
+      toast.success("Form submitted successfully!", {
         description: `Welcome, ${data.name}!`,
       });
       form.reset();
     } catch (error) {
-      toast.error('Something went wrong', {
-        description: 'Please try again later.',
+      toast.error("Something went wrong", {
+        description: "Please try again later.",
       });
     } finally {
       setIsSubmitting(false);
@@ -55,7 +70,22 @@ export function HomePage() {
             A modern React application with Feature-Sliced Design architecture
           </p>
         </div>
-
+        <Empty className="border border-dashed">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Home />
+            </EmptyMedia>
+            <EmptyTitle>Cloud Storage Empty</EmptyTitle>
+            <EmptyDescription>
+              Upload files to your cloud storage to access them anywhere.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button variant="outline" size="sm">
+              Upload Files
+            </Button>
+          </EmptyContent>
+        </Empty>
         {/* Features Grid */}
         <div className="grid md:grid-cols-3 gap-6">
           <Card>
@@ -115,7 +145,7 @@ export function HomePage() {
                 required
               />
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting...' : 'Submit'}
+                {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </form>
           </CardContent>
@@ -150,4 +180,3 @@ export function HomePage() {
     </div>
   );
 }
-
