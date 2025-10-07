@@ -26,7 +26,7 @@
 Pages: ProfilePage рендерит UserProfileWidget, добавляя layout и роутинг.
   Widgets: UserProfileWidget компонует UserCard и EditUserForm в единый блок.
     Entities: UserCard использует Button для отображения данных.
-      Features: EditUserForm использует FormField и UserService для отправки данных.
+    Features: EditUserForm использует FormField и UserService для отправки данных.
         Shared: Button и Input используются в FormField.
 
 

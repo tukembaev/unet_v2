@@ -1,16 +1,14 @@
+import { FileText, Home, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { FormField, InferFormValues, useForm } from "shared/lib/form";
 import {
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Button,
 } from "shared/ui";
-import { useForm, FormField, InferFormValues } from "shared/lib/form";
-import { z } from "zod";
-import { toast } from "sonner";
-import { Home, FileText, Sparkles } from "lucide-react";
 import {
   Empty,
   EmptyContent,
@@ -19,6 +17,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "shared/ui/empty";
+import { toast } from "sonner";
+import { z } from "zod";
 
 // Example form schema
 const exampleFormSchema = z.object({

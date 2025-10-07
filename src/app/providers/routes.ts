@@ -1,0 +1,37 @@
+// Define route paths as constants for type safety
+export const ROUTES = {
+  HOME: '/',
+  ABOUT: '/about',
+  
+  // Структура
+  EDUCATION_MANAGEMENT: '/structure/education-management',
+  IT_DEPARTMENT: '/structure/it-department',
+  KPI_REPORTS: '/structure/kpi-reports',
+  
+  // Документооборот
+  APPLICATIONS: '/documents/applications',
+  ORDERS: '/documents/orders',
+  TASKS: '/documents/tasks',
+  
+  // Учебный процесс
+  CURRICULUM: '/education/curriculum',
+  STREAMS: '/education/streams',
+  WORKLOAD: '/education/workload',
+} as const;
+
+// Type for route paths
+export type RoutePath = typeof ROUTES[keyof typeof ROUTES];
+
+// Type-safe navigation helper
+export function getRoute(path: RoutePath, params?: Record<string, string>): string {
+  let route = path as string;
+  
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      route = route.replace(`:${key}`, value);
+    });
+  }
+  
+  return route;
+}
+
