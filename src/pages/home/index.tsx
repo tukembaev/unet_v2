@@ -60,7 +60,7 @@ export function HomePage() {
   });
 
   const { data: user } = useAuthUser();
-
+  console.log("Authenticated user:", user);
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto space-y-8">

@@ -94,7 +94,7 @@ export function FormField<TFormValues extends FieldValues>({
         type={type}
         placeholder={placeholder}
         {...form.register(name as FieldPath<TFormValues>)}
-        className={cn(errorMessage && "border-destructive")}
+        className={cn(errorMessage && "border-destructive", "focus:outline-none")}
         aria-invalid={!!errorMessage}
         aria-describedby={errorMessage ? `${name}-error` : undefined}
       />
