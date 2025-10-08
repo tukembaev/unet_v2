@@ -10,14 +10,15 @@ import {
   DropdownMenuTrigger,
 } from 'shared/ui';
 import { User, Settings, LogOut, HelpCircle } from 'lucide-react';
+import { useAuthUser } from 'features/auth/model/queries';
 
 export function UserMenu() {
   // Mock user data - замените на реальные данные пользователя
-  const user = {
-    name: 'Gay Guy',
-    email: 'i_am_gay@gay.com',
-    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIuiiPAwNAvzg1vx1VC5Ziy6Hm-tb983RLWg&s', // Пустая строка для использования fallback
-  };
+  // const user = {
+  //   name: 'Username',
+  //   email: 'user@gmail.com',
+  //   avatar: '', // Пустая строка для использования fallback
+  // };
 
   const getInitials = (name: string) => {
     return name
@@ -27,29 +28,29 @@ export function UserMenu() {
       .toUpperCase()
       .slice(0, 2);
   };
-
+  const {data: user} = useAuthUser(); // Хук для получения данных пользователя
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all hover:opacity-80">
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={user.avatar} alt={user.name} />
+          <Avatar className="h-9 w-9 rounded-full`">
+            <AvatarImage  src={user?.imeag} alt={user?.first_name} />
             <AvatarFallback className="bg-primary text-primary-foreground">
-              {getInitials(user.name)}
+              {getInitials(user?.first_name || "U U")}
             </AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">{user?.first_name}</span>
+                <span className="truncate text-xs">{user?.email}</span>
          </div>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
+            <p className="text-sm font-medium leading-none">{user?.first_name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>

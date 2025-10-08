@@ -6,7 +6,6 @@ import { useLogin } from "../model/queries";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "shared/ui";
 import { FormField } from "shared/lib";
 import { ScaleLoader } from "react-spinners";
-import { useNavigate } from "react-router-dom";
 import {
   Eye,
   EyeOff,
@@ -17,41 +16,36 @@ import {
   ArrowLeft,
   Mail,
 } from "lucide-react";
+import { PinModal } from "./PinCodeModal";
 
 
 export const LoginForm: React.FC = () => {
-  const navigate = useNavigate();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       username: "",
       password: "",
     },
-  });
-
+  })
   const { mutateAsync: login, isPending } = useLogin();
-
   const [showPassword, setShowPassword] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const [emailForReset, setEmailForReset] = useState("");
-
+  const [showPinModal, setShowPinModal] = useState(false);
   const handleLogin = async (values: LoginFormValues) => {
     try {
       await login(values);
-      navigate("/home");
+      setShowPinModal(true)
     } catch (err) {
       console.error("Ошибка входа:", err);
     }
   };
-
   const handlePasswordReset = () => {
     console.log("Reset for:", emailForReset);
   };
-
   return (
     <div
     className="flex justify-center items-center min-h-screen  bg-cover ">
-      
       <div className="bg-white p-2 rounded-3xl shadow-lg w-full max-w-md">
         <Card className="shadow-none border-none">
           <CardHeader>
@@ -75,7 +69,7 @@ export const LoginForm: React.FC = () => {
                     form={form}
                     name="username"
                     placeholder="Введите ИНН"
-                    className="w-full   rounded-lg  text-[14px] focus:outline-none "
+                    
                   />
                 </div>
 
@@ -90,7 +84,7 @@ export const LoginForm: React.FC = () => {
                       name="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Введите пароль"
-                      className="w-full rounded-lg text-[14px] focus:outline-none"
+                      
                     />
                     <button
                       type="button"
@@ -219,6 +213,9 @@ export const LoginForm: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+      <PinModal open={showPinModal} onClose={() => setShowPinModal(false)}  />
+
     </div>
+    
   );
 };

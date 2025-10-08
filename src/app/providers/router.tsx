@@ -12,6 +12,10 @@ export { ROUTES, getRoute, type RoutePath } from './routes';
 // Define your routes with proper typing
 const routes: RouteObject[] = [
   {
+    path: ROUTES.AUTH,
+    element: <LoginPage />,
+  },
+  {
     path: '/',
     element: <RootLayout />,
     errorElement: <NotFoundPage />,
@@ -24,10 +28,6 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.ABOUT,
         element: <AboutPage />,
-      },
-      {
-        path: ROUTES.AUTH,
-        element: <LoginPage />,
       },
     ],
   },

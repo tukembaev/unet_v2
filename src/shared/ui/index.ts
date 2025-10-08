@@ -4,6 +4,7 @@ export { Label } from './label';
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';
 export { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from './sheet';
 export { Avatar, AvatarImage, AvatarFallback } from './avatar';
+export {PinInput} from './pinInput';
 export {
   DropdownMenu,
   DropdownMenuTrigger,
