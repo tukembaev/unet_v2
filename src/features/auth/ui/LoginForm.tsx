@@ -13,10 +13,10 @@ import {
   Download,
   QrCode,
   LogIn,
-  ArrowLeft,
   Mail,
 } from "lucide-react";
 import { PinModal } from "./PinCodeModal";
+import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 
 export const LoginForm: React.FC = () => {
@@ -30,7 +30,6 @@ export const LoginForm: React.FC = () => {
   const { mutateAsync: login, isPending } = useLogin();
   const [showPassword, setShowPassword] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
-  const [emailForReset, setEmailForReset] = useState("");
   const [showPinModal, setShowPinModal] = useState(false);
   const handleLogin = async (values: LoginFormValues) => {
     try {
@@ -40,9 +39,7 @@ export const LoginForm: React.FC = () => {
       console.error("Ошибка входа:", err);
     }
   };
-  const handlePasswordReset = () => {
-    console.log("Reset for:", emailForReset);
-  };
+
   return (
     <div
     className="flex justify-center items-center min-h-screen  bg-cover ">
@@ -119,9 +116,6 @@ export const LoginForm: React.FC = () => {
                 >
                   Забыли пароль?
                 </p>
-
-                {/* <div className="text-center text-gray-600 m-0 ">или</div> */}
-
                 {/* Google */}
                 <Button
                   type="button"
@@ -178,43 +172,12 @@ export const LoginForm: React.FC = () => {
                 </div>
               </form>
             ) : (
-              // ===========================
-              // Блок восстановления пароля
-              // ===========================
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-gray-500 mb-1">
-                  ИНН
-                </label>
-                <input
-                  type="text"
-                  value={emailForReset}
-                  onChange={(e) => setEmailForReset(e.target.value)}
-                  className="w-full border border-[#A8CCEF] rounded-lg px-4 py-2 text-[14px] focus:outline-none"
-                  placeholder="Введите ИНН"
-                />
-
-                <Button
-                  onClick={handlePasswordReset}
-                  className="w-full bg-[#4B84F4] text-white font-semibold rounded-md hover:bg-[#6b9cfd]"
-                >
-                  Отправить
-                </Button>
-
-                <Button
-                  variant="outline"
-                  onClick={() => setForgotPassword(false)}
-                  className="w-full border-gray-500 hover:bg-gray-100 flex items-center justify-center gap-2"
-                >
-                  <ArrowLeft size={18} />
-                  Назад
-                </Button>
-              </div>
+              <ForgotPasswordForm setForgotPassword={setForgotPassword} />
             )}
           </CardContent>
         </Card>
       </div>
       <PinModal open={showPinModal} onClose={() => setShowPinModal(false)}  />
-
     </div>
     
   );

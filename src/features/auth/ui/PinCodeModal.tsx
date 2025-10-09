@@ -2,10 +2,12 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "shared/ui/dialog";
 
-import { Button, PinInput } from "shared/ui";
+import { Button } from "shared/ui";
 import { checkPin } from "../model/helpers";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { PinInput } from "./pinInput";
+
 
 export const PinModal = ({ open, onClose,  }: any) => {
   const [pin, setPin] = useState("");
@@ -31,7 +33,7 @@ export const PinModal = ({ open, onClose,  }: any) => {
             <PinInput length={4} onComplete={setPin} />
         </div>
 
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-6">
           <Button variant="outline" onClick={onClose}>Закрыть</Button>
           <Button onClick={handleSubmit}>Войти</Button>
         </div>
