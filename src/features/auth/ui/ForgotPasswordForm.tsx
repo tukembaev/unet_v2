@@ -1,49 +1,82 @@
-import { ArrowLeft } from "lucide-react";
 import React, { useState } from "react";
-import { Button } from "shared/ui";
+import { ArrowLeft } from "lucide-react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { FormField } from "shared/lib/form";
+import { Button } from "shared/ui/button";
+import { Card, CardContent } from "shared/ui/card";
 
 interface ForgotPasswordFormProps {
   setForgotPassword: (value: boolean) => void;
 }
 
+// ✅ схема валидации
+const formSchema = z.object({
+  inn: z
+    .string()
+    .min(8, { message: "ИНН должен содержать минимум 8 символов" })
+    .regex(/^\d+$/, { message: "ИНН должен содержать только цифры" }),
+});
+
 export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   setForgotPassword,
 }) => {
-  const [emailForReset, setEmailForReset] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePasswordReset = () => {
-    console.log("Reset for:", emailForReset);
-    // Здесь можешь добавить логику API-запроса для восстановления пароля
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      inn: "",
+    },
+  });
+
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
+    try {
+      console.log("Отправляем запрос для ИНН:", values.inn);
+      // 🔹 Здесь добавь свой API-запрос
+    } catch (error) {
+      console.error("Ошибка при восстановлении пароля:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <label className="block text-sm font-medium text-gray-500 mb-1">
-        ИНН
-      </label>
-      <input
-        type="text"
-        value={emailForReset}
-        onChange={(e) => setEmailForReset(e.target.value)}
-        className="w-full border border-[#A8CCEF] rounded-lg px-4 py-2 text-[14px] focus:outline-none"
-        placeholder="Введите ИНН"
-      />
+    <Card className="w-full max-w-md border border-border">
+      <CardContent className="p-6">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
+          {/* Поле ИНН */}
+          <div>
+            <label className="block text-sm font-medium text-gray-500 mb-1">
+              ИНН
+            </label>
+            <FormField
+              form={form}
+              name="inn"
+              placeholder="Введите ИНН"
 
-      <Button
-        onClick={handlePasswordReset}
-        className="w-full bg-[#4B84F4] text-white font-semibold rounded-md hover:bg-[#6b9cfd]"
-      >
-        Отправить
-      </Button>
+            />
+          </div>
 
-      <Button
-        variant="outline"
-        onClick={() => setForgotPassword(false)}
-        className="w-full border-gray-500 hover:bg-gray-100 flex items-center justify-center gap-2"
-      >
-        <ArrowLeft size={18} />
-        Назад
-      </Button>
-    </div>
+          {/* Кнопка отправки */}
+          <Button type="submit" className="w-full bg-[#4b84f4]" disabled={isLoading}>
+            {isLoading ? "Отправка..." : "Отправить"}
+          </Button>
+
+          {/* Кнопка назад */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setForgotPassword(false)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <ArrowLeft size={18} />
+            Назад
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
