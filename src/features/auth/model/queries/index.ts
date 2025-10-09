@@ -11,10 +11,7 @@ export function useLogin() {
     mutationFn: ({ username, password }: { username: string; password: string }) =>
       loginRequest(username, password),
     onSuccess: (user) => {
-      console.log("✅ Login success:", user);
       queryClient.setQueryData(USER_QUERY_KEY, user);
-      toast.success("Успешный вход в систему", { description: `Добро пожаловать, ${user.first_name}  ${user.surname}!`})
-      
     },
 
     onError: (error: any) => {

@@ -11,6 +11,7 @@ import {
 } from 'shared/ui';
 import { User, Settings, LogOut, HelpCircle } from 'lucide-react';
 import { useAuthUser } from 'features/auth/model/queries';
+import { useNavigate } from 'react-router-dom';
 
 export function UserMenu() {
   // Mock user data - замените на реальные данные пользователя
@@ -28,7 +29,8 @@ export function UserMenu() {
       .toUpperCase()
       .slice(0, 2);
   };
-  const {data: user} = useAuthUser(); // Хук для получения данных пользователя
+  const {data: user} = useAuthUser(); 
+  const navigate = useNavigate();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -68,7 +70,7 @@ export function UserMenu() {
           <span>Помощь</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive focus:text-destructive">
+        <DropdownMenuItem onClick={() => navigate('/')} className="text-destructive focus:text-destructive">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Выйти</span>
         </DropdownMenuItem>

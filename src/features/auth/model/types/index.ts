@@ -1,6 +1,7 @@
 export interface LoginResponse {
   access: string;
   refresh: string;
+  pin: string;
 }
 
 export interface User {
