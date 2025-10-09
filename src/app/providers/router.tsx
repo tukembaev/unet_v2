@@ -4,6 +4,7 @@ import { AboutPage } from 'pages/about';
 import { NotFoundPage } from 'pages/not-found';
 import { RootLayout } from 'app/layouts/root-layout';
 import { ROUTES } from './routes';
+import { LoginPage } from 'pages/login';
 
 // Re-export routes for convenience
 export { ROUTES, getRoute, type RoutePath } from './routes';
@@ -11,11 +12,16 @@ export { ROUTES, getRoute, type RoutePath } from './routes';
 // Define your routes with proper typing
 const routes: RouteObject[] = [
   {
+    path: ROUTES.AUTH,
+    element: <LoginPage />,
+  },
+  {
     path: '/',
     element: <RootLayout />,
     errorElement: <NotFoundPage />,
     children: [
       {
+        path: ROUTES.HOME,
         index: true,
         element: <HomePage />,
       },

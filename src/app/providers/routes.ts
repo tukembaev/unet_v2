@@ -1,8 +1,8 @@
 // Define route paths as constants for type safety
 export const ROUTES = {
-  HOME: '/',
+  HOME: '/home',
   ABOUT: '/about',
-  
+  AUTH: '/',
   // Структура
   EDUCATION_MANAGEMENT: '/structure/education-management',
   IT_DEPARTMENT: '/structure/it-department',

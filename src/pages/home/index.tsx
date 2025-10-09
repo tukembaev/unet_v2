@@ -1,3 +1,4 @@
+
 import { FileText, Home, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { FormField, InferFormValues, useForm } from "shared/lib/form";
@@ -57,6 +58,7 @@ export function HomePage() {
       setIsSubmitting(false);
     }
   });
+
 
   return (
     <div className="container mx-auto px-4 py-12">
