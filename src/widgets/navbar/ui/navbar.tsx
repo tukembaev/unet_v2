@@ -148,7 +148,7 @@ export function Navbar() {
                       {section.title}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4">
+                      <ul className="grid w-[400px] gap-3 p-4 rounded-[20px] bg-popover shadow-lg border">
                         {section.items.map((item) => (
                           <ListItem
                             key={item.href}
