@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "shared/ui/dialog";
 import { Button } from "shared/ui";
 import { checkPin } from "../model/helpers";
-import { PinInput } from "./pinInput";
+import { PinInput } from "./PinInput";
+
 
 
 interface PinModalProps {
@@ -39,20 +40,20 @@ export const PinModal: React.FC<PinModalProps> = ({ open, onClose }) => {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="p-8 w-full/max-w-md">
+      <DialogContent className="p-6 w-full/max-w-md ">
         <DialogHeader>
           <DialogTitle>Введите ПИН-код</DialogTitle>
         </DialogHeader>
 
-        <div className="flex justify-center mb-6">
-          <PinInput length={4} onComplete={setPin} />
+        <div className="flex justify-center mb-2">
+          <PinInput  onComplete={setPin} />
         </div>
 
-        <div className="flex justify-between gap-4">
+        <div className="flex justify-between ">
           <Button variant="outline" onClick={handleClose}>
             Закрыть
           </Button>
-          <Button onClick={handleSubmit} disabled={pin.length < 4}>
+          <Button className="bg-[#4b84f4] text-white" onClick={handleSubmit} disabled={pin.length < 4}>
             Войти
           </Button>
         </div>
