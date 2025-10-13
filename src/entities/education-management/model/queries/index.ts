@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getUsers, getDisciplineTemplates, getFaculties } from '../api';
+import { getUsers, getDisciplineTemplates, getFaculties, getKindDirections } from '../api';
 
 export function useUsers() {
   return useQuery({
@@ -22,3 +22,10 @@ export function useFaculties() {
   });
 }
 
+export function useKindDirections(kind: number) {
+  return useQuery({
+    queryKey: ['kind-directions', kind],
+    queryFn: () => getKindDirections(kind),
+    enabled: !!kind,
+  });
+}

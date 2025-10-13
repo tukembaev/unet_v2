@@ -6,6 +6,7 @@ import { RootLayout } from "app/layouts/root-layout";
 import { ROUTES } from "./routes";
 import { LoginPage } from "pages/login";
 import EducationManagementPage from "pages/edu-management";
+import { TaskPage } from "pages/task";
 
 // Re-export routes for convenience
 export { ROUTES, getRoute, type RoutePath } from "./routes";
@@ -44,8 +45,14 @@ const routes: RouteObject[] = [
         //   },
         // ],
       },
+      {
+        path: ROUTES.TASK,
+        element: <TaskPage />,
+      },
     ],
+    
   },
+ 
   {
     path: "*",
     element: <NotFoundPage />,

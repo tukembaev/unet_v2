@@ -14,15 +14,11 @@ import {
   TableRow,
 } from "shared/ui";
 
-interface DirectionData {
-  id: string;
-  code: string;
-  name: string;
-}
+import { KindDirectionItem } from "entities/education-management/model/types";
 
 interface DirectionCardProps {
   title: string;
-  data: DirectionData[];
+  data: KindDirectionItem[];
 }
 
 export const DirectionCard = ({ title, data }: DirectionCardProps) => {
@@ -32,21 +28,22 @@ export const DirectionCard = ({ title, data }: DirectionCardProps) => {
   const fetchSelectData = useCallback(async (query?: string) => {
     // Здесь можно сделать запрос к API или использовать локальные данные
     const mockData = [
-      { id: "NEW001", code: "09.03.06", name: "Новое IT направление" },
+      { id: 1, cipher: "09.03.06", direction_name: "Новое IT направление", kind: 1 },
       {
-        id: "NEW002",
-        code: "38.03.06",
-        name: "Новое экономическое направление",
+        id: 2,
+        cipher: "38.03.06",
+        direction_name: "Новое экономическое направление",
+        kind: 2,
       },
-      { id: "NEW003", code: "07.03.06", name: "Новое дизайн направление" },
-      { id: "NEW004", code: "15.03.06", name: "Новое техническое направление" },
+      { id: 3, cipher: "07.03.06", direction_name: "Новое дизайн направление", kind: 3 },
+      { id: 4, cipher: "15.03.06", direction_name: "Новое техническое направление", kind: 4 },
     ];
 
     if (query) {
       return mockData.filter(
         (item) =>
-          item.name.toLowerCase().includes(query.toLowerCase()) ||
-          item.code.toLowerCase().includes(query.toLowerCase())
+          item.direction_name.toLowerCase().includes(query.toLowerCase()) ||
+          item.cipher.toLowerCase().includes(query.toLowerCase())
       );
     }
     return mockData;
@@ -74,12 +71,12 @@ export const DirectionCard = ({ title, data }: DirectionCardProps) => {
             onChange={(v) => setValue(v)}
             renderOption={(option) => (
               <div className="flex items-center gap-2">
-                <span className="font-mono text-sm">{option.code}</span>
-                <span>{option.name}</span>
+                <span className="font-mono text-sm">{option.cipher}</span>
+                <span>{option.direction_name}</span>
               </div>
             )}
-            getOptionValue={(option) => option.id}
-            getDisplayValue={(option) => `${option.code} - ${option.name}`}
+            getOptionValue={(option) => option.id.toString()}
+            getDisplayValue={(option) => `${option.cipher} - ${option.direction_name}`}
             placeholder="Выберите направление для добавления"
           />
 
@@ -99,8 +96,8 @@ export const DirectionCard = ({ title, data }: DirectionCardProps) => {
             <TableBody>
               {data.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="font-mono">{item.code}</TableCell>
-                  <TableCell>{item.name}</TableCell>
+                  <TableCell className="font-mono">{item.cipher}</TableCell>
+                  <TableCell>{item.direction_name}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
