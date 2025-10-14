@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "shared/ui";
-import { FamiliesTab } from "./family/FamiliesTab.tsx";
+import { FamiliesTab } from "./Family/FamiliesTab.tsx";
 import { DisciplinesTab } from "./discipline/DisciplinesTab.tsx";
 import { ReportsTab } from "./report/ReportsTab.tsx";
 import { DispatcherTab } from "./dispatcher/DispatcherTab.tsx";

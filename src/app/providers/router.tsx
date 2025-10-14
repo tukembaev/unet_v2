@@ -6,6 +6,7 @@ import { RootLayout } from "app/layouts/root-layout";
 import { ROUTES } from "./routes";
 import { LoginPage } from "pages/login";
 import EducationManagementPage from "pages/edu-management";
+import ItDepartmentPage from "pages/it-department";
 
 // Re-export routes for convenience
 export { ROUTES, getRoute, type RoutePath } from "./routes";
@@ -29,6 +30,10 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.ABOUT,
         element: <AboutPage />,
+      },
+      {
+        path: ROUTES.IT_DEPARTMENT,
+        element: <ItDepartmentPage />,
       },
       {
         path: ROUTES.EDUCATION_MANAGEMENT,
