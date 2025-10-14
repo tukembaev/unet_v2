@@ -60,7 +60,7 @@ export function HomePage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div>
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Программные пресеты */}
         <div className="flex flex-wrap gap-3">
