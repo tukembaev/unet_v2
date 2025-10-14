@@ -95,10 +95,10 @@ export const DispatcherTab = () => {
     }
   }, [semester]);
 
-  // Загрузка данных учебного плана при выборе всех селектов
+
   useEffect(() => {
     const loadWorkPlan = async () => {
-      if (syllabus && semester) {
+      if (syllabus || semester) {
         setIsLoadingWorkPlan(true);
         try {
           const data = await getWorkPlanBySemester(parseInt(syllabus), parseInt(semester));
