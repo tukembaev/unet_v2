@@ -69,3 +69,4 @@ export {
   PopoverTrigger,
 } from './popover'
 export { Badge } from './badge'
+export { Skeleton } from './skeleton'

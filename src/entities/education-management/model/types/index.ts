@@ -1,3 +1,17 @@
+export interface FamilyDirectionItem {
+  id: number
+  cipher: string
+  kind: number
+  direction_name: string
+}
+
+export interface FamilyDirection {
+  id: number
+  code: string | null
+  title: string
+  direction: FamilyDirectionItem[]
+}
+
 export type Direction = {
   id: number;
   code: string | null;
@@ -31,3 +45,59 @@ export type WorkPlanItem = {
   students_count: number;
   capacity: number;
 };
+export interface TeacherHours {
+  [teacherName: string]: {
+    aud: number
+    out: number
+  }
+}
+
+export interface Subject {
+  name: string
+  credit: number
+  semester: string
+  direction: string
+  streams: string[]
+  students_count: number
+  contract_stud: number
+  budget_stud: number
+  lecture: number
+  practice: number
+  lab: number
+  consult_control: number
+  rgr_rgz: number
+  cw_cp: number
+  vkr: number
+  phd: number
+  seminar: number
+  aspirant: number
+  doct_consult: number
+  visit: number
+  practice_supervise: number
+  oop: number
+  gak: number
+  teachers_hours: TeacherHours
+  total: number
+}
+
+export interface WorkLoad {
+  subjects: Subject[]
+  teachers: string[]
+}
+export interface Syllabus {
+  id: number
+  cipher: string
+  direction: string
+  duration: number
+  years: string
+  semesters: number
+  profile_id: number
+  profile: string
+  subjects: number
+}
+
+export interface Reports {
+  id: number
+  institute: string
+  syllabuses: Syllabus[]
+}
