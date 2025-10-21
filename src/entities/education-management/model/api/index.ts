@@ -1,5 +1,5 @@
 import { apiClient } from 'shared/config/axios';
-import { Direction, Discipline, FamilyDirection, FamilyDirectionItem, Reports, SelectOptions, WorkLoad, WorkPlanItem } from '../types';
+import { Direction, Discipline, FamilyDirection, FamilyDirectionItem, Reports, SelectOptions, SyllabusRoot, WorkLoad, WorkPlanItem } from '../types';
 
 export const getUsers = async (): Promise<Direction[]> => {
   const { data } = await apiClient.get('api/kind');
@@ -15,6 +15,16 @@ export const getFamilyDirection = async (kind: number): Promise<FamilyDirection>
   const { data } = await apiClient.get(`kind/${kind}/`);
   return data;
 };
+
+
+export const getSyllabusReport = async (
+  syllabus: number,
+  profile_id: number
+): Promise<SyllabusRoot> => {
+  const { data } = await apiClient.get(`courses/${syllabus}/${profile_id}`);
+  return data;
+};
+
 
 export const getDisciplineTemplates = async (
   levelEducation: string,

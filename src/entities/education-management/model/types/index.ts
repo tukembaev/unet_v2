@@ -101,3 +101,41 @@ export interface Reports {
   institute: string
   syllabuses: Syllabus[]
 }
+
+export interface SyllabusCourse {
+  id: number;
+  code: string;
+  name_subject: string;
+  dep: string;
+  cycle: string | null;
+  course_type: string;
+  control_form: string;
+  credit: number;
+  amount_hours: number;
+  lecture_hours: number;
+  practice_hours: number;
+  lab_hours: number;
+}
+
+export interface SyllabusSemester {
+  id: number;
+  name_semester: string;
+  count_credit: number;
+  lecture_hours: number;
+  lab_hours: number;
+  practice_hours: number;
+  amount_hours: number;
+  courses: SyllabusCourse[];
+  elective_course: SyllabusCourse[][];
+}
+
+export interface SyllabusRoot {
+  id: number;
+  direction: string;
+  profile: string;
+  form_education: string;
+  duration: number;
+  start_year: number;
+  end_year: number;
+  semesters: SyllabusSemester[];
+}
