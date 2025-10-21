@@ -104,12 +104,12 @@ export interface Reports {
 
 export interface SyllabusCourse {
   id: number;
-  code: string;
+  code: string | null; // can be null in data.txt (e.g., diploma work)
   name_subject: string;
   dep: string;
   cycle: string | null;
-  course_type: string;
-  control_form: string;
+  course_type: string; // e.g., "Базовая часть" | "Вузовский компонент" | "Курс по выбору"
+  control_form: string; // e.g., "Экзамен" | "Зачет" | "Курс/пр"
   credit: number;
   amount_hours: number;
   lecture_hours: number;
@@ -126,7 +126,8 @@ export interface SyllabusSemester {
   practice_hours: number;
   amount_hours: number;
   courses: SyllabusCourse[];
-  elective_course: SyllabusCourse[][];
+  elective_course: SyllabusCourse[][]; // array of groups of elective courses
+  profiles_name?: { id: number; title: string; courses: unknown[]; elective_courses: SyllabusCourse[][] }[];
 }
 
 export interface SyllabusRoot {
@@ -138,4 +139,10 @@ export interface SyllabusRoot {
   start_year: number;
   end_year: number;
   semesters: SyllabusSemester[];
+  // Optional aggregate fields available in data.txt
+  all_lecture_hours?: number;
+  all_lab_hours?: number;
+  all_practice_hours?: number;
+  all_credits?: number;
+  all_amount_hours?: number;
 }

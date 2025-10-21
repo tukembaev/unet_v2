@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getUsers, getDisciplineTemplates, getFaculties, getReports, getWorkPlanBySemester, getWorkLoadBySemester, getFamilyDirection, getDirections } from '../api';
+import { getUsers, getDisciplineTemplates, getFaculties, getReports, getWorkPlanBySemester, getWorkLoadBySemester, getFamilyDirection, getDirections, getSyllabusReport } from '../api';
 
 export function useUsers() {
   return useQuery({
@@ -57,5 +57,13 @@ export function useWorkLoadBySemester(year: number, department_id: number, repor
     queryKey: ['work-load', year, department_id, report_type, semester_type],
     queryFn: () => getWorkLoadBySemester(year, department_id, report_type, semester_type),
     enabled: !!year && !!department_id && !!report_type && !!semester_type, 
+  });
+}
+
+export function useSyllabusReport(syllabusId: number | undefined, profileId: number | undefined) {
+  return useQuery({
+    queryKey: ['syllabus-report', syllabusId, profileId],
+    queryFn: () => getSyllabusReport(syllabusId!, profileId!),
+    enabled: !!syllabusId && !!profileId,
   });
 }

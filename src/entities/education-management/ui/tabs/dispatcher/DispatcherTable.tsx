@@ -35,7 +35,6 @@ export const DispatcherTable = ({ data, onScheduleAction }: DispatcherTableProps
                   variant="secondary" 
                   size="sm"
                   onClick={() => onScheduleAction(item.id)}
-                  className="bg-gray-600 text-white hover:bg-gray-700"
                 >
                   Составить расписание
                 </Button>

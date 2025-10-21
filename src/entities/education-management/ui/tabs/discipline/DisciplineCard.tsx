@@ -31,40 +31,40 @@ export const DisciplineCard: React.FC<DisciplineCardProps> = ({
         {/* Top Row */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2 sm:gap-3">
-            <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
-            <h3 className="font-bold text-gray-900 text-base sm:text-lg">
+            <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
+            <h3 className="font-bold text-foreground text-base sm:text-lg">
               {discipline.year}
             </h3>
           </div>
-          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
         </div>
 
         {/* Badges Row */}
         <div className="flex flex-wrap gap-2 mb-3">
           <Badge 
             variant="secondary" 
-            className="text-xs sm:text-sm bg-gray-100 text-gray-600 hover:bg-gray-200"
+            className="text-xs sm:text-sm"
           >
             {discipline.level_edu}
           </Badge>
           <Badge 
             variant="secondary" 
-            className="text-xs sm:text-sm bg-gray-100 text-gray-600 hover:bg-gray-200"
+            className="text-xs sm:text-sm"
           >
             {discipline.form_edu}
           </Badge>
         </div>
 
         {/* Category */}
-        <p className="text-gray-600 text-sm sm:text-base mb-4">
+        <p className="text-muted-foreground text-sm sm:text-base mb-4">
           Технические направления
         </p>
 
         {/* Bottom Row */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-900" />
-            <span className="text-gray-600 text-sm sm:text-base">
+            <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+            <span className="text-muted-foreground text-sm sm:text-base">
               Учебный план на период {discipline.year} г.
             </span>
           </div>

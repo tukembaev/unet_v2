@@ -23,11 +23,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <div className={cn("w-full", className)}>
         <div className="flex flex-col items-center justify-between lg:flex-row items-start">
           <div className="space-y-1 flex-1 min-w-0">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            <h1 className="text-3xl font-bold tracking-tight">
               {title}
             </h1>
             {description && (
-              <p className="text-sm text-gray-600">{description}</p>
+              <p className="text-sm ">{description}</p>
             )}
           </div>
           {children && (
