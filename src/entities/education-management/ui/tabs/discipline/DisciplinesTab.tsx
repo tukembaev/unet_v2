@@ -52,7 +52,7 @@ export const DisciplinesTab = () => {
           </div>
           <button
             type="button"
-            className="ml-4 rounded bg-primary px-4 py-2 text-white text-sm font-medium hover:bg-primary/90 transition"
+            className="ml-4 rounded px-4 py-2 bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition"
             // onClick={yourCreateTemplateHandler} // добавьте обработчик сюда при необходимости
           >
             Создать шаблон
