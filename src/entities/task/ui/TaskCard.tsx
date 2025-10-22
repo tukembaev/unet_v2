@@ -31,28 +31,28 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
       <div className="space-y-3">
         {/* Header with title and menu */}
         <div className="flex items-start justify-between">
-          <h3 className="font-semibold text-sm text-gray-900 line-clamp-2 flex-1 pr-2">
+          <h3 className="font-semibold text-sm text-foreground line-clamp-2 flex-1 pr-2">
             {task.task_name}
           </h3>
-          <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
-            <MoreHorizontal className="h-4 w-4 text-gray-400" />
+          <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded">
+            <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
 
         {/* Description */}
-        <p className="text-xs text-gray-600 line-clamp-2">
+        <p className="text-xs text-muted-foreground line-clamp-2">
           Compile competitor landing page designs for inspiration. G..
         </p>
 
         {/* Separator */}
-        <div className="border-t border-gray-200"></div>
+        <div className="border-t border-border"></div>
 
         {/* Bottom section */}
         <div className="space-y-3">
           {/* Members */}
        
             {/* Creation and Deadline */}
-            <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
               <AvatarGroup members={task.members} max={2} />
 
               <div className="flex items-center gap-1">

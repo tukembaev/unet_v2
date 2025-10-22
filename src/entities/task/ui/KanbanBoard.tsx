@@ -9,12 +9,12 @@ interface KanbanBoardProps {
 }
 
 const sectionConfig = [
-  { key: 'OVERDUE' as keyof TaskCategory, title: 'Просроченные', color: 'text-red-600' },
-  { key: 'TODAY' as keyof TaskCategory, title: 'На сегодня', color: 'text-orange-600' },
-  { key: 'WEEK' as keyof TaskCategory, title: 'На этой неделе', color: 'text-blue-600' },
-  { key: 'MONTH' as keyof TaskCategory, title: 'На этот месяц', color: 'text-green-600' },
-  { key: 'LONGRANGE' as keyof TaskCategory, title: 'Больше этого месяца', color: 'text-purple-600' },
-  { key: 'INDEFINITE' as keyof TaskCategory, title: 'Без срока', color: 'text-gray-600' },
+  { key: 'OVERDUE' as keyof TaskCategory, title: 'Просроченные', color: 'text-red-600 dark:text-red-400' },
+  { key: 'TODAY' as keyof TaskCategory, title: 'На сегодня', color: 'text-orange-600 dark:text-orange-400' },
+  { key: 'WEEK' as keyof TaskCategory, title: 'На этой неделе', color: 'text-blue-600 dark:text-blue-400' },
+  { key: 'MONTH' as keyof TaskCategory, title: 'На этот месяц', color: 'text-green-600 dark:text-green-400' },
+  { key: 'LONGRANGE' as keyof TaskCategory, title: 'Больше этого месяца', color: 'text-purple-600 dark:text-purple-400' },
+  { key: 'INDEFINITE' as keyof TaskCategory, title: 'Без срока', color: 'text-muted-foreground' },
 ];
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading = false }) => {
@@ -50,8 +50,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading = fal
                       <TaskCard key={task.id} task={task} />
                     ))
                   ) : (
-                    <Card className="p-8 border-dashed border-2 border-gray-200">
-                      <div className="text-center text-gray-400 text-sm">
+                    <Card className="p-8 border-dashed border-2">
+                      <div className="text-center text-muted-foreground text-sm">
                         Нет задач
                       </div>
                     </Card>
@@ -76,10 +76,10 @@ const KanbanSkeleton: React.FC = () => {
             <div className="space-y-4">
               {/* Section Header Skeleton */}
               <div className="flex items-center justify-between px-1">
-                <div className="h-5 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-5 bg-muted rounded w-32 animate-pulse"></div>
                 <div className="flex items-center gap-2">
-                  <div className="h-4 bg-gray-200 rounded w-6 animate-pulse"></div>
-                  <div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 bg-muted rounded w-6 animate-pulse"></div>
+                  <div className="h-6 w-6 bg-muted rounded animate-pulse"></div>
                 </div>
               </div>
 
@@ -89,24 +89,24 @@ const KanbanSkeleton: React.FC = () => {
                   <Card key={index} className="p-4">
                     <div className="space-y-3">
                       <div className="flex items-start justify-between">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+                        <div className="h-4 w-4 bg-muted rounded animate-pulse"></div>
                       </div>
-                      <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                      <div className="h-3 bg-muted rounded w-full animate-pulse"></div>
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-gray-200 rounded-full animate-pulse"></div>
-                        <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
+                        <div className="w-2 h-2 bg-muted rounded-full animate-pulse"></div>
+                        <div className="h-5 bg-muted rounded w-16 animate-pulse"></div>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex gap-1">
-                          <div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse"></div>
-                          <div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse"></div>
+                          <div className="h-6 w-6 bg-muted rounded-full animate-pulse"></div>
+                          <div className="h-6 w-6 bg-muted rounded-full animate-pulse"></div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse"></div>
+                          <div className="h-6 w-6 bg-muted rounded-full animate-pulse"></div>
                           <div className="flex gap-2">
-                            <div className="h-3 w-3 bg-gray-200 rounded animate-pulse"></div>
-                            <div className="h-3 w-3 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-3 w-3 bg-muted rounded animate-pulse"></div>
+                            <div className="h-3 w-3 bg-muted rounded animate-pulse"></div>
                           </div>
                         </div>
                       </div>

@@ -71,7 +71,7 @@ export {
 export { Badge } from './badge'
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './tooltip'
-export { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose, DialogOverlay } from './dialog'
+
 export { Checkbox } from './checkbox'
 export { Textarea } from './textarea'
 export { Calendar } from './calendar'
