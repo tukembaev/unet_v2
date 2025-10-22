@@ -7,6 +7,7 @@ import { ROUTES } from "./routes";
 import { LoginPage } from "pages/login";
 import EducationManagementPage from "pages/edu-management";
 import { TaskPage } from "pages/task";
+import { SyllabusReport } from "entities/education-management";
 
 // Re-export routes for convenience
 export { ROUTES, getRoute, type RoutePath } from "./routes";
@@ -34,16 +35,10 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.EDUCATION_MANAGEMENT,
         element: <EducationManagementPage />,
-        // children: [
-        //   {
-        //     path: ROUTES.EDUCATION_STRUCTURE,
-        //     element: <AboutPage />,
-        //   },
-        //   {
-        //     path: ROUTES.EDUCATION_STRUCTURE,
-        //     element: <AboutPage />,
-        //   },
-        // ],
+      },
+      {
+        path: `${ROUTES.REPORT_SYLLABUS}/:syllabusId/:profileId`,
+        element: <SyllabusReport />,
       },
       {
         path: ROUTES.TASK,

@@ -1,3 +1,4 @@
+import { useDirections } from "entities/education-management/model/queries";
 import { useCallback, useState } from "react";
 import { AsyncSelect } from "shared/components/select";
 import {
@@ -12,42 +13,32 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Skeleton,
 } from "shared/ui";
 
 import { KindDirectionItem } from "entities/education-management/model/types";
 
 interface DirectionCardProps {
   title: string;
-  data: KindDirectionItem[];
+  data: DirectionData[];
+  isLoading?: boolean;
+  error?: Error | null;
 }
 
-export const DirectionCard = ({ title, data }: DirectionCardProps) => {
+export const DirectionCard = ({ title, data, isLoading, error }: DirectionCardProps) => {
+  const { data: directions } = useDirections();
   const [value, setValue] = useState("");
 
-  // Отдельный fetch для селекта (может быть из API)
-  const fetchSelectData = useCallback(async (query?: string) => {
-    // Здесь можно сделать запрос к API или использовать локальные данные
-    const mockData = [
-      { id: 1, cipher: "09.03.06", direction_name: "Новое IT направление", kind: 1 },
-      {
-        id: 2,
-        cipher: "38.03.06",
-        direction_name: "Новое экономическое направление",
-        kind: 2,
-      },
-      { id: 3, cipher: "07.03.06", direction_name: "Новое дизайн направление", kind: 3 },
-      { id: 4, cipher: "15.03.06", direction_name: "Новое техническое направление", kind: 4 },
-    ];
-
+  const fetchSelectData = useCallback(async (query?: string) => {  
     if (query) {
-      return mockData.filter(
+      return (directions || []).filter(
         (item) =>
           item.direction_name.toLowerCase().includes(query.toLowerCase()) ||
           item.cipher.toLowerCase().includes(query.toLowerCase())
       );
     }
-    return mockData;
-  }, []);
+    return directions || [];
+  }, [directions]);
 
   const handleAdd = () => {
     if (value) {
@@ -94,12 +85,41 @@ export const DirectionCard = ({ title, data }: DirectionCardProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-mono">{item.cipher}</TableCell>
-                  <TableCell>{item.direction_name}</TableCell>
+              {isLoading ? (
+                // Skeleton для состояния загрузки
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-48" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : error ? (
+                // Сообщение об ошибке
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center text-red-500 py-4">
+                    Ошибка загрузки данных: {error.message}
+                  </TableCell>
                 </TableRow>
-              ))}
+              ) : data.length === 0 ? (
+                // Сообщение о пустых данных
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center text-gray-500 py-4">
+                    Нет данных для отображения
+                  </TableCell>
+                </TableRow>
+              ) : (
+                // Обычные данные
+                data.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-mono">{item.code}</TableCell>
+                    <TableCell>{item.name}</TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
