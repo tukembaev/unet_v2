@@ -49,7 +49,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
           {/* Поле ИНН */}
           <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">
+            <label className="block text-sm font-medium text-muted-foreground mb-1">
               ИНН
             </label>
             <FormField
@@ -61,7 +61,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           </div>
 
           {/* Кнопка отправки */}
-          <Button type="submit" className="w-full bg-[#4b84f4]" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Отправка..." : "Отправить"}
           </Button>
 

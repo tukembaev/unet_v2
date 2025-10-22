@@ -4,10 +4,12 @@ export const ROUTES = {
   ABOUT: '/about',
   AUTH: '/',
   // Структура
-  EDUCATION_MANAGEMENT: '/structure/education-management',
+  EDUCATION_MANAGEMENT: '/education-management',
+
   IT_DEPARTMENT: '/structure/it-department',
   KPI_REPORTS: '/structure/kpi-reports',
   
+  REPORT_SYLLABUS: 'report-syllabus',
   // Документооборот
   APPLICATIONS: '/documents/applications',
   ORDERS: '/documents/orders',

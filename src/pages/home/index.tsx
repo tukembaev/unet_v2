@@ -1,4 +1,3 @@
-
 import { FileText, Home, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { FormField, InferFormValues, useForm } from "shared/lib/form";
@@ -59,9 +58,8 @@ export function HomePage() {
     }
   });
 
-
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div>
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Hero Section */}
         <div className="text-center space-y-4">

@@ -26,6 +26,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  ThemeToggle,
 } from 'shared/ui';
 import { ROUTES } from 'app/providers/routes';
 import { cn } from 'shared/lib/utils';
@@ -167,8 +168,9 @@ export function Navbar() {
             </NavigationMenu>
           </div>
 
-          {/* Right: User Menu & Mobile Toggle */}
+          {/* Right: Theme Toggle, User Menu & Mobile Toggle */}
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <UserMenu />
 
             {/* Mobile Navigation Toggle */}
