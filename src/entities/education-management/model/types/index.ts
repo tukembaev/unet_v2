@@ -29,6 +29,20 @@ export type Discipline = {
   label: string;
   creator_name: string;
 };
+export interface KindDirectionItem {
+  id: number;
+  cipher: string;
+  kind: number;
+  direction_name: string;
+}
+
+export interface KindDirection {
+  id: number;
+  code: string | null;
+  title: string;
+  direction: KindDirectionItem[];
+}
+
 export type SelectOptions = {
   value: number;
   label: string;

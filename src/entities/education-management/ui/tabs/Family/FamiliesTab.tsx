@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "shared/ui";
 
 import { useFamilyDirection } from "entities/education-management/model/queries";
 import { DirectionCard } from "./DirectionCard";
+import { useKindDirections } from "entities/education-management/model/queries";
 
 export const FamiliesTab = () => {
   const [activeTab, setActiveTab] = useState("it");
@@ -46,7 +47,7 @@ export const FamiliesTab = () => {
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="inline-flex h-auto w-auto flex-wrap gap-1 p-1">
-          <TabsTrigger value="it" className="flex-shrink-0">
+          <TabsTrigger value="10" className="flex-shrink-0">
             Информационные технологии
           </TabsTrigger>
           <TabsTrigger value="technical" className="flex-shrink-0">
@@ -55,12 +56,12 @@ export const FamiliesTab = () => {
           <TabsTrigger value="economics" className="flex-shrink-0">
             Экономические направления
           </TabsTrigger>
-          <TabsTrigger value="design" className="flex-shrink-0">
+          <TabsTrigger value="13" className="flex-shrink-0">
             Дизайн, искусство, архитектура
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="it" className="mt-4">
+        <TabsContent value="1" className="mt-4">
           <DirectionCard
             title={getTabTitle("it")}
             data={getDirectionData()}

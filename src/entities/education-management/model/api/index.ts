@@ -42,6 +42,10 @@ export const getFaculties = async (): Promise<SelectOptions[]> => {
   const { data } = await apiClient.get('faculties/');
   return data;
 };
+export const getKindDirections = async (kind: number): Promise<KindDirection> => {
+  const { data } = await apiClient.get(`kind/${kind}/`);
+  return data;
+};
 export const getDepartments = async (value: number): Promise<SelectOptions[]> => {
   const { data } = await apiClient.get(`departments/${value}/`);
   return data;

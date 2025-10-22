@@ -2,6 +2,8 @@
 export const ROUTES = {
   HOME: '/home',
   ABOUT: '/about',
+  TASK: '/task',
+
   AUTH: '/',
   // Структура
   EDUCATION_MANAGEMENT: '/education-management',
@@ -13,7 +15,6 @@ export const ROUTES = {
   // Документооборот
   APPLICATIONS: '/documents/applications',
   ORDERS: '/documents/orders',
-  TASKS: '/documents/tasks',
   
   // Учебный процесс
   CURRICULUM: '/education/curriculum',

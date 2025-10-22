@@ -16,11 +16,7 @@ import {
   Skeleton,
 } from "shared/ui";
 
-interface DirectionData {
-  id: string;
-  code: string;
-  name: string;
-}
+import { KindDirectionItem } from "entities/education-management/model/types";
 
 interface DirectionCardProps {
   title: string;

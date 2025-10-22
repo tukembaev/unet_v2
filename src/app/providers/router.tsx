@@ -6,6 +6,7 @@ import { RootLayout } from "app/layouts/root-layout";
 import { ROUTES } from "./routes";
 import { LoginPage } from "pages/login";
 import EducationManagementPage from "pages/edu-management";
+import { TaskPage } from "pages/task";
 import { SyllabusReport } from "entities/education-management";
 
 // Re-export routes for convenience
@@ -39,8 +40,14 @@ const routes: RouteObject[] = [
         path: `${ROUTES.REPORT_SYLLABUS}/:syllabusId/:profileId`,
         element: <SyllabusReport />,
       },
+      {
+        path: ROUTES.TASK,
+        element: <TaskPage />,
+      },
     ],
+    
   },
+ 
   {
     path: "*",
     element: <NotFoundPage />,
