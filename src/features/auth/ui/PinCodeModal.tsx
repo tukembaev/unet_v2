@@ -40,7 +40,7 @@ export const PinModal: React.FC<PinModalProps> = ({ open, onClose }) => {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="p-6 w-full max-w-md ">
+      <DialogContent className="p-6 w-full/max-w-md ">
         <DialogHeader>
           <DialogTitle>Введите ПИН-код</DialogTitle>
         </DialogHeader>
@@ -53,7 +53,7 @@ export const PinModal: React.FC<PinModalProps> = ({ open, onClose }) => {
           <Button variant="outline" onClick={handleClose}>
             Закрыть
           </Button>
-          <Button onClick={handleSubmit} disabled={pin.length < 4}>
+          <Button className="bg-[#4b84f4] text-white" onClick={handleSubmit} disabled={pin.length < 4}>
             Войти
           </Button>
         </div>
