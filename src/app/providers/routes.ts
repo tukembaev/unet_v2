@@ -15,6 +15,7 @@ export const ROUTES = {
   // Документооборот
   APPLICATIONS: '/documents/applications',
   ORDERS: '/documents/orders',
+  DOCUMENT_DETAILS: '/documents/applications/:id',
   
   // Учебный процесс
   CURRICULUM: '/education/curriculum',

@@ -21,7 +21,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <SmartBreadcrumbs />
 
       <div className={cn("w-full", className)}>
-        <div className="flex flex-col items-center justify-between lg:flex-row items-start">
+        <div className="flex flex-col items-start justify-between lg:flex-row items-start">
           <div className="space-y-1 flex-1 min-w-0">
             <h1 className="text-3xl font-bold tracking-tight">
               {title}

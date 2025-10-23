@@ -1,22 +1,24 @@
-import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { loginSchema, LoginFormValues } from "../model/schema";
-import { useLogin } from "../model/queries";
-import { Button, Card, CardContent, CardHeader, CardTitle } from "shared/ui";
-import { FormField } from "shared/lib";
-import { ScaleLoader } from "react-spinners";
+import { motion } from "framer-motion";
 import {
+  Download,
   Eye,
   EyeOff,
   HelpCircle,
-  Download,
-  QrCode,
   LogIn,
   Mail,
+  QrCode,
 } from "lucide-react";
-import { PinModal } from "./PinCodeModal";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { ScaleLoader } from "react-spinners";
+import { HelloTextEffect } from "shared/components/animated-ui/HelloEffect";
+import { FormField } from "shared/lib";
+import { Button, Card, CardContent, CardHeader } from "shared/ui";
+import { useLogin } from "../model/queries";
+import { LoginFormValues, loginSchema } from "../model/schema";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { PinModal } from "./PinCodeModal";
 
 
 export const LoginForm: React.FC = () => {
@@ -45,10 +47,40 @@ export const LoginForm: React.FC = () => {
     className="flex justify-center items-center min-h-screen bg-cover ">
       <div className="bg-card text-card-foreground p-2 rounded-3xl shadow w-full max-w-md border">
         <Card className="shadow-none border-none">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-primary text-center">
+          <CardHeader className="flex flex-col justify-center items-center gap-1">
+            <HelloTextEffect speed={0.4} />
+            
+            {/* Анимированный текст "to" */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.5,
+                delay: 1.6,
+                ease: "easeOut"
+              }}
+              className="text-center text-xl font-medium text-muted-foreground"
+            >
+              to
+            </motion.div>
+
+            {/* Анимированный текст "Unet V2" */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 ,marginTop: -10}}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.35,
+                delay: 1.9,
+                ease: "easeOut"
+              }}
+              className="text-5xl animate-gradient bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent font-bold tracking-tight text-center font-bold text-primary"
+            >
+              Unet V2
+            </motion.div>
+
+            {/* <CardTitle className="text-2xl font-semibold text-primary text-center">
               {forgotPassword ? "Восстановление пароля" : "Вход в систему"}
-            </CardTitle>
+            </CardTitle> */}
           </CardHeader>
 
           <CardContent>

@@ -137,7 +137,7 @@ export function Navbar() {
               to={ROUTES.HOME} 
               className="flex items-center space-x-2 transition-colors hover:text-primary"
             >
-              <span className="text-lg font-bold">Unet V2</span>
+              <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">Unet V2</span>
             </Link>
 
             {/* Desktop Navigation Menu */}
