@@ -42,7 +42,7 @@ export const getFaculties = async (): Promise<SelectOptions[]> => {
   const { data } = await apiClient.get('faculties/');
   return data;
 };
-export const getKindDirections = async (kind: number): Promise<KindDirection> => {
+export const getKindDirections = async (kind: number): Promise<Direction> => {
   const { data } = await apiClient.get(`kind/${kind}/`);
   return data;
 };

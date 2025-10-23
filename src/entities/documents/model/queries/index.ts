@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { documentsApi } from '../api';
+import { documentsApi, getDocumentDetails } from '../api';
 import { DocumentFilters, Document } from '../types';
 
 export const DOCUMENTS_QUERY_KEY = 'documents';
@@ -8,6 +8,14 @@ export const useDocuments = (filters: DocumentFilters) => {
   return useQuery({
     queryKey: [DOCUMENTS_QUERY_KEY, filters],
     queryFn: () => documentsApi.getDocuments(filters),
+  });
+};
+
+export const useDocumentsDetails = (id: number) => {
+  return useQuery({
+    queryKey: ['conversion/raport/', id],
+    queryFn: () => getDocumentDetails(id),
+    enabled: !!id,
   });
 };
 

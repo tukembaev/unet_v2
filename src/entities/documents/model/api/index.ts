@@ -1,4 +1,5 @@
-import { Document, DocumentsResponse, DocumentFilters } from '../types';
+import { apiClient } from 'shared/config';
+import { Document, DocumentsResponse, DocumentFilters, DocumentDetailResponse } from '../types';
 
 export const documentsApi = {
   getDocuments: async (filters: DocumentFilters): Promise<DocumentsResponse> => {
@@ -250,4 +251,9 @@ export const documentsApi = {
 
     return newDocument;
   },
+};
+
+export const getDocumentDetails = async (id: number): Promise<DocumentDetailResponse> => {
+  const { data } = await apiClient.get(`conversion/raport/${id}/`);
+  return data;
 };
