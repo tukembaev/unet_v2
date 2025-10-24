@@ -2,6 +2,8 @@
 export const ROUTES = {
   HOME: '/home',
   ABOUT: '/about',
+  TASK: '/task',
+
   AUTH: '/',
   // Структура
   EDUCATION_MANAGEMENT: '/education-management',
@@ -9,10 +11,11 @@ export const ROUTES = {
   IT_DEPARTMENT: '/structure/it-department',
   KPI_REPORTS: '/structure/kpi-reports',
   
+  REPORT_SYLLABUS: 'report-syllabus',
   // Документооборот
   APPLICATIONS: '/documents/applications',
   ORDERS: '/documents/orders',
-  TASKS: '/documents/tasks',
+  DOCUMENT_DETAILS: '/documents/applications/:id',
   
   // Учебный процесс
   CURRICULUM: '/education/curriculum',

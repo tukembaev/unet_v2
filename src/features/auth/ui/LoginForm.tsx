@@ -1,22 +1,24 @@
-import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { loginSchema, LoginFormValues } from "../model/schema";
-import { useLogin } from "../model/queries";
-import { Button, Card, CardContent, CardHeader, CardTitle } from "shared/ui";
-import { FormField } from "shared/lib";
-import { ScaleLoader } from "react-spinners";
+import { motion } from "framer-motion";
 import {
+  Download,
   Eye,
   EyeOff,
   HelpCircle,
-  Download,
-  QrCode,
   LogIn,
   Mail,
+  QrCode,
 } from "lucide-react";
-import { PinModal } from "./PinCodeModal";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { ScaleLoader } from "react-spinners";
+import { HelloTextEffect } from "shared/components/animated-ui/HelloEffect";
+import { FormField } from "shared/lib";
+import { Button, Card, CardContent, CardHeader } from "shared/ui";
+import { useLogin } from "../model/queries";
+import { LoginFormValues, loginSchema } from "../model/schema";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { PinModal } from "./PinCodeModal";
 
 
 export const LoginForm: React.FC = () => {
@@ -42,13 +44,43 @@ export const LoginForm: React.FC = () => {
 
   return (
     <div
-    className="flex justify-center items-center min-h-screen  bg-cover ">
-      <div className="bg-white p-2 rounded-3xl shadow-lg w-full max-w-md">
+    className="flex justify-center items-center min-h-screen bg-cover ">
+      <div className="bg-card text-card-foreground p-2 rounded-3xl shadow w-full max-w-md border">
         <Card className="shadow-none border-none">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-[#4B84F4] text-center">
+          <CardHeader className="flex flex-col justify-center items-center gap-1">
+            <HelloTextEffect speed={0.4} />
+            
+            {/* Анимированный текст "to" */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.5,
+                delay: 1.6,
+                ease: "easeOut"
+              }}
+              className="text-center text-xl font-medium text-muted-foreground"
+            >
+              to
+            </motion.div>
+
+            {/* Анимированный текст "Unet V2" */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 ,marginTop: -10}}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.35,
+                delay: 1.9,
+                ease: "easeOut"
+              }}
+              className="text-5xl animate-gradient bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent font-bold tracking-tight text-center font-bold text-primary"
+            >
+              Unet V2
+            </motion.div>
+
+            {/* <CardTitle className="text-2xl font-semibold text-primary text-center">
               {forgotPassword ? "Восстановление пароля" : "Вход в систему"}
-            </CardTitle>
+            </CardTitle> */}
           </CardHeader>
 
           <CardContent>
@@ -59,7 +91,7 @@ export const LoginForm: React.FC = () => {
               >
                 {/* Поле ИНН */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     ИНН
                   </label>
                   <FormField
@@ -72,7 +104,7 @@ export const LoginForm: React.FC = () => {
 
                 {/* Поле пароль */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Пароль
                   </label>
                   <div className="relative">
@@ -86,7 +118,7 @@ export const LoginForm: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword((p) => !p)}
-                      className="absolute right-3 top-2.5 text-gray-500 hover:text-[#4B84F4]"
+                      className="absolute right-3 top-2.5 text-muted-foreground hover:text-primary"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -97,10 +129,10 @@ export const LoginForm: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={isPending || form.formState.isSubmitting}
-                  className="w-full bg-[#4B84F4] text-white font-semibold rounded-md hover:bg-[#6b9cfd] transition flex items-center justify-center "
+                  className="w-full"
                 >
                   {isPending || form.formState.isSubmitting ? (
-                    <ScaleLoader height={10} color="#fff" />
+                    <ScaleLoader height={10} color="currentColor" />
                   ) : (
                     <>
                       <LogIn size={18} />
@@ -111,7 +143,7 @@ export const LoginForm: React.FC = () => {
 
                 {/* Забыли пароль */}
                 <p
-                  className="text-right text-sm text-[#4B84F4] cursor-pointer hover:underline m-0"
+                  className="text-right text-sm text-primary cursor-pointer hover:underline m-0"
                   onClick={() => setForgotPassword(true)}
                 >
                   Забыли пароль?
@@ -119,21 +151,22 @@ export const LoginForm: React.FC = () => {
                 {/* Google */}
                 <Button
                   type="button"
-                  className="w-full bg-white border border-gray-400 flex items-center justify-center gap-2 text-white-800 hover:bg-[#4B84F4] hover:text-white transition rounded-lg"
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2 rounded-lg"
                 >
                   <Mail size={18} />
                   Войти через Google
                 </Button>
 
                 {/* Подсказка */}
-                <p className="text-center text-gray-600 text-sm mt-4">
+                <p className="text-center text-muted-foreground text-sm mt-4">
                   Пароль по умолчанию — ваш ИНН (для сотрудников). <br />
                   Для студентов — s + ИНН.
                 </p>
 
                 <hr className="my-4" />
 
-                <p className="text-center text-gray-600 text-sm mb-2">
+                <p className="text-center text-muted-foreground text-sm mb-2">
                   Дополнительно от UNET
                 </p>
 
@@ -141,7 +174,7 @@ export const LoginForm: React.FC = () => {
                 <div className="flex flex-col gap-2">
                   <Button
                     variant="outline"
-                    className="flex justify-center items-center gap-2 border-gray-500 hover:bg-[#4B84F4] hover:text-white"
+                    className="flex justify-center items-center gap-2"
                     asChild
                   >
                     <a href="http://uadmin.kstu.kg/media/media/task_docs/UNET_user_guide.pdf">
@@ -152,7 +185,7 @@ export const LoginForm: React.FC = () => {
                   <div className="flex w-full justify-between gap-2">
                     <Button
                       variant="outline"
-                      className="flex justify-center items-center w-full gap-2 border-gray-500 hover:bg-[#4B84F4] hover:text-white"
+                      className="flex justify-center items-center w-full gap-2"
                       onClick={() =>
                         (window.location.href = "https://qr.kstu.kg")
                       }
@@ -163,7 +196,7 @@ export const LoginForm: React.FC = () => {
 
                     <Button
                       variant="outline"
-                      className="flex justify-center items-center w-full gap-2 border-gray-500 hover:bg-[#4B84F4] hover:text-white"
+                      className="flex justify-center items-center w-full gap-2"
                     >
                       Скачать
                       <Download size={18} />

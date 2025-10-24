@@ -43,11 +43,20 @@ export const DisciplinesTab = () => {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader>
-          <CardTitle>Дисциплины для семейств</CardTitle>
-          <CardDescription>
-            Управление дисциплинами, относящимися к семействам
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex flex-col gap-2"> 
+            <CardTitle>Дисциплины для семейств</CardTitle>
+            <CardDescription>
+              Управление дисциплинами, относящимися к семействам
+            </CardDescription>
+          </div>
+          <button
+            type="button"
+            className="ml-4 rounded px-4 py-2 bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition"
+            // onClick={yourCreateTemplateHandler} // добавьте обработчик сюда при необходимости
+          >
+            Создать шаблон
+          </button>
         </CardHeader>
         <CardContent className="space-y-4">
           <AsyncSelect

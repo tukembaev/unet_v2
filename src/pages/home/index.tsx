@@ -102,7 +102,7 @@ export function HomePage() {
             A modern React application with Feature-Sliced Design architecture
           </p>
         </div>
-
+      
         <Empty className="border border-dashed">
           <EmptyHeader>
             <EmptyMedia variant="icon">

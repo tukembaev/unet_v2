@@ -1,21 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AsyncSelect } from "shared/components/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "shared/ui";
-import { WorkloadTable } from "./";
+import { WorkloadTable, WorkloadTableSkeleton } from "./";
+import { useFaculties, useWorkLoadBySemester } from "entities/education-management/model/queries";
+import { getDepartments } from "entities/education-management/model/api";
 
 export const WorkloadTab = () => {
+  const { data: faculties } = useFaculties();
   const [workload, setWorkload] = useState("");
   const [institute, setInstitute] = useState("");
   const [department, setDepartment] = useState("");
   const [year, setYear] = useState("");
   const [semester, setSemester] = useState("");
 
+  const { data: workLoadData, isLoading: isLoadingWorkLoad } = useWorkLoadBySemester(
+    parseInt(year) || 0, 
+    parseInt(department) || 0,
+    workload,
+    semester
+  );
+
   // Заглушки для AsyncSelect без API
   const fetchWorkload = async (query?: string) => {
     const mockData = [
-      { value: "1", label: "Бакалавриат" },
-      { value: "2", label: "Магистратура" },
-      { value: "3", label: "Аспирантура" },
+      { value: "pre", label: "Предварительная нагрузка" },
+      { value: "final", label: "Окончательная нагрузка" },
     ];
     if (!query) return mockData;
     return mockData.filter((item) =>
@@ -23,35 +32,33 @@ export const WorkloadTab = () => {
     );
   };
 
-  const fetchInstitute = async (query?: string) => {
-    const mockData = [
-      { value: "1", label: "Институт информационных технологий" },
-      { value: "2", label: "Институт экономики" },
-      { value: "3", label: "Институт управления" },
-    ];
-    if (!query) return mockData;
-    return mockData.filter((item) =>
-      item.label.toLowerCase().includes(query.toLowerCase())
+  const fetchFaculties = async (query?: string) => {
+    if (!faculties) return [];
+    if (!query) return faculties;
+    return faculties.filter((faculty) =>
+      faculty.label.toLowerCase().includes(query.toLowerCase())
     );
   };
 
-  const fetchDepartment = async (query?: string) => {
-    const mockData = [
-      { value: "1", label: "Кафедра программирования" },
-      { value: "2", label: "Кафедра математики" },
-      { value: "3", label: "Кафедра физики" },
-    ];
-    if (!query) return mockData;
-    return mockData.filter((item) =>
-      item.label.toLowerCase().includes(query.toLowerCase())
-    );
+  const fetchDepartments = async (query?: string) => {
+    if (!institute) return [];
+    try {
+      const departments = await getDepartments(parseInt(institute));
+      if (!query) return departments;
+      return departments.filter((dept) =>
+        dept.label.toLowerCase().includes(query.toLowerCase())
+      );
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+      return [];
+    }
   };
 
   const fetchYear = async (query?: string) => {
     const mockData = [
-      { value: "2024", label: "2024" },
-      { value: "2023", label: "2023" },
-      { value: "2022", label: "2022" },
+      { value: "2023/2024", label: "2023/2024" },
+      { value: "2024/2025", label: "2024/2025" },
+
     ];
     if (!query) return mockData;
     return mockData.filter((item) =>
@@ -61,14 +68,27 @@ export const WorkloadTab = () => {
 
   const fetchSemester = async (query?: string) => {
     const mockData = [
-      { value: "1", label: "Осенний семестр" },
-      { value: "2", label: "Весенний семестр" },
+      { value: "осений", label: "Осенний семестр" },
+      { value: "весенний", label: "Весенний семестр" },
     ];
     if (!query) return mockData;
     return mockData.filter((item) =>
       item.label.toLowerCase().includes(query.toLowerCase())
     );
   };
+
+  useEffect(() => {
+    if (!institute) {
+      setDepartment("");
+      setYear("");
+      setSemester("");
+    } else if (!department) {
+      setYear("");
+      setSemester("");
+    } else if (!year) {
+      setSemester("");
+    }
+  }, [institute, department, year]);
 
   return (
     <div className="space-y-4">
@@ -92,7 +112,7 @@ export const WorkloadTab = () => {
               placeholder="Нагрузка"
             />
             <AsyncSelect
-              fetcher={fetchInstitute}
+              fetcher={fetchFaculties}
               label="Институт"
               value={institute}
               onChange={setInstitute}
@@ -100,9 +120,11 @@ export const WorkloadTab = () => {
               getOptionValue={(option) => option.value.toString()}
               getDisplayValue={(option) => option.label}
               placeholder="Институт"
+              disabled={!workload}
+
             />
             <AsyncSelect
-              fetcher={fetchDepartment}
+              fetcher={fetchDepartments}
               label="Кафедра"
               value={department}
               onChange={setDepartment}
@@ -110,6 +132,8 @@ export const WorkloadTab = () => {
               getOptionValue={(option) => option.value.toString()}
               getDisplayValue={(option) => option.label}
               placeholder="Кафедра"
+              disabled={!institute}
+
             />
             <AsyncSelect
               fetcher={fetchYear}
@@ -120,6 +144,8 @@ export const WorkloadTab = () => {
               getOptionValue={(option) => option.value.toString()}
               getDisplayValue={(option) => option.label}
               placeholder="Год"
+              disabled={!department}
+
             />
             <AsyncSelect
               fetcher={fetchSemester}
@@ -130,9 +156,14 @@ export const WorkloadTab = () => {
               getOptionValue={(option) => option.value.toString()}
               getDisplayValue={(option) => option.label}
               placeholder="Семестр"
+              disabled={!year}
             />
           </div>
-          <WorkloadTable />
+          {isLoadingWorkLoad ? (
+            <WorkloadTableSkeleton />
+          ) : (
+            <WorkloadTable workLoadData={workLoadData} />
+          )}
 
         </CardContent>
       </Card>

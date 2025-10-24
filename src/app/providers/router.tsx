@@ -1,15 +1,20 @@
-import { createBrowserRouter, RouteObject } from "react-router-dom";
-import { HomePage } from "pages/home";
-import { AboutPage } from "pages/about";
-import { NotFoundPage } from "pages/not-found";
 import { RootLayout } from "app/layouts/root-layout";
-import { ROUTES } from "./routes";
-import { LoginPage } from "pages/login";
+import { DocumentDetails } from "entities/documents";
+import { SyllabusReport } from "entities/education-management";
+import { AboutPage } from "pages/about";
+import { DocumentsPage } from "pages/documents";
 import EducationManagementPage from "pages/edu-management";
 import ItDepartmentPage from "pages/it-department";
+import { HomePage } from "pages/home";
+import { LoginPage } from "pages/login";
+import { NotFoundPage } from "pages/not-found";
+import { TaskPage } from "pages/task";
+import { createBrowserRouter, RouteObject } from "react-router-dom";
+import { ROUTES } from "./routes";
+
 
 // Re-export routes for convenience
-export { ROUTES, getRoute, type RoutePath } from "./routes";
+export { getRoute, ROUTES, type RoutePath } from "./routes";
 
 // Define your routes with proper typing
 const routes: RouteObject[] = [
@@ -38,19 +43,27 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.EDUCATION_MANAGEMENT,
         element: <EducationManagementPage />,
-        // children: [
-        //   {
-        //     path: ROUTES.EDUCATION_STRUCTURE,
-        //     element: <AboutPage />,
-        //   },
-        //   {
-        //     path: ROUTES.EDUCATION_STRUCTURE,
-        //     element: <AboutPage />,
-        //   },
-        // ],
+      },
+      {
+        path: `${ROUTES.REPORT_SYLLABUS}/:syllabusId/:profileId`,
+        element: <SyllabusReport />,
+      },
+      {
+        path: ROUTES.TASK,
+        element: <TaskPage />,
+      },
+      {
+        path: ROUTES.APPLICATIONS,
+        element: <DocumentsPage />,
+      },
+      {
+        path: ROUTES.DOCUMENT_DETAILS,
+        element: <DocumentDetails />,
       },
     ],
+    
   },
+ 
   {
     path: "*",
     element: <NotFoundPage />,

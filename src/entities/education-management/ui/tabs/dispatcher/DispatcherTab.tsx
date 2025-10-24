@@ -1,9 +1,11 @@
-import { useFaculties } from "entities/education-management/model/queries";
-import { useState, useEffect } from "react";
+import { getDepartments, getSemesters, getSyllabuses } from "entities/education-management/model/api";
+import { useFaculties, useWorkPlanBySemester } from "entities/education-management/model/queries";
+import { useEffect, useState } from "react";
+import { EmptyInfo } from "shared/components";
 import { AsyncSelect } from "shared/components/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "shared/ui";
-import { getDepartments, getSyllabuses, getSemesters, getWorkPlanBySemester } from "entities/education-management/model/api";
-import { WorkPlanItem } from "entities/education-management/model/types";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "shared/ui";
+import { DispatcherTable } from "./DispatcherTable";
+
 
 export const DispatcherTab = () => {
   const { data: faculties, isLoading } = useFaculties();
@@ -11,8 +13,17 @@ export const DispatcherTab = () => {
   const [department, setDepartment] = useState("");
   const [syllabus, setSyllabus] = useState("");
   const [semester, setSemester] = useState("");
-  const [workPlanData, setWorkPlanData] = useState<WorkPlanItem[]>([]);
-  const [isLoadingWorkPlan, setIsLoadingWorkPlan] = useState(false);
+  
+  const { data: workPlanData, isLoading: isLoadingWorkPlan } = useWorkPlanBySemester(
+    parseInt(syllabus) || 0, 
+    parseInt(semester) || ''
+  );
+
+
+  const handleScheduleAction = (id: number) => {
+    console.log("Составить расписание для записи с ID:", id);
+    // Здесь можно добавить логику для создания расписания
+  };
   
   const fetchFaculties = async (query?: string) => {
     if (!faculties) return [];
@@ -70,51 +81,13 @@ export const DispatcherTab = () => {
       setDepartment("");
       setSyllabus("");
       setSemester("");
-      setWorkPlanData([]);
-    }
-  }, [institute]);
-
-  useEffect(() => {
-    if (!department) {
+    } else if (!department) {
       setSyllabus("");
       setSemester("");
-      setWorkPlanData([]);
-    }
-  }, [department]);
-
-  useEffect(() => {
-    if (!syllabus) {
+    } else if (!syllabus) {
       setSemester("");
-      setWorkPlanData([]);
     }
-  }, [syllabus]);
-
-  useEffect(() => {
-    if (!semester) {
-      setWorkPlanData([]);
-    }
-  }, [semester]);
-
-
-  useEffect(() => {
-    const loadWorkPlan = async () => {
-      if (syllabus || semester) {
-        setIsLoadingWorkPlan(true);
-        try {
-          const data = await getWorkPlanBySemester(parseInt(syllabus), parseInt(semester));
-          setWorkPlanData(data);
-        } catch (error) {
-          console.error("Error loading work plan:", error);
-          setWorkPlanData([]);
-        } finally {
-          setIsLoadingWorkPlan(false);
-        }
-      }
-    };
-
-    loadWorkPlan();
-  }, [syllabus, semester]);
-
+  }, [institute, department, syllabus]);
 
   return (
     <div className="space-y-4">
@@ -176,7 +149,7 @@ export const DispatcherTab = () => {
       </Card>
 
       {/* Таблица с результатами */}
-      {workPlanData.length > 0 && (
+      {workPlanData && workPlanData.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Учебный план</CardTitle>
@@ -185,36 +158,10 @@ export const DispatcherTab = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>№</TableHead>
-                    <TableHead>Номер</TableHead>
-                    <TableHead>Название предмета</TableHead>
-                    <TableHead>Тип потока</TableHead>
-                    <TableHead>Преподаватель</TableHead>
-                    <TableHead>Статус</TableHead>
-                    <TableHead>Студентов</TableHead>
-                    <TableHead>Вместимость</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {workPlanData.map((item, index) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{item.number}</TableCell>
-                      <TableCell>{item.name_subject}</TableCell>
-                      <TableCell>{item.stream_type}</TableCell>
-                      <TableCell>{item.teacher_name}</TableCell>
-                      <TableCell>{item.status}</TableCell>
-                      <TableCell>{item.students_count}</TableCell>
-                      <TableCell>{item.capacity}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <DispatcherTable 
+              data={workPlanData} 
+              onScheduleAction={handleScheduleAction}
+            />
           </CardContent>
         </Card>
       )}
@@ -222,24 +169,25 @@ export const DispatcherTab = () => {
       {/* Индикатор загрузки */}
       {isLoadingWorkPlan && (
         <Card>
-          <CardContent className="flex items-center justify-center py-8">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
-              <p className="text-sm text-gray-600">Загрузка учебного плана...</p>
-            </div>
+          <CardHeader>
+            <CardTitle>Учебный план</CardTitle>
+            <CardDescription>
+              Результаты по выбранным параметрам
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-2/3" />
           </CardContent>
         </Card>
       )}
 
       {/* Сообщение когда все селекты выбраны но данных нет */}
-      {syllabus && semester && !isLoadingWorkPlan && workPlanData.length === 0 && (
-        <Card>
-          <CardContent className="flex items-center justify-center py-8">
-            <div className="text-center">
-              <p className="text-sm text-gray-600">Данные не найдены для выбранных параметров</p>
-            </div>
-          </CardContent>
-        </Card>
+      {syllabus && semester && !isLoadingWorkPlan && (!workPlanData || workPlanData.length === 0) && (
+        <EmptyInfo />
       )}
     </div>
   );

@@ -26,6 +26,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  ThemeToggle,
 } from 'shared/ui';
 import { ROUTES } from 'app/providers/routes';
 import { cn } from 'shared/lib/utils';
@@ -84,7 +85,7 @@ const navigationSections: NavSection[] = [
       },
       {
         title: 'Задачи',
-        href: ROUTES.TASKS,
+        href: ROUTES.TASK,
         description: 'Управление задачами',
         icon: CheckSquare,
       },
@@ -127,7 +128,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/20">
       <div className="container mx-auto px-4">
         <div className="flex h-14 items-center justify-between gap-4">
           {/* Left: Logo */}
@@ -136,7 +137,7 @@ export function Navbar() {
               to={ROUTES.HOME} 
               className="flex items-center space-x-2 transition-colors hover:text-primary"
             >
-              <span className="text-lg font-bold">Unet V2</span>
+              <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">Unet V2</span>
             </Link>
 
             {/* Desktop Navigation Menu */}
@@ -167,8 +168,9 @@ export function Navbar() {
             </NavigationMenu>
           </div>
 
-          {/* Right: User Menu & Mobile Toggle */}
+          {/* Right: Theme Toggle, User Menu & Mobile Toggle */}
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <UserMenu />
 
             {/* Mobile Navigation Toggle */}

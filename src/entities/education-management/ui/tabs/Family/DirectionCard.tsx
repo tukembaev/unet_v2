@@ -1,3 +1,4 @@
+import { useDirections } from "entities/education-management/model/queries";
 import { useCallback, useState } from "react";
 import { AsyncSelect } from "shared/components/select";
 import {
@@ -12,45 +13,32 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Skeleton,
 } from "shared/ui";
 
-interface DirectionData {
-  id: string;
-  code: string;
-  name: string;
-}
+import { KindDirectionItem } from "entities/education-management/model/types";
 
 interface DirectionCardProps {
   title: string;
   data: DirectionData[];
+  isLoading?: boolean;
+  error?: Error | null;
 }
 
-export const DirectionCard = ({ title, data }: DirectionCardProps) => {
+export const DirectionCard = ({ title, data, isLoading, error }: DirectionCardProps) => {
+  const { data: directions } = useDirections();
   const [value, setValue] = useState("");
 
-  // Отдельный fetch для селекта (может быть из API)
-  const fetchSelectData = useCallback(async (query?: string) => {
-    // Здесь можно сделать запрос к API или использовать локальные данные
-    const mockData = [
-      { id: "NEW001", code: "09.03.06", name: "Новое IT направление" },
-      {
-        id: "NEW002",
-        code: "38.03.06",
-        name: "Новое экономическое направление",
-      },
-      { id: "NEW003", code: "07.03.06", name: "Новое дизайн направление" },
-      { id: "NEW004", code: "15.03.06", name: "Новое техническое направление" },
-    ];
-
+  const fetchSelectData = useCallback(async (query?: string) => {  
     if (query) {
-      return mockData.filter(
+      return (directions || []).filter(
         (item) =>
-          item.name.toLowerCase().includes(query.toLowerCase()) ||
-          item.code.toLowerCase().includes(query.toLowerCase())
+          item.direction_name.toLowerCase().includes(query.toLowerCase()) ||
+          item.cipher.toLowerCase().includes(query.toLowerCase())
       );
     }
-    return mockData;
-  }, []);
+    return directions || [];
+  }, [directions]);
 
   const handleAdd = () => {
     if (value) {
@@ -74,12 +62,12 @@ export const DirectionCard = ({ title, data }: DirectionCardProps) => {
             onChange={(v) => setValue(v)}
             renderOption={(option) => (
               <div className="flex items-center gap-2">
-                <span className="font-mono text-sm">{option.code}</span>
-                <span>{option.name}</span>
+                <span className="font-mono text-sm">{option.cipher}</span>
+                <span>{option.direction_name}</span>
               </div>
             )}
-            getOptionValue={(option) => option.id}
-            getDisplayValue={(option) => `${option.code} - ${option.name}`}
+            getOptionValue={(option) => option.id.toString()}
+            getDisplayValue={(option) => `${option.cipher} - ${option.direction_name}`}
             placeholder="Выберите направление для добавления"
           />
 
@@ -97,12 +85,41 @@ export const DirectionCard = ({ title, data }: DirectionCardProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-mono">{item.code}</TableCell>
-                  <TableCell>{item.name}</TableCell>
+              {isLoading ? (
+                // Skeleton для состояния загрузки
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-48" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : error ? (
+                // Сообщение об ошибке
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center text-red-500 py-4">
+                    Ошибка загрузки данных: {error.message}
+                  </TableCell>
                 </TableRow>
-              ))}
+              ) : data.length === 0 ? (
+                // Сообщение о пустых данных
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center text-gray-500 py-4">
+                    Нет данных для отображения
+                  </TableCell>
+                </TableRow>
+              ) : (
+                // Обычные данные
+                data.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-mono">{item.code}</TableCell>
+                    <TableCell>{item.name}</TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
