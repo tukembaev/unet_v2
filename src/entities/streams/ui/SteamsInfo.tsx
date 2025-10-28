@@ -65,8 +65,7 @@ export const StreamsInfo = () => {
         onClick={onBack}
       >
         <X size={16} className="mr-2" />
-      
-        
+
       </Button>
       <Table>
         <TableCaption>Расписание потоков</TableCaption>
@@ -156,12 +155,12 @@ export const StreamsInfo = () => {
                       <Check
                         size={18}
                         onClick={() => handleSave(item.id)}
-                        className="text-green-600 hover:text-green-700 cursor-pointer"
+                        className=" hover:text-green-700 cursor-pointer"
                       />
                       <X
                         size={18}
                         onClick={() => setActiveFlow(null)}
-                        className="text-red-500 hover:text-red-600 cursor-pointer"
+                        className=" hover:text-red-600 cursor-pointer"
                       />
                     </>
                   ) : (
