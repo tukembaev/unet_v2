@@ -17,7 +17,7 @@ import {
   useUpdateTeacher,
 } from "../model/queries";
 import { FlowInfo } from "../model/types";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Card } from "shared/ui";
 import { AsyncSelect } from "shared/components";
 
@@ -36,7 +36,7 @@ export const StreamsInfo = () => {
       faculty.label.toLowerCase().includes(query.toLowerCase())
     );
   };
-
+  const navigate = useNavigate()
   const handleSave = (flowId: number) => {
     if (!selectedTeacher) return;
     mutate({ flowId, teacher: +selectedTeacher });
@@ -44,7 +44,9 @@ export const StreamsInfo = () => {
     setActiveFlow(null);
     setSelectedTeacher(null);
   };
-
+  const onBack = () => {
+    navigate(-1);
+  }
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -57,6 +59,15 @@ export const StreamsInfo = () => {
 
   return (
     <Card className="overflow-hidden rounded-2xl shadow-sm">
+      <Button
+        variant="ghost"
+        className="mb-4"
+        onClick={onBack}
+      >
+        <X size={16} className="mr-2" />
+      
+        
+      </Button>
       <Table>
         <TableCaption>Расписание потоков</TableCaption>
 
