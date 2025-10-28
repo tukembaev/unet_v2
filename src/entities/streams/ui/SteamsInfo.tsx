@@ -90,11 +90,7 @@ export const StreamsInfo = () => {
             return (
               <TableRow
                 key={item.id}
-                className={`transition-colors ${
-                  isEditing
-                    ? "bg-blue-50/50 hover:bg-blue-100"
-                    : "hover:bg-muted/40"
-                }`}
+                className={`transition-colors hover:bg-muted/40`}
               >
                 <TableCell className="text-center font-medium">
                   {index + 1}
@@ -168,13 +164,9 @@ export const StreamsInfo = () => {
                       <Edit
                         size={18}
                         onClick={() => setActiveFlow(item.id)}
-                        className="text-gray-500 hover:text-blue-600 cursor-pointer"
+                        className="text-gray-500 hover:text-blue-600 cursor-pointer mr-5"
                       />
-                      <X
-                        size={18}
-                        onClick={() => setActiveFlow(null)}
-                        className="text-gray-400 hover:text-red-500 cursor-pointer"
-                      />
+
                     </>
                   )}
                 </TableCell>
