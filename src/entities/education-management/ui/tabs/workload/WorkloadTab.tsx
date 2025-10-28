@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { AsyncSelect } from "shared/components/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "shared/ui";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "shared/ui";
 import { WorkloadTable, WorkloadTableSkeleton } from "./";
 import { useFaculties, useWorkLoadBySemester } from "entities/education-management/model/queries";
 import { getDepartments } from "entities/education-management/model/api";
+import { usePrintArea } from "shared/lib";
+import { Printer } from "lucide-react";
 
 export const WorkloadTab = () => {
   const { data: faculties } = useFaculties();
@@ -89,6 +91,14 @@ export const WorkloadTab = () => {
       setSemester("");
     }
   }, [institute, department, year]);
+const { ref: printRef, print } = usePrintArea<HTMLDivElement>({
+    styles: `
+      @media print {
+        .print-card { box-shadow: none !important; border: 1px solid #e5e7eb !important; overflow: hidden !important; }
+        .no-print { display: none !important; }
+      }
+    `,
+  });
 
   return (
     <div className="space-y-4">
@@ -158,11 +168,25 @@ export const WorkloadTab = () => {
               placeholder="Семестр"
               disabled={!year}
             />
+            <Button
+            variant="outline"
+            onClick={() =>
+              print({
+                pageTitle: "UNET V2 — A4 Landscape 90%",
+                page: { size: "A3", orientation: "landscape", marginMm: 12 },
+                fit: "none",
+                scale: 0.6,         // ручной масштаб
+              })
+            }
+          >
+            <Printer className="h-4 w-4 mr-2" />
+            Печать A3 (альбомная, 90%)
+          </Button>
           </div>
           {isLoadingWorkLoad ? (
             <WorkloadTableSkeleton />
           ) : (
-            <WorkloadTable workLoadData={workLoadData} />
+            <WorkloadTable printRef={printRef} workLoadData={workLoadData} />
           )}
 
         </CardContent>

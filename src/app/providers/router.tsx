@@ -11,6 +11,9 @@ import { NotFoundPage } from "pages/not-found";
 import { TaskPage } from "pages/task";
 import { createBrowserRouter, RouteObject } from "react-router-dom";
 import { ROUTES } from "./routes";
+import StreamsPage from "pages/streams";
+import { StreamsInfo } from "entities/streams";
+
 
 
 // Re-export routes for convenience
@@ -60,6 +63,15 @@ const routes: RouteObject[] = [
         path: ROUTES.DOCUMENT_DETAILS,
         element: <DocumentDetails />,
       },
+      {
+        path: ROUTES.STREAMS,
+        element: <StreamsPage />, 
+      },
+      {
+        path: ROUTES.STREAM_DETAILS,
+        element: <StreamsInfo />, 
+      },
+
     ],
     
   },
