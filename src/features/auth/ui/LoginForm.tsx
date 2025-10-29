@@ -210,7 +210,7 @@ export const LoginForm: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-      <PinModal open={showPinModal} onClose={() => setShowPinModal(false)}  />
+      <PinModal open={showPinModal}onClose={() => setShowPinModal(false) }  />
     </div>
     
   );
