@@ -17,7 +17,7 @@ import {
   useUpdateTeacher,
 } from "../model/queries";
 import { FlowInfo } from "../model/types";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Card } from "shared/ui";
 import { AsyncSelect } from "shared/components";
 
@@ -36,7 +36,7 @@ export const StreamsInfo = () => {
       faculty.label.toLowerCase().includes(query.toLowerCase())
     );
   };
-
+  const navigate = useNavigate()
   const handleSave = (flowId: number) => {
     if (!selectedTeacher) return;
     mutate({ flowId, teacher: +selectedTeacher });
@@ -44,7 +44,9 @@ export const StreamsInfo = () => {
     setActiveFlow(null);
     setSelectedTeacher(null);
   };
-
+  const onBack = () => {
+    navigate(-1);
+  }
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -57,6 +59,14 @@ export const StreamsInfo = () => {
 
   return (
     <Card className="overflow-hidden rounded-2xl shadow-sm">
+      <Button
+        variant="ghost"
+        className="mb-4"
+        onClick={onBack}
+      >
+        <X size={16} className="mr-2" />
+
+      </Button>
       <Table>
         <TableCaption>Расписание потоков</TableCaption>
 
@@ -80,11 +90,7 @@ export const StreamsInfo = () => {
             return (
               <TableRow
                 key={item.id}
-                className={`transition-colors ${
-                  isEditing
-                    ? "bg-blue-50/50 hover:bg-blue-100"
-                    : "hover:bg-muted/40"
-                }`}
+                className={`transition-colors hover:bg-muted/40`}
               >
                 <TableCell className="text-center font-medium">
                   {index + 1}
@@ -145,12 +151,12 @@ export const StreamsInfo = () => {
                       <Check
                         size={18}
                         onClick={() => handleSave(item.id)}
-                        className="text-green-600 hover:text-green-700 cursor-pointer"
+                        className=" hover:text-green-700 cursor-pointer"
                       />
                       <X
                         size={18}
                         onClick={() => setActiveFlow(null)}
-                        className="text-red-500 hover:text-red-600 cursor-pointer"
+                        className=" hover:text-red-600 cursor-pointer"
                       />
                     </>
                   ) : (
@@ -158,13 +164,9 @@ export const StreamsInfo = () => {
                       <Edit
                         size={18}
                         onClick={() => setActiveFlow(item.id)}
-                        className="text-gray-500 hover:text-blue-600 cursor-pointer"
+                        className="text-gray-500 hover:text-blue-600 cursor-pointer mr-5"
                       />
-                      <X
-                        size={18}
-                        onClick={() => setActiveFlow(null)}
-                        className="text-gray-400 hover:text-red-500 cursor-pointer"
-                      />
+
                     </>
                   )}
                 </TableCell>
