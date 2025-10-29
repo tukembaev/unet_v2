@@ -32,6 +32,7 @@ import { ROUTES } from 'app/providers/routes';
 import { cn } from 'shared/lib/utils';
 import { UserMenu } from './user-menu';
 
+
 interface NavItem {
   title: string;
   href: string;
