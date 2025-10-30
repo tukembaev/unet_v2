@@ -129,7 +129,7 @@ export function UserMenu() {
               </div>
             </div>
 
-            <Button variant="secondary" className="w-full flex items-center justify-center gap-2">
+            <Button variant="secondary" onClick={() => navigate('profile-card')} className="w-full flex items-center justify-center gap-2">
               <BarChart2 className="w-4 h-4" />
               Личная карточка
             </Button>

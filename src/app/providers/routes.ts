@@ -5,6 +5,7 @@ export const ROUTES = {
   TASK: '/task',
 
   AUTH: '/',
+  PERSONAL_CARD: '/profile-card',
   // Структура
   EDUCATION_MANAGEMENT: '/education-management',
 
