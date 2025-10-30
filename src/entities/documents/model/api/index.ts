@@ -1,5 +1,5 @@
 import { apiClient } from 'shared/config';
-import { Document, DocumentsResponse, DocumentFilters, DocumentDetailResponse } from '../types';
+import { Document, DocumentsResponse, DocumentFilters, DocumentDetailResponse, DocumentHistoryResponse } from '../types';
 
 export const documentsApi = {
   getDocuments: async (filters: DocumentFilters): Promise<DocumentsResponse> => {
@@ -255,5 +255,10 @@ export const documentsApi = {
 
 export const getDocumentDetails = async (id: number): Promise<DocumentDetailResponse> => {
   const { data } = await apiClient.get(`conversion/raport/${id}/`);
+  return data;
+};
+
+export const getDocumentHistory = async (id: number): Promise<DocumentHistoryResponse> => {
+  const { data } = await apiClient.get(`conversion/conversion-history/${id}/`);
   return data;
 };

@@ -26,6 +26,11 @@ export interface StaticLineProps {
   toRef: RefObject<HTMLElement | null>;
   color?: string;
   strokeWidth?: number;
+  startXOffset?: number;
+  startYOffset?: number;
+  endXOffset?: number;
+  endYOffset?: number;
+  curvature?: number;
 }
 
 export const StaticLine: React.FC<StaticLineProps> = ({
@@ -34,6 +39,11 @@ export const StaticLine: React.FC<StaticLineProps> = ({
   toRef,
   color = "#22c55e",
   strokeWidth = 2,
+  startXOffset = 0,
+  startYOffset = 0,
+  endXOffset = 0,
+  endYOffset = 0,
+  curvature = 0,
 }) => {
   const [pathD, setPathD] = useState("");
   const [svgDimensions, setSvgDimensions] = useState({ width: 0, height: 0 });
@@ -49,12 +59,27 @@ export const StaticLine: React.FC<StaticLineProps> = ({
         const svgHeight = containerRect.height;
         setSvgDimensions({ width: svgWidth, height: svgHeight });
 
-        const startX = rectA.left - containerRect.left + rectA.width / 2;
-        const startY = rectA.top - containerRect.top + rectA.height / 2;
-        const endX = rectB.left - containerRect.left + rectB.width / 2;
-        const endY = rectB.top - containerRect.top + rectB.height / 2;
+        const startX = rectA.left - containerRect.left + rectA.width / 2 + startXOffset;
+        const startY = rectA.top - containerRect.top + rectA.height / 2 + startYOffset;
+        const endX = rectB.left - containerRect.left + rectB.width / 2 + endXOffset;
+        const endY = rectB.top - containerRect.top + rectB.height / 2 + endYOffset;
 
-        const d = `M ${startX},${startY} L ${endX},${endY}`;
+        // Если есть curvature, используем кубическую кривую Безье для плавного S-образного изгиба
+        let d: string;
+        if (curvature !== 0) {
+          // Используем кубическую кривую Безье (C) с двумя контрольными точками
+          // для создания S-образной кривой (вниз, потом поворот)
+          const midY = (startY + endY) / 2;
+          const controlPoint1X = startX; // Первая контрольная точка по X остается в начале
+          const controlPoint1Y = midY; // Первая контрольная точка по Y - середина
+          const controlPoint2X = endX; // Вторая контрольная точка по X - в конце
+          const controlPoint2Y = midY; // Вторая контрольная точка по Y - середина
+          
+          d = `M ${startX},${startY} C ${controlPoint1X},${controlPoint1Y} ${controlPoint2X},${controlPoint2Y} ${endX},${endY}`;
+        } else {
+          d = `M ${startX},${startY} L ${endX},${endY}`;
+        }
+        
         setPathD(d);
       }
     };
@@ -72,7 +97,7 @@ export const StaticLine: React.FC<StaticLineProps> = ({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [containerRef, fromRef, toRef]);
+  }, [containerRef, fromRef, toRef, startXOffset, startYOffset, endXOffset, endYOffset, curvature]);
 
   return (
     <svg
@@ -165,10 +190,21 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
           rectB.left - containerRect.left + rectB.width / 2 + endXOffset;
         const endY =
           rectB.top - containerRect.top + rectB.height / 2 + endYOffset;
-        const controlY = startY - curvature;
-        const d = `M ${startX},${startY} Q ${
-          (startX + endX) / 2
-        },${controlY} ${endX},${endY}`;
+        
+        // Используем кубическую кривую Безье (C) для S-образного изгиба, как в StaticLine
+        let d: string;
+        if (curvature !== 0) {
+          const midY = (startY + endY) / 2;
+          const controlPoint1X = startX;
+          const controlPoint1Y = midY;
+          const controlPoint2X = endX;
+          const controlPoint2Y = midY;
+          
+          d = `M ${startX},${startY} C ${controlPoint1X},${controlPoint1Y} ${controlPoint2X},${controlPoint2Y} ${endX},${endY}`;
+        } else {
+          d = `M ${startX},${startY} Q ${(startX + endX) / 2},${startY - curvature} ${endX},${endY}`;
+        }
+        
         setPathD(d);
       }
     };

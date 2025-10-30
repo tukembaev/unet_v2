@@ -1,3 +1,5 @@
+import { BaseHistory } from 'shared/components/history';
+
 export type DocumentType = 'Рапорт' | 'Письмо' | 'Заявление' | 'all';
 
 export type DocumentStatus = 'В режиме ожидания' | 'В работе' | 'Выполнено' | 'Отклонено' | 'all';
@@ -99,3 +101,9 @@ export interface DocumentDetailResponse {
   service: string | null;
   is_watched: boolean;
 }
+
+export interface DocumentHistoryItem extends BaseHistory {
+  application: number;
+}
+
+export type DocumentHistoryResponse = DocumentHistoryItem[];
