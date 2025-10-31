@@ -118,7 +118,7 @@ export function UserMenu() {
             <span className="text-xs text-emerald-500 font-medium">online</span>
           </CardHeader>
 
-          <CardContent className="relative z-10 flex flex-col border rounded-3xl mt-2 gap-3 px-3 py-3">
+          <CardContent className="relative z-10 flex flex-col  rounded-3xl mt-2 gap-3 px-3 py-3">
             <div className="flex items-center gap-3 border p-2 rounded-3xl">
               <div className={`w-12 h-12 flex items-center justify-center rounded-full ${efficiencyColor}`}>
                 <PieChartIcon className="w-6 h-6" />
