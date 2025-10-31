@@ -3,6 +3,8 @@ export const ROUTES = {
   HOME: '/home',
   ABOUT: '/about',
   TASK: '/task',
+  TASK_DETAILS: '/task-details',
+
 
   AUTH: '/',
   // Структура

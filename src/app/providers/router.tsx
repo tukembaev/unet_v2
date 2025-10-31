@@ -15,6 +15,8 @@ import { createBrowserRouter, RouteObject } from "react-router-dom";
 import { ROUTES } from "./routes";
 import StreamsPage from "pages/streams";
 import { StreamsInfo } from "entities/streams";
+import { TaskDetails } from "entities/task/ui/task-details";
+
 
 
 
@@ -56,6 +58,10 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.TASK,
         element: <TaskPage />,
+      },
+      {
+        path: ROUTES.TASK_DETAILS,
+        element: <TaskDetails />,
       },
       {
         path: ROUTES.APPLICATIONS,

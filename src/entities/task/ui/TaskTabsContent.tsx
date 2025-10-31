@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { KanbanBoard } from './KanbanBoard';
-import { TasksRoot } from '../model/types';
-import { mockTasks } from '../model/api/mock';
+import { TaskCategory, EmployeeTasksResponse, Task } from '../model/types';
+import { useEmployeeTasks } from '../model/queries';
+import { useAuthUser } from 'features/auth/model/queries';
 
 const filterConfig = [
   { key: 'ALL', label: 'Все', value: 'all' },
@@ -17,18 +18,66 @@ interface TaskTabsContentProps {
   selectedFilters?: string[];
 }
 
+// Helper function to convert Task[] to TaskCategory
+const tasksArrayToCategory = (tasks: Task[]): TaskCategory => {
+  return {
+    OVERDUE: [],
+    TODAY: [],
+    WEEK: [],
+    MONTH: [],
+    LONGRANGE: [],
+    INDEFINITE: [],
+  };
+};
+
+// Helper function to get tasks from a filter key
+const getTasksFromFilter = (
+  tasksData: EmployeeTasksResponse | undefined,
+  filterKey: keyof EmployeeTasksResponse
+): TaskCategory => {
+  if (!tasksData || !tasksData[filterKey]) {
+    return tasksArrayToCategory([]);
+  }
+
+  const tasks = tasksData[filterKey];
+  
+  // If it's an array (COMPLETED or ATTACHED), convert to TaskCategory
+  if (Array.isArray(tasks)) {
+    // For arrays, we need to distribute them - for now, put all in INDEFINITE
+    // or you could add logic to categorize them based on deadline_date
+    return {
+      OVERDUE: [],
+      TODAY: [],
+      WEEK: [],
+      MONTH: [],
+      LONGRANGE: [],
+      INDEFINITE: tasks,
+    };
+  }
+
+  // If it's already a TaskCategory, return it
+  return tasks;
+};
+
 export const TaskTabsContent: React.FC<TaskTabsContentProps> = ({ 
   selectedFilters = ['all'] 
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const { data: user } = useAuthUser();
+  console.log(user)
+  const { data: tasksData, isLoading } = useEmployeeTasks(69298);
 
   const filteredTasks = useMemo(() => {
+    if (!tasksData) {
+      return tasksArrayToCategory([]);
+    }
+
+    // If 'all' is selected or no filters, return ALL tasks
     if (selectedFilters.includes('all') || selectedFilters.length === 0) {
-      return mockTasks.ALL;
+      return tasksData.ALL;
     }
 
     // Combine tasks from selected filters
-    const combinedTasks: TasksRoot[keyof TasksRoot] = {
+    const combinedTasks: TaskCategory = {
       OVERDUE: [],
       TODAY: [],
       WEEK: [],
@@ -38,11 +87,14 @@ export const TaskTabsContent: React.FC<TaskTabsContentProps> = ({
     };
 
     selectedFilters.forEach(filterValue => {
-      const filterKey = filterConfig.find(f => f.value === filterValue)?.key as keyof TasksRoot;
-      if (filterKey && mockTasks[filterKey]) {
-        const tasks = mockTasks[filterKey];
+      const filterKey = filterConfig.find(f => f.value === filterValue)?.key as keyof EmployeeTasksResponse;
+      
+      if (filterKey && tasksData[filterKey]) {
+        const tasks = getTasksFromFilter(tasksData, filterKey);
+        
+        // Combine tasks from each category
         Object.keys(combinedTasks).forEach(key => {
-          const categoryKey = key as keyof typeof combinedTasks;
+          const categoryKey = key as keyof TaskCategory;
           combinedTasks[categoryKey] = [
             ...combinedTasks[categoryKey],
             ...tasks[categoryKey]
@@ -52,16 +104,7 @@ export const TaskTabsContent: React.FC<TaskTabsContentProps> = ({
     });
 
     return combinedTasks;
-  }, [selectedFilters]);
-
-  // Simulate loading when filters change
-  React.useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [selectedFilters]);
+  }, [tasksData, selectedFilters]);
 
   return (
     <div className="space-y-6">
