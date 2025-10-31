@@ -73,6 +73,7 @@ const routes: RouteObject[] = [
         path: ROUTES.ORDER_DETAILS,
         element: <OrderDetails />,
       },
+      {
         path: ROUTES.STREAMS,
         element: <StreamsPage />, 
       },
