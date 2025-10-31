@@ -1,7 +1,16 @@
-import React from 'react';
-import { TaskCard } from './TaskCard';
-import { TaskCategory } from '../model/types';
-import { Badge, Card } from 'shared/ui';
+import React from "react";
+import { TaskCard } from "./TaskCard";
+import { TaskCategory } from "../model/types";
+import {
+  Badge,
+  Card,
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "shared/ui";
+import { ListCheck } from "lucide-react";
 
 interface KanbanBoardProps {
   tasks: TaskCategory;
@@ -9,15 +18,42 @@ interface KanbanBoardProps {
 }
 
 const sectionConfig = [
-  { key: 'OVERDUE' as keyof TaskCategory, title: 'Просроченные', color: 'text-red-600 dark:text-red-400' },
-  { key: 'TODAY' as keyof TaskCategory, title: 'На сегодня', color: 'text-orange-600 dark:text-orange-400' },
-  { key: 'WEEK' as keyof TaskCategory, title: 'На этой неделе', color: 'text-blue-600 dark:text-blue-400' },
-  { key: 'MONTH' as keyof TaskCategory, title: 'На этот месяц', color: 'text-green-600 dark:text-green-400' },
-  { key: 'LONGRANGE' as keyof TaskCategory, title: 'Больше этого месяца', color: 'text-purple-600 dark:text-purple-400' },
-  { key: 'INDEFINITE' as keyof TaskCategory, title: 'Без срока', color: 'text-muted-foreground' },
+  {
+    key: "OVERDUE" as keyof TaskCategory,
+    title: "Просроченные",
+    color: "text-red-600 dark:text-red-400",
+  },
+  {
+    key: "TODAY" as keyof TaskCategory,
+    title: "На сегодня",
+    color: "text-orange-600 dark:text-orange-400",
+  },
+  {
+    key: "WEEK" as keyof TaskCategory,
+    title: "На этой неделе",
+    color: "text-blue-600 dark:text-blue-400",
+  },
+  {
+    key: "MONTH" as keyof TaskCategory,
+    title: "На этот месяц",
+    color: "text-green-600 dark:text-green-400",
+  },
+  {
+    key: "LONGRANGE" as keyof TaskCategory,
+    title: "Больше этого месяца",
+    color: "text-purple-600 dark:text-purple-400",
+  },
+  {
+    key: "INDEFINITE" as keyof TaskCategory,
+    title: "Без срока",
+    color: "text-muted-foreground",
+  },
 ];
 
-export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading = false }) => {
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({
+  tasks,
+  isLoading = false,
+}) => {
   if (isLoading) {
     return <KanbanSkeleton />;
   }
@@ -37,10 +73,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading = fal
                   <h2 className={`font-semibold text-base ${section.color}`}>
                     {section.title}
                   </h2>
-                  <Badge variant="outline" >
-                      {taskCount}
-                  </Badge>
-          
+                  <Badge variant="outline">{taskCount}</Badge>
                 </div>
 
                 {/* Tasks List */}
@@ -50,11 +83,24 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, isLoading = fal
                       <TaskCard key={task.id} task={task} />
                     ))
                   ) : (
-                    <Card className="p-8 border-dashed border-2">
-                      <div className="text-center text-muted-foreground text-sm">
-                        Нет задач
-                      </div>
-                    </Card>
+                   
+                      <Empty className="border border-dashed  max-h-[159px]">
+                        <EmptyHeader className="gap-1.5">
+                          <EmptyMedia variant="icon" className="mb-0 size-8 [&_svg]:size-4">
+                            <ListCheck size={12} />
+                          </EmptyMedia>
+                          <EmptyTitle className="text-sm font-semibold">Нет задач</EmptyTitle>
+                          <EmptyDescription className="text-xs">
+                            {section.key === "OVERDUE" && "Нет просроченных задач"}
+                            {section.key === "TODAY" && "Нет задач на сегодня"}
+                            {section.key === "WEEK" && "Нет задач на эту неделю"}
+                            {section.key === "MONTH" && "Нет задач на этот месяц"}
+                            {section.key === "LONGRANGE" && "Нет задач больше этого месяца"}
+                            {section.key === "INDEFINITE" && "Нет задач без срока"}
+                          </EmptyDescription>
+                        </EmptyHeader>
+                      </Empty>
+          
                   )}
                 </div>
               </div>
