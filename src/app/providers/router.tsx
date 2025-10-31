@@ -1,8 +1,10 @@
 import { RootLayout } from "app/layouts/root-layout";
 import { DocumentDetails } from "entities/documents";
+import { OrderDetails } from "entities/orders";
 import { SyllabusReport } from "entities/education-management";
 import { AboutPage } from "pages/about";
 import { DocumentsPage } from "pages/documents";
+import { OrdersPage } from "pages/orders";
 import EducationManagementPage from "pages/edu-management";
 import ItDepartmentPage from "pages/it-department";
 import { HomePage } from "pages/home";
@@ -64,6 +66,13 @@ const routes: RouteObject[] = [
         element: <DocumentDetails />,
       },
       {
+        path: ROUTES.ORDERS,
+        element: <OrdersPage />,
+      },
+      {
+        path: ROUTES.ORDER_DETAILS,
+        element: <OrderDetails />,
+      },
         path: ROUTES.STREAMS,
         element: <StreamsPage />, 
       },

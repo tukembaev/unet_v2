@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, FileText, Clock, CircleDot, CheckCircle2, XCircle } from 'lucide-react';
 import { Badge } from 'shared/ui';
-import { DocumentsTableSkeleton } from './DocumentsTableSkeleton';
+import { DocumentsTableSkeleton } from 'entities/documents';
 import {
   GenericTabsContent,
   ColumnConfig,
@@ -10,9 +10,8 @@ import {
   TabConfig,
   ButtonConfig,
 } from 'shared/components/data-table';
-import { useDocuments } from '../model/queries';
-import { Document, DocumentTab } from '../model/types';
-import { CreateDocumentDialog } from 'features/create-document';
+import { useOrders } from '../model/queries';
+import { InboxOrder, OrderTab } from '../model/types';
 
 const statusIcons: Record<string, React.ReactNode> = {
   'В режиме ожидания': <Clock className="h-3 w-3 text-yellow-500" />,
@@ -20,13 +19,6 @@ const statusIcons: Record<string, React.ReactNode> = {
   'Выполнено': <CheckCircle2 className="h-3 w-3 text-green-500" />,
   'Отклонено': <XCircle className="h-3 w-3 text-red-500" />,
 };
-
-const typeOptions = [
-  { label: 'Все', value: 'all' },
-  { label: 'Рапорт', value: 'Рапорт' },
-  { label: 'Письмо', value: 'Письмо' },
-  { label: 'Заявление', value: 'Заявление' },
-];
 
 const statusOptions = [
   { label: 'Все', value: 'all' },
@@ -42,27 +34,30 @@ const tabs: TabConfig[] = [
   { value: 'history', label: 'История' },
 ];
 
-export const DocumentsContent = () => {
+export const OrdersContent = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<DocumentTab>('incoming');
-  const [selectedTypes, setSelectedTypes] = useState<string[]>(['all']);
+  const [activeTab, setActiveTab] = useState<OrderTab>('incoming');
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['all']);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const { data, isLoading } = useDocuments({
+  const { data, isLoading } = useOrders({
     tab: activeTab,
-    types: selectedTypes,
     statuses: selectedStatuses,
   });
 
-  const columns: ColumnConfig<Document>[] = [
+  const columns: ColumnConfig<InboxOrder>[] = [
     {
-      key: 'number',
-      label: 'Номер',
-      width: '180px',
-      minWidth: '180px',
+      key: 'order_number',
+      label: 'Номер оборота',
+      width: '150px',
+      minWidth: '150px',
       className: 'font-medium whitespace-nowrap',
-      render: (doc) => doc.number,
+      render: (order) => order.order_number || order.number,
+    },
+    {
+      key: 'title',
+      label: 'Тема приказа',
+      minWidth: '250px',
+      render: (order) => order.title,
     },
     {
       key: 'employee',
@@ -70,31 +65,17 @@ export const DocumentsContent = () => {
       width: '200px',
       minWidth: '200px',
       className: 'whitespace-nowrap',
-      render: (doc) => doc.employee.surname_name,
-    },
-    {
-      key: 'type_doc',
-      label: 'Тип',
-      width: '150px',
-      minWidth: '150px',
-      className: 'whitespace-nowrap',
-      render: (doc) => doc.type_doc,
-    },
-    {
-      key: 'type',
-      label: 'Тема',
-      minWidth: '250px',
-      render: (doc) => doc.type,
+      render: (order) => order.employee.surname_name,
     },
     {
       key: 'status',
       label: 'Статус',
       width: '180px',
       minWidth: '180px',
-      render: (doc) => (
+      render: (order) => (
         <Badge variant="outline" className="gap-1.5 whitespace-nowrap">
-          {statusIcons[doc.status]}
-          {doc.status}
+          {statusIcons[order.status]}
+          {order.status}
         </Badge>
       ),
     },
@@ -104,18 +85,11 @@ export const DocumentsContent = () => {
       width: '150px',
       minWidth: '150px',
       className: 'whitespace-nowrap',
-      render: (doc) => doc.date_zayavki,
+      render: (order) => order.date_zayavki,
     },
   ];
 
   const filterGroups: FilterGroup[] = [
-    {
-      id: 'types',
-      label: 'Тип документа',
-      options: typeOptions,
-      selectedValues: selectedTypes,
-      onChange: setSelectedTypes,
-    },
     {
       id: 'statuses',
       label: 'Статус',
@@ -135,43 +109,35 @@ export const DocumentsContent = () => {
     {
       label: 'Создать',
       icon: <Plus className="h-4 w-4" />,
-      onClick: () => setIsCreateDialogOpen(true),
+      onClick: () => console.log('Create order'),
       variant: 'default',
     },
   ];
 
   const handleClearFilters = () => {
-    setSelectedTypes(['all']);
     setSelectedStatuses(['all']);
   };
 
-  const handleRowClick = (doc: Document) => {
-    navigate(`/documents/applications/${doc.id}`);
+  const handleRowClick = (order: InboxOrder) => {
+    navigate(`/documents/orders/${order.id}`);
   };
 
   return (
-    <>
-      <GenericTabsContent
-        tabs={tabs}
-        defaultTab="incoming"
-        columns={columns}
-        data={data?.documents}
-        isLoading={isLoading}
-        onTabChange={(tab) => setActiveTab(tab as DocumentTab)}
-        filterGroups={filterGroups}
-        onClearFilters={handleClearFilters}
-        buttons={buttons}
-        onRowClick={handleRowClick}
-        emptyMessage="Документы не найдены"
-        getRowKey={(doc) => doc.id}
-        loadingComponent={<DocumentsTableSkeleton />}
-      />
-      
-      <CreateDocumentDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-      />
-    </>
+    <GenericTabsContent
+      tabs={tabs}
+      defaultTab="incoming"
+      columns={columns}
+      data={data?.orders}
+      isLoading={isLoading}
+      onTabChange={(tab) => setActiveTab(tab as OrderTab)}
+      filterGroups={filterGroups}
+      onClearFilters={handleClearFilters}
+      buttons={buttons}
+      onRowClick={handleRowClick}
+      emptyMessage="Приказы не найдены"
+      getRowKey={(order) => order.id}
+      loadingComponent={<DocumentsTableSkeleton />}
+    />
   );
 };
 
