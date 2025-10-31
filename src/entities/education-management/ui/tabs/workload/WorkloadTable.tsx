@@ -1,12 +1,14 @@
-import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "shared/ui";
+import React, { RefObject } from "react";
+import {  Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "shared/ui";
 import { WorkLoad } from "entities/education-management/model/types";
+
 
 interface WorkloadTableProps {
   workLoadData?: WorkLoad;
+  printRef?: RefObject<HTMLDivElement | null>
 }
 
-export const WorkloadTable = ({ workLoadData }: WorkloadTableProps) => {
+export const WorkloadTable = ({ workLoadData, printRef }: WorkloadTableProps) => {
   // Don't render table if no data
   if (!workLoadData || !workLoadData.subjects || workLoadData.subjects.length === 0) {
     return null;
@@ -14,11 +16,13 @@ export const WorkloadTable = ({ workLoadData }: WorkloadTableProps) => {
 
   const subjects = workLoadData.subjects;
   const teachers = workLoadData.teachers;
-
+ 
   return (
     
-        <div className="overflow-x-auto">
-          <Table className="border-collapse border border-border text-xs">
+        <div ref={printRef} className="overflow-x-auto">
+         
+            
+          <Table  className="border-collapse border border-border text-xs">
             <TableHeader className="hover:bg-transparent">
               {/* Первый уровень заголовков */}
               <TableRow className="hover:bg-transparent h-8">

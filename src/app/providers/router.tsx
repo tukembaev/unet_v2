@@ -6,12 +6,16 @@ import { AboutPage } from "pages/about";
 import { DocumentsPage } from "pages/documents";
 import { OrdersPage } from "pages/orders";
 import EducationManagementPage from "pages/edu-management";
+import ItDepartmentPage from "pages/it-department";
 import { HomePage } from "pages/home";
 import { LoginPage } from "pages/login";
 import { NotFoundPage } from "pages/not-found";
 import { TaskPage } from "pages/task";
 import { createBrowserRouter, RouteObject } from "react-router-dom";
 import { ROUTES } from "./routes";
+import StreamsPage from "pages/streams";
+import { StreamsInfo } from "entities/streams";
+
 
 
 // Re-export routes for convenience
@@ -36,6 +40,10 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.ABOUT,
         element: <AboutPage />,
+      },
+      {
+        path: ROUTES.IT_DEPARTMENT,
+        element: <ItDepartmentPage />,
       },
       {
         path: ROUTES.EDUCATION_MANAGEMENT,
@@ -65,6 +73,14 @@ const routes: RouteObject[] = [
         path: ROUTES.ORDER_DETAILS,
         element: <OrderDetails />,
       },
+        path: ROUTES.STREAMS,
+        element: <StreamsPage />, 
+      },
+      {
+        path: ROUTES.STREAM_DETAILS,
+        element: <StreamsInfo />, 
+      },
+
     ],
     
   },
