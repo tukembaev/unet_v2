@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from 'shared/ui';
 
 import { Task } from '../model/types';
@@ -10,6 +11,11 @@ interface TaskCardProps {
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate('/task-details', { state: { taskId: task.id } });
+  };
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Без срока';
     
@@ -27,7 +33,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   };
 
   return (
-    <Card className="p-4 hover:shadow-md transition-all duration-200 cursor-pointer group">
+    <Card 
+      className="p-4 hover:shadow-md transition-all duration-200 cursor-pointer group"
+      onClick={handleCardClick}
+    >
       <div className="space-y-3">
         {/* Header with title and menu */}
         <div className="flex items-start justify-between">

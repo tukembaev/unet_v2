@@ -3,6 +3,8 @@ export const ROUTES = {
   HOME: '/home',
   ABOUT: '/about',
   TASK: '/task',
+  TASK_DETAILS: '/task-details',
+
 
   AUTH: '/',
   PERSONAL_CARD: '/profile-card',
@@ -17,6 +19,7 @@ export const ROUTES = {
   APPLICATIONS: '/documents/applications',
   ORDERS: '/documents/orders',
   DOCUMENT_DETAILS: '/documents/applications/:id',
+  ORDER_DETAILS: '/documents/orders/:id',
   
   // Учебный процесс
   CURRICULUM: '/education/curriculum',

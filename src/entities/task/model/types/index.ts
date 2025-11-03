@@ -43,10 +43,81 @@ export interface User {
   
   export interface TasksRoot {
     ALL: TaskCategory;
-    ATTACHED: TaskCategory;
-    COMPLETED: TaskCategory;
+    ATTACHED: Task[];
+    COMPLETED: Task[];
     DOING: TaskCategory;
     HELPING: TaskCategory;
     INSTRUCTED: TaskCategory;
     WATCHING: TaskCategory;
+  }
+
+  export interface EmployeeTasksResponse {
+    ALL: TaskCategory;
+    ATTACHED: Task[];
+    COMPLETED: Task[];
+    DOING: TaskCategory;
+    HELPING: TaskCategory;
+    INSTRUCTED: TaskCategory;
+    WATCHING: TaskCategory;
+  }
+
+  export interface Resource {
+    id?: number;
+    name?: string;
+    [key: string]: any;
+  }
+
+  export interface File {
+    id?: number;
+    name?: string;
+    url?: string;
+    [key: string]: any;
+  }
+
+  export interface TaskSubtaskMember {
+    id: number;
+    member: User | null;
+    member_type: MemberType;
+  }
+
+  export interface TaskSubtask {
+    id: number;
+    creator: User;
+    members_subtask: TaskSubtaskMember[];
+    resources: Resource[];
+    subtask_name: string;
+    create_date: string;
+    status: string;
+    edit_status_date: string | null;
+    deadline_date: string;
+    rejection_reason: string | null;
+    report: string | null;
+    report_file: string | null;
+    description: string;
+  }
+
+  export interface TaskDetail {
+    id: number;
+    creator: User;
+    accounting: any | null;
+    members: Member[];
+    subtasks: TaskSubtask[];
+    resources: Resource[];
+    files: File[];
+    deadline_date: string;
+    task_name: string;
+    create_date: string;
+    status: string;
+    edit_status_date: string | null;
+    attached_document: string;
+    report: string | null;
+    report_file: string | null;
+    description: string;
+    is_critical: boolean;
+    allow_change_deadline: boolean;
+    skip_dayoffs: boolean;
+    check_after_finish: boolean;
+    determ_by_subtasks: boolean;
+    report_after_finish: boolean;
+    stage: any | null;
   }
