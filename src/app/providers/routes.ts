@@ -7,6 +7,7 @@ export const ROUTES = {
 
 
   AUTH: '/',
+  PERSONAL_CARD: '/profile-card',
   // Структура
   EDUCATION_MANAGEMENT: '/education-management',
 

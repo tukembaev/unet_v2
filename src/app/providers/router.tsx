@@ -15,6 +15,7 @@ import { createBrowserRouter, RouteObject } from "react-router-dom";
 import { ROUTES } from "./routes";
 import StreamsPage from "pages/streams";
 import { StreamsInfo } from "entities/streams";
+import ProfilePage from "pages/profile";
 import { TaskDetails } from "entities/task/ui/task-details";
 
 
@@ -87,6 +88,10 @@ const routes: RouteObject[] = [
         path: ROUTES.STREAM_DETAILS,
         element: <StreamsInfo />, 
       },
+      {
+        path: ROUTES.PERSONAL_CARD,
+        element: <ProfilePage />,
+      }
 
     ],
     
