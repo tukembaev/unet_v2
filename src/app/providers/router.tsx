@@ -16,6 +16,7 @@ import { ROUTES } from "./routes";
 import StreamsPage from "pages/streams";
 import { StreamsInfo } from "entities/streams";
 import { TaskDetails } from "entities/task/ui/task-details";
+import { CurriculumPage } from "pages/curriculum";
 
 
 
@@ -86,6 +87,10 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.STREAM_DETAILS,
         element: <StreamsInfo />, 
+      },
+      {
+        path: ROUTES.CURRICULUM,
+        element: <CurriculumPage />,
       },
 
     ],
