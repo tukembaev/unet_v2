@@ -83,24 +83,24 @@ const routes: RouteObject[] = [
       },
       {
         path: ROUTES.STREAMS,
-        element: <StreamsPage />, 
+        element: <StreamsPage />,
       },
       {
         path: ROUTES.STREAM_DETAILS,
-        element: <StreamsInfo />, 
+        element: <StreamsInfo />,
       },
       {
         path: ROUTES.CURRICULUM,
         element: <CurriculumPage />,
-      },
+      }, {
         path: ROUTES.PERSONAL_CARD,
         element: <ProfilePage />,
       }
 
     ],
-    
+
   },
- 
+
   {
     path: "*",
     element: <NotFoundPage />,

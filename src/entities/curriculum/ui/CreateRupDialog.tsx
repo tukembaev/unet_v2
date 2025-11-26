@@ -70,7 +70,7 @@ interface CreateRupDialogProps {
 
 export const CreateRupDialog = ({ open, onOpenChange }: CreateRupDialogProps) => {
   const { data: faculties, isLoading: isLoadingFaculties } = useFaculties();
-  
+
   const form = useForm<CreateRupFormData>({
     schema: createRupFormSchema,
     defaultValues: {
@@ -119,7 +119,7 @@ export const CreateRupDialog = ({ open, onOpenChange }: CreateRupDialogProps) =>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <FieldGroup>
             {/* Institute */}
-            <Field>
+            <Field className="flex flex-col">
               <FieldLabel>
                 Институт
                 <span className="text-red-500 ml-1">*</span>
