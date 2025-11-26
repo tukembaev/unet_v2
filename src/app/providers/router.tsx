@@ -15,6 +15,7 @@ import { createBrowserRouter, RouteObject } from "react-router-dom";
 import { ROUTES } from "./routes";
 import StreamsPage from "pages/streams";
 import { StreamsInfo } from "entities/streams";
+import ProfilePage from "pages/profile";
 import { TaskDetails } from "entities/task/ui/task-details";
 import { CurriculumPage } from "pages/curriculum";
 
@@ -92,6 +93,9 @@ const routes: RouteObject[] = [
         path: ROUTES.CURRICULUM,
         element: <CurriculumPage />,
       },
+        path: ROUTES.PERSONAL_CARD,
+        element: <ProfilePage />,
+      }
 
     ],
     

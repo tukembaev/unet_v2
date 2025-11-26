@@ -18,3 +18,12 @@ export function checkPin(text: string): boolean {
     return false;
   }
 }
+
+
+export const formatTeacherName = (fullName?: string) => {
+  if (!fullName) return "";
+  const [last, first, middle] = fullName.split(" ");
+  const initials =
+    [first?.[0], middle?.[0]].filter(Boolean).join(". ") + (first || middle ? "." : "");
+  return `${last} ${initials}`;
+};
