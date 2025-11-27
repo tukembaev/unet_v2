@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { usePrintArea } from "shared/lib/print-area";
 import { SchedulePage } from "pages/schedule";
+import { EmployeeDashboardPlaceholder } from "pages/EmployeeDashboardPlaceholder/EmployeeDashboardPlaceholder";
 
 // ----- схема формы -----
 const exampleFormSchema = z.object({
@@ -51,11 +52,15 @@ export function HomePage() {
   });
 
 
-
+  const role = "employee"; // Пример роли пользователя
   return (
     <div>
       <div className="mx-auto space-y-8">
+        {role === "employee" ?
+        <EmployeeDashboardPlaceholder />
+         : 
         <SchedulePage />
+        }
       </div>
     </div>
   );

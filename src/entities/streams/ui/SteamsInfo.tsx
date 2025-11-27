@@ -1,52 +1,18 @@
-import { Check, X, Edit, UserPlus } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "shared/ui/table";
-import { Skeleton } from "shared/ui/skeleton";
-import { Button } from "shared/ui/button";
 import { useState } from "react";
-import {
-  useFlowsSchedules,
-  useSelectEmployees,
-  useUpdateTeacher,
-} from "../model/queries";
-import { FlowInfo } from "../model/types";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Edit } from "lucide-react";
 import { Card } from "shared/ui";
-import { AsyncSelect } from "shared/components";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "shared/ui/table";
+import { Skeleton } from "shared/ui/skeleton";
+import { useFlowsSchedules } from "../model/queries";
+import { FlowInfo } from "../model/types";
+import { FlowInfoModal } from "features/flow/flowInfoModal";
+import { useLocation } from "react-router-dom";
+
 
 export const StreamsInfo = () => {
-  const [activeFlow, setActiveFlow] = useState<number | null>(null);
-  const [selectedTeacher, setSelectedTeacher] = useState("" as any);
+  const [selectedFlow, setSelectedFlow] = useState<FlowInfo | null>(null);
   const flowId: any = useLocation().state?.streamId;
-  const { mutate ,isPending} = useUpdateTeacher(flowId);
-  const { data: flowInfo , isLoading } = useFlowsSchedules(flowId as number);
-  const { data: selectEmployees } = useSelectEmployees();
-
-  const fetchEmployees = async (query?: string) => {
-    if (!selectEmployees) return [];
-    if (!query) return selectEmployees;
-    return selectEmployees.filter((faculty) =>
-      faculty.label.toLowerCase().includes(query.toLowerCase())
-    );
-  };
-  const navigate = useNavigate()
-  const handleSave = (flowId: number) => {
-    if (!selectedTeacher) return;
-    mutate({ flowId, teacher: +selectedTeacher });
-    isPending
-    setActiveFlow(null);
-    setSelectedTeacher(null);
-  };
-  const onBack = () => {
-    navigate(-1);
-  }
+  const { data: flowInfo, isLoading } = useFlowsSchedules(flowId as number);
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -58,123 +24,62 @@ export const StreamsInfo = () => {
   }
 
   return (
-    <Card className="overflow-hidden rounded-2xl shadow-sm">
-      <Button
-        variant="ghost"
-        className="mb-4"
-        onClick={onBack}
-      >
-        <X size={16} className="mr-2" />
+    <>
+      <Card className="overflow-hidden rounded-2xl shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[60px] text-center">№</TableHead>
+              <TableHead>Номер потока</TableHead>
+              <TableHead>Предмет</TableHead>
+              <TableHead>Тип</TableHead>
+              <TableHead>Статус</TableHead>
+              <TableHead>Преподаватель</TableHead>
+              <TableHead className="text-right">Действие</TableHead>
+            </TableRow>
+          </TableHeader>
 
-      </Button>
-      <Table>
-        <TableCaption>Расписание потоков</TableCaption>
-
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[60px] text-center">№</TableHead>
-            <TableHead>Номер потока</TableHead>
-            <TableHead>Предмет</TableHead>
-            <TableHead>Вид</TableHead>
-            <TableHead>Статус</TableHead>
-            <TableHead>Кол-во</TableHead>
-            <TableHead>Преподаватель</TableHead>
-            <TableHead className="text-right">Действие</TableHead>
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {flowInfo?.map((item: FlowInfo, index: number) => {
-            const isEditing = activeFlow === item.id;
-
-            return (
-              <TableRow
-                key={item.id}
-                className={`transition-colors hover:bg-muted/40`}
-              >
-                <TableCell className="text-center font-medium">
-                  {index + 1}
-                </TableCell>
+          <TableBody>
+            {flowInfo?.map((item, index) => (
+              <TableRow key={item.id} className="transition-colors hover:bg-muted/40">
+                <TableCell className="text-center font-medium">{index + 1}</TableCell>
                 <TableCell>{item.number}</TableCell>
-                <TableCell className="font-medium">
-                  {item.name_subject}
-                </TableCell>
+                <TableCell>{item.name_subject}</TableCell>
                 <TableCell>{item.stream_type}</TableCell>
                 <TableCell>
                   <span
-                    className={
+                    className={`text-xs px-2 py-0.5 rounded-full border font-medium transition-colors ${
                       item.status === "Открыт"
-                        ? "text-green-600"
+                        ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-800"
                         : item.status === "В ожидании"
-                        ? "text-amber-500"
+                        ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800"
                         : item.status === "В диспетчерской"
-                        ? "text-blue-600"
-                        : "text-red-500"
-                    }
+                        ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800"
+                        : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800"
+                    }`}
                   >
                     {item.status}
                   </span>
                 </TableCell>
-                <TableCell>0/{item.capacity}</TableCell>
-
-                <TableCell>
-                  {isEditing ? (
-                    <AsyncSelect
-                      fetcher={fetchEmployees}
-                      label="Преподаватель"
-                      value={selectedTeacher}
-                      onChange={setSelectedTeacher}
-                      renderOption={(option) => <span>{option.label}</span>}
-                      getOptionValue={(option) => option.value.toString()}
-                      getDisplayValue={(option) => option.label}
-                      placeholder="Выберите преподавателя"
-                      disabled={isLoading}
-                    />
-                  ) : item.teacher_name ? (
-                    <span className="text-gray-700">{item.teacher_name}</span>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setActiveFlow(item.id)}
-                      className="flex items-center gap-2"
-                    >
-                      <UserPlus size={16} />
-                      Добавить
-                    </Button>
-                  )}
-                </TableCell>
-
-                <TableCell className="flex justify-end gap-2">
-                  {isEditing ? (
-                    <>
-                      <Check
-                        size={18}
-                        onClick={() => handleSave(item.id)}
-                        className=" hover:text-green-700 cursor-pointer"
-                      />
-                      <X
-                        size={18}
-                        onClick={() => setActiveFlow(null)}
-                        className=" hover:text-red-600 cursor-pointer"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Edit
-                        size={18}
-                        onClick={() => setActiveFlow(item.id)}
-                        className="text-gray-500 hover:text-blue-600 cursor-pointer mr-5"
-                      />
-
-                    </>
-                  )}
+                <TableCell>{item.teacher_name || "Не указан"}</TableCell>
+                <TableCell className="relative">
+                  <Edit
+                    size={18}
+                    onClick={() => setSelectedFlow(item)}
+                    className="text-gray-500 absolute right-10 hover:text-blue-600 cursor-pointer "
+                  />
                 </TableCell>
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </Card>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+
+      <FlowInfoModal
+        open={!!selectedFlow}
+        onOpenChange={() => setSelectedFlow(null)}
+        flow={selectedFlow}
+      />
+    </>
   );
 };

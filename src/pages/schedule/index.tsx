@@ -3,6 +3,9 @@ import { useSchedulesQuery } from "entities/schedule/model/queries";
 import { IScheduleItem } from "entities/schedule/model/types";
 import { ScheduleCard } from "entities/schedule/ui";
 import { AsyncSelect } from "shared/components";
+import { ScheduleSkeleton } from "entities/schedule/ui/ScheduleCardSkeleton";
+
+
 
 const days = [
   { key: "monday", label: "Понедельник" },
@@ -40,15 +43,15 @@ export const SchedulePage = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen text-white">
-        Загрузка расписания...
+        <ScheduleSkeleton />
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-red-400">
-        Ошибка при загрузке данных
+      <div className="flex justify-center items-center min-h-screen ">
+        Ошибка при загрузке расписания.
       </div>
     );
   }
