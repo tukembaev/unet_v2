@@ -17,6 +17,7 @@ import StreamsPage from "pages/streams";
 import { StreamsInfo } from "entities/streams";
 import ProfilePage from "pages/profile";
 import { TaskDetails } from "entities/task/ui/task-details";
+import { KpiReportPage } from "pages/kpi-report";
 
 
 
@@ -91,6 +92,10 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.PERSONAL_CARD,
         element: <ProfilePage />,
+      },
+      {
+        path: ROUTES.KPI_REPORTS,
+        element: <KpiReportPage />,
       }
 
     ],
