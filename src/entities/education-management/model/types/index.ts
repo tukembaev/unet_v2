@@ -159,4 +159,50 @@ export interface SyllabusRoot {
   all_practice_hours?: number;
   all_credits?: number;
   all_amount_hours?: number;
+
+   // Новые поля из полного объекта
+   name_direction?: number;
+   department?: string;
+   institute?: string;
+   level_education?: string;
+   type?: string;
+   date_create?: string;
+   creator_id?: number;
+   employee_name?: string;
+   employee?: Employee;
+   sender_check?: string;
+   sender_sign?: string;
+   signatory?: Signatory;
+   signatory_check?: string | null;
+   signatory_sign?: string | null;
+   status?: string;
+   turn?: boolean;
+   reason_reject?: string | null;
+   syllabus_member?: SyllabusMember[];
+}
+
+export interface Employee {
+  id: number;
+  user: number;
+  first_name: string;
+  surname: string;
+  surname_name: string;
+  short_name: string;
+  number_phone: string;
+  imeag: string;
+  email: string;
+  division: string;
+  position: string;
+  is_online: boolean;
+}
+
+export interface Signatory extends Employee {}
+
+export interface SyllabusMember {
+  short_name: string;
+  position: string;
+  status: string;
+  member_check: string | null;
+  sign_unet: string | null;
+  date_check_member: string | null;
 }

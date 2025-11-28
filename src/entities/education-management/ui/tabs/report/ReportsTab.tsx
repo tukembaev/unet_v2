@@ -1,5 +1,5 @@
 import { useReports } from "entities/education-management/model/queries";
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle ,Skeleton} from "shared/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle ,Skeleton} from "shared/ui";
 
 import { ReportsTable } from "./ReportsTable";
 import { EmptyInfo } from "shared/components";
