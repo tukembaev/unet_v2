@@ -2,7 +2,7 @@
 import { LoginResponse } from "../types";
 import { apiClient } from "shared/config";
 
-const API_URL = "https://utask.kstu.kg";
+const API_URL = "https://uadmin.kstu.kg";
 
 export async function loginRequest(
   username: string,

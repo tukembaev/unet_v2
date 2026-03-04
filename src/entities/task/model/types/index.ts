@@ -13,38 +13,87 @@ export interface User {
     is_online: boolean;
   }
   
-  export type MemberType = "Ответственный" | "Соисполнитель" | "Наблюдатель";
-  
-  export interface Member {
-    id: number;
-    member: User | null;
-    member_type: MemberType;
+  export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED';
+
+  export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
+
+  export type TaskMemberRole = 'RESPONSIBLE' | 'CO_EXECUTOR' | 'OBSERVER';
+
+  export interface TaskMember {
+    task_id: string;
+    user_id: string;
+    user_name: string;
+    role: TaskMemberRole | string;
+    avatar_url: string;
+    is_online: boolean;
+    email: string;
+    assigned_at: string;
   }
-  
-  export interface Task {
-    id: number;
-    task_name: string;
-    creator: User;
-    status: string;
-    attached_document: string;
-    create_date: string;
-    deadline_date: string | null;
-    members: Member[];
+
+  export interface TaskSubtask {
+    id: string;
+    parent_id: string;
+    type: string;
+    title: string;
+    description: string;
+    status: TaskStatus | string;
+    priority: TaskPriority | string;
+    creator_id: string;
+    created_at: string;
+    updated_at: string;
+    deadline_at: string | null;
+    allow_change_deadline: boolean;
+    check_after_finish: boolean;
+    auto_complete_parent: boolean;
   }
-  
+
+  export interface TaskDetail {
+    id: string;
+    type: string;
+    title: string;
+    description: string;
+    status: TaskStatus | string;
+    priority: TaskPriority | string;
+    creator_id: string;
+    created_at: string;
+    updated_at: string;
+    deadline_at: string | null;
+    allow_change_deadline: boolean;
+    check_after_finish: boolean;
+    auto_complete_parent: boolean;
+    members: TaskMember[];
+    subtasks: TaskSubtask[];
+  }
+
+  export interface EmployeeTask {
+    id: string;
+    title: string;
+    created_at: string;
+    deadline_at: string | null;
+    responsible_user_id: string;
+    responsible_username: string;
+    members: Array<{
+      user_id: string;
+      user_name: string;
+      role: string;
+      avatar_url: string;
+      is_online: boolean;
+    }>;
+  }
+
   export interface TaskCategory {
-    OVERDUE: Task[];
-    TODAY: Task[];
-    WEEK: Task[];
-    MONTH: Task[];
-    LONGRANGE: Task[];
-    INDEFINITE: Task[];
+    OVERDUE: EmployeeTask[];
+    TODAY: EmployeeTask[];
+    WEEK: EmployeeTask[];
+    MONTH: EmployeeTask[];
+    LONGRANGE: EmployeeTask[];
+    INDEFINITE: EmployeeTask[];
   }
-  
+
   export interface TasksRoot {
     ALL: TaskCategory;
-    ATTACHED: Task[];
-    COMPLETED: Task[];
+    ATTACHED: TaskDetail[];
+    COMPLETED: TaskDetail[];
     DOING: TaskCategory;
     HELPING: TaskCategory;
     INSTRUCTED: TaskCategory;
@@ -53,8 +102,8 @@ export interface User {
 
   export interface EmployeeTasksResponse {
     ALL: TaskCategory;
-    ATTACHED: Task[];
-    COMPLETED: Task[];
+    ATTACHED: TaskDetail[];
+    COMPLETED: TaskDetail[];
     DOING: TaskCategory;
     HELPING: TaskCategory;
     INSTRUCTED: TaskCategory;
@@ -72,52 +121,4 @@ export interface User {
     name?: string;
     url?: string;
     [key: string]: any;
-  }
-
-  export interface TaskSubtaskMember {
-    id: number;
-    member: User | null;
-    member_type: MemberType;
-  }
-
-  export interface TaskSubtask {
-    id: number;
-    creator: User;
-    members_subtask: TaskSubtaskMember[];
-    resources: Resource[];
-    subtask_name: string;
-    create_date: string;
-    status: string;
-    edit_status_date: string | null;
-    deadline_date: string;
-    rejection_reason: string | null;
-    report: string | null;
-    report_file: string | null;
-    description: string;
-  }
-
-  export interface TaskDetail {
-    id: number;
-    creator: User;
-    accounting: any | null;
-    members: Member[];
-    subtasks: TaskSubtask[];
-    resources: Resource[];
-    files: File[];
-    deadline_date: string;
-    task_name: string;
-    create_date: string;
-    status: string;
-    edit_status_date: string | null;
-    attached_document: string;
-    report: string | null;
-    report_file: string | null;
-    description: string;
-    is_critical: boolean;
-    allow_change_deadline: boolean;
-    skip_dayoffs: boolean;
-    check_after_finish: boolean;
-    determ_by_subtasks: boolean;
-    report_after_finish: boolean;
-    stage: any | null;
   }

@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Avatar, AvatarImage, AvatarFallback, Badge } from "shared/ui";
 import { Users } from "lucide-react";
-import { Member } from "../../model/types";
+import { TaskMember } from "../../model/types";
 
 interface TaskMembersTableProps {
-  members: Member[];
+  members: TaskMember[];
 }
 
 const TaskMembersTable = ({ members }: TaskMembersTableProps) => {
@@ -41,37 +41,35 @@ const TaskMembersTable = ({ members }: TaskMembersTableProps) => {
               </TableHeader>
               <TableBody>
                 {members.map((member) => {
-                  const user = member.member;
-                  if (!user) return null;
-
                   return (
-                    <TableRow key={member.id}>
+                    <TableRow key={member.user_id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.imeag} alt={user.surname_name} />
+                            <AvatarImage src={member.avatar_url} alt={member.user_name} />
                             <AvatarFallback>
-                              {user.first_name[0]}{user.surname[0]}
+                              {member.user_name
+                                .split(' ')
+                                .filter(Boolean)
+                                .map(n => n[0])
+                                .join('')}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            <span className="font-medium">{user.surname_name}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {user.position} {user.division ? `• ${user.division}` : ''}
-                            </span>
+                            <span className="font-medium">{member.user_name}</span>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getStatusBadgeVariant(user.is_online)}>
-                          {getMemberStatus(user.is_online)}
+                        <Badge variant={getStatusBadgeVariant(member.is_online)}>
+                          {getMemberStatus(member.is_online)}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{member.member_type}</Badge>
+                        <Badge variant="outline">{member.role}</Badge>
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm">{user.email || "-"}</span>
+                        <span className="text-sm">{member.email || "-"}</span>
                       </TableCell>
                     </TableRow>
                   );

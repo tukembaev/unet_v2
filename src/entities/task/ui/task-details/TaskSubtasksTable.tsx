@@ -4,7 +4,7 @@ import { TaskSubtask } from "../../model/types";
 
 interface TaskSubtasksTableProps {
   subtasks: TaskSubtask[];
-  onSubtaskClick?: (subtaskId: number) => void;
+  onSubtaskClick?: (subtaskId: string) => void;
 }
 
 const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps) => {
@@ -13,16 +13,8 @@ const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps)
     console.log('Add subtask');
   };
 
-  const handleRowClick = (subtaskId: number) => {
+  const handleRowClick = (subtaskId: string) => {
     onSubtaskClick?.(subtaskId);
-  };
-
-  const getResponsibleMembers = (subtask: TaskSubtask) => {
-    const responsible = subtask.members_subtask
-      .filter(m => m.member_type === "Ответственный")
-      .map(m => m.member?.surname_name || "")
-      .filter(Boolean);
-    return responsible.join(", ") || "-";
   };
 
   return (
@@ -62,7 +54,7 @@ const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps)
                     onClick={() => handleRowClick(subtask.id)}
                   >
                     <TableCell className="font-medium">
-                      {subtask.subtask_name}
+                      {subtask.title}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
@@ -70,13 +62,13 @@ const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps)
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">{getResponsibleMembers(subtask)}</span>
+                      <span className="text-sm">-</span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">{subtask.create_date}</span>
+                      <span className="text-sm">{subtask.created_at}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">{subtask.deadline_date}</span>
+                      <span className="text-sm">{subtask.deadline_at ?? '-'}</span>
                     </TableCell>
                   </TableRow>
                 ))}

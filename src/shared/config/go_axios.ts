@@ -1,32 +1,26 @@
 import axios from 'axios';
 
-export const apiClient = axios.create({
-  baseURL: 'https://uadmin.kstu.kg/user/api/',
+export const apiClientGo = axios.create({
+  baseURL: 'http://localhost:8081/api/v1/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
-// Request interceptor
-apiClient.interceptors.request.use(
+// Request interceptor to add auth headers
+apiClientGo.interceptors.request.use(
   (config) => {
-    // Add auth token if available
-    const token = localStorage.getItem('token');
-    console.log(token);
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-  }
+    // Add X-User-ID header for development
+    config.headers['X-User-ID'] = 'X-User-ID'; // You can make this dynamic based on your auth state
     return config;
   },
-  (error: unknown) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Response interceptor
-apiClient.interceptors.response.use(
+apiClientGo.interceptors.response.use(
   (response) => response,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (error: any) => {

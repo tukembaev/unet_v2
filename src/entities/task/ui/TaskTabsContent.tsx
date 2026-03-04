@@ -1,25 +1,23 @@
 import React, { useMemo } from 'react';
-import { KanbanBoard } from './KanbanBoard';
-import { TaskCategory, EmployeeTasksResponse, Task } from '../model/types';
+import { EmployeeTask } from '../model/types';
 import { useEmployeeTasks } from '../model/queries';
 import { useAuthUser } from 'features/auth/model/queries';
-
-const filterConfig = [
-  { key: 'ALL', label: 'Все', value: 'all' },
-  { key: 'ATTACHED', label: 'Прикрепленные', value: 'attached' },
-  { key: 'COMPLETED', label: 'Завершенные', value: 'completed' },
-  { key: 'DOING', label: 'Выполняю', value: 'doing' },
-  { key: 'HELPING', label: 'Помогаю', value: 'helping' },
-  { key: 'INSTRUCTED', label: 'Поручил', value: 'instructed' },
-  { key: 'WATCHING', label: 'Наблюдаю', value: 'watching' },
-];
+import { KanbanBoard } from './KanbanBoard';
 
 interface TaskTabsContentProps {
   selectedFilters?: string[];
 }
 
-// Helper function to convert Task[] to TaskCategory
-const tasksArrayToCategory = (tasks: Task[]): TaskCategory => {
+type EmployeeTaskCategory = {
+  OVERDUE: EmployeeTask[];
+  TODAY: EmployeeTask[];
+  WEEK: EmployeeTask[];
+  MONTH: EmployeeTask[];
+  LONGRANGE: EmployeeTask[];
+  INDEFINITE: EmployeeTask[];
+};
+
+const emptyEmployeeTaskCategory = (): EmployeeTaskCategory => {
   return {
     OVERDUE: [],
     TODAY: [],
@@ -30,33 +28,55 @@ const tasksArrayToCategory = (tasks: Task[]): TaskCategory => {
   };
 };
 
-// Helper function to get tasks from a filter key
-const getTasksFromFilter = (
-  tasksData: EmployeeTasksResponse | undefined,
-  filterKey: keyof EmployeeTasksResponse
-): TaskCategory => {
-  if (!tasksData || !tasksData[filterKey]) {
-    return tasksArrayToCategory([]);
-  }
+const distributeEmployeeTasksByDeadline = (tasks: EmployeeTask[]): EmployeeTaskCategory => {
+  const result = emptyEmployeeTaskCategory();
 
-  const tasks = tasksData[filterKey];
-  
-  // If it's an array (COMPLETED or ATTACHED), convert to TaskCategory
-  if (Array.isArray(tasks)) {
-    // For arrays, we need to distribute them - for now, put all in INDEFINITE
-    // or you could add logic to categorize them based on deadline_date
-    return {
-      OVERDUE: [],
-      TODAY: [],
-      WEEK: [],
-      MONTH: [],
-      LONGRANGE: [],
-      INDEFINITE: tasks,
-    };
-  }
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-  // If it's already a TaskCategory, return it
-  return tasks;
+  const endOfWeek = new Date(endOfToday);
+  endOfWeek.setDate(endOfWeek.getDate() + 7);
+
+  const endOfMonth = new Date(endOfToday);
+  endOfMonth.setDate(endOfMonth.getDate() + 30);
+
+  tasks.forEach((task) => {
+    if (!task.deadline_at) {
+      result.INDEFINITE.push(task);
+      return;
+    }
+
+    const deadline = new Date(task.deadline_at);
+    if (Number.isNaN(deadline.getTime())) {
+      result.INDEFINITE.push(task);
+      return;
+    }
+
+    if (deadline < startOfToday) {
+      result.OVERDUE.push(task);
+      return;
+    }
+
+    if (deadline >= startOfToday && deadline <= endOfToday) {
+      result.TODAY.push(task);
+      return;
+    }
+
+    if (deadline > endOfToday && deadline <= endOfWeek) {
+      result.WEEK.push(task);
+      return;
+    }
+
+    if (deadline > endOfWeek && deadline <= endOfMonth) {
+      result.MONTH.push(task);
+      return;
+    }
+
+    result.LONGRANGE.push(task);
+  });
+
+  return result;
 };
 
 export const TaskTabsContent: React.FC<TaskTabsContentProps> = ({ 
@@ -64,46 +84,15 @@ export const TaskTabsContent: React.FC<TaskTabsContentProps> = ({
 }) => {
   const { data: user } = useAuthUser();
   console.log(user)
-  const { data: tasksData, isLoading } = useEmployeeTasks(69298);
-
+  const { data: tasksData, isLoading } = useEmployeeTasks();
+  console.log(tasksData)
   const filteredTasks = useMemo(() => {
     if (!tasksData) {
-      return tasksArrayToCategory([]);
+      return emptyEmployeeTaskCategory();
     }
 
-    // If 'all' is selected or no filters, return ALL tasks
-    if (selectedFilters.includes('all') || selectedFilters.length === 0) {
-      return tasksData.ALL;
-    }
-
-    // Combine tasks from selected filters
-    const combinedTasks: TaskCategory = {
-      OVERDUE: [],
-      TODAY: [],
-      WEEK: [],
-      MONTH: [],
-      LONGRANGE: [],
-      INDEFINITE: [],
-    };
-
-    selectedFilters.forEach(filterValue => {
-      const filterKey = filterConfig.find(f => f.value === filterValue)?.key as keyof EmployeeTasksResponse;
-      
-      if (filterKey && tasksData[filterKey]) {
-        const tasks = getTasksFromFilter(tasksData, filterKey);
-        
-        // Combine tasks from each category
-        Object.keys(combinedTasks).forEach(key => {
-          const categoryKey = key as keyof TaskCategory;
-          combinedTasks[categoryKey] = [
-            ...combinedTasks[categoryKey],
-            ...tasks[categoryKey]
-          ];
-        });
-      }
-    });
-
-    return combinedTasks;
+    void selectedFilters;
+    return distributeEmployeeTasksByDeadline(tasksData);
   }, [tasksData, selectedFilters]);
 
   return (

@@ -5,30 +5,30 @@ import { Button } from "shared/ui";
 import { Calendar, CheckCircle2 } from "lucide-react";
 import TaskMembersTable from "./TaskMembersTable";
 import TaskSubtasksTable from "./TaskSubtasksTable";
-import TaskDocumentsCard from "./TaskDocumentsCard";
 import TaskDetailsSkeleton from "./TaskDetailsSkeleton";
 import { cn } from "shared/lib";
 import { useTaskDetails } from "../../model/queries";
+import TaskDocumentsCard from "./TaskDocumentsCard";
 
 const TaskDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const taskId = location.state?.taskId as number | undefined;
+  const taskId = location.state?.taskId as string | undefined;
   
   const { data: task, isLoading } = useTaskDetails(taskId);
   const [isEarlyCompletion, setIsEarlyCompletion] = useState(false);
 
   // Determine if task can be completed early
   useEffect(() => {
-    if (task?.deadline_date) {
-      const deadline = new Date(task.deadline_date.split('.').reverse().join('-'));
+    if (task?.deadline_at) {
+      const deadline = new Date(task.deadline_at);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       deadline.setHours(0, 0, 0, 0);
       setIsEarlyCompletion(today < deadline);
     }
   }, [task]);
-
+  console.log(task)
   if (isLoading || !task) {
     return <TaskDetailsSkeleton />;
   }
@@ -41,7 +41,7 @@ const TaskDetails = () => {
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-6">
       <PageHeader
-        title={task.task_name}
+        title={task.title}
         description={task.status}
       >
         <Button
@@ -60,11 +60,11 @@ const TaskDetails = () => {
       <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span>Крайний срок: {task.deadline_date}</span>
+          <span>Крайний срок: {task.deadline_at ?? '-'}</span>
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span>Поставлена: {task.create_date}</span>
+          <span>Поставлена: {task.created_at}</span>
         </div>
       </div>
 
@@ -93,9 +93,8 @@ const TaskDetails = () => {
         </div>
 
         {/* Right side - Documents (1/3) */}
-        <div className="lg:col-span-1">
-          <TaskDocumentsCard files={task.files} />
-        </div>
+        <div className="lg:col-span-1" />
+        <TaskDocumentsCard files={task.files} />
       </div>
     </div>
   );

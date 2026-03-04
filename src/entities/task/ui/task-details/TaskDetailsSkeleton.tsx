@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, Skeleton } from 'shared/ui';
-import { Separator } from 'shared/ui/separator';
 
 const TaskDetailsSkeleton = () => {
   return (

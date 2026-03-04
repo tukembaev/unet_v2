@@ -2,12 +2,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from 'shared/ui';
 
-import { Task } from '../model/types';
+import { EmployeeTask } from '../model/types';
 import { Calendar, MoreHorizontal } from 'lucide-react';
 import { AvatarGroup } from 'shared/components/avatar/avatar-group';
 
 interface TaskCardProps {
-  task: Task;
+  task: EmployeeTask;
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
@@ -21,6 +21,17 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     
     // Parse date string like "12.10.2025 12:00" and format as "12 окт 25"
     try {
+      const isoDate = new Date(dateString);
+      if (!Number.isNaN(isoDate.getTime())) {
+        return new Intl.DateTimeFormat('ru-RU', {
+          day: '2-digit',
+          month: 'short',
+          year: '2-digit',
+        })
+          .format(isoDate)
+          .replace(/\./g, '');
+      }
+
       const [datePart] = dateString.split(' ');
       const [day, month, year] = datePart.split('.');
       const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
@@ -31,7 +42,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
       return dateString;
     }
   };
-
+  console.log(task)
   return (
     <Card 
       className="p-4 hover:shadow-md transition-all duration-200 cursor-pointer group"
@@ -41,7 +52,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         {/* Header with title and menu */}
         <div className="flex items-start justify-between">
           <h3 className="font-semibold text-sm text-foreground line-clamp-2 flex-1 pr-2">
-            {task.task_name}
+            {task.title}
           </h3>
           <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded">
             <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
@@ -67,8 +78,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
                 <span>
-                  {formatDate(task.create_date)}
-                  {task.deadline_date && ` - ${formatDate(task.deadline_date)}`}
+                  {formatDate(task.created_at)}
+                  {task.deadline_at && ` - ${formatDate(task.deadline_at)}`}
                 </span>
               </div>
             </div>

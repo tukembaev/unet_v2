@@ -1,8 +1,8 @@
-import { apiClient } from "shared/config";
+import { apiClientGo } from "shared/config";
 import { TaskDetail } from "../types";
 
-export const getTaskDetails = async (id: number): Promise<TaskDetail> => {
-  const { data } = await apiClient.get<TaskDetail>(`tasks/${id}/`);
+export const getTaskDetails = async (id: string): Promise<TaskDetail> => {
+  const { data } = await apiClientGo.get<TaskDetail>(`tasks/${id}`);
   return data;
 };
 
