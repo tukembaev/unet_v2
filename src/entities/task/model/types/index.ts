@@ -116,9 +116,10 @@ export interface User {
     [key: string]: any;
   }
 
-  export interface File {
+  export interface TaskFile {
     id?: number;
     name?: string;
     url?: string;
+    task_id?: string;
     [key: string]: any;
   }

@@ -93,8 +93,9 @@ const TaskDetails = () => {
         </div>
 
         {/* Right side - Documents (1/3) */}
-        <div className="lg:col-span-1" />
-        <TaskDocumentsCard files={task.files} />
+        <div className="lg:col-span-1"> 
+          <TaskDocumentsCard />
+        </div>
       </div>
     </div>
   );

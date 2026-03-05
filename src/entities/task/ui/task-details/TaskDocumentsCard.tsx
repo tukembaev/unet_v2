@@ -1,18 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle, Button, Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "shared/ui";
 import { Plus, FileText, Download } from "lucide-react";
-import { File } from "../../model/types";
+import { useTaskDocuments } from "entities/task/model/queries";
+import { useLocation } from "react-router-dom";
+import { TaskFile } from "entities/task/model/types";
 
-interface TaskDocumentsCardProps {
-  files: File[];
-}
+const TaskDocumentsCard = () => {
+  const location = useLocation();
+  const taskId = location.state?.taskId as string | undefined;
 
-const TaskDocumentsCard = ({ files }: TaskDocumentsCardProps) => {
+  const { data: task_docs } = useTaskDocuments(taskId);
+  
   const handleAddDocument = () => {
     // TODO: Implement add document logic
     console.log('Add document');
   };
 
-  const handleDownload = (file: File) => {
+  const handleDownload = (file: TaskFile) => {
     // TODO: Implement download logic
     console.log('Download file:', file);
   };
@@ -30,7 +33,7 @@ const TaskDocumentsCard = ({ files }: TaskDocumentsCardProps) => {
         </Button>
       </CardHeader>
       <CardContent>
-        {files.length === 0 ? (
+        {task_docs?.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
             Документы отсутствуют
           </p>
@@ -44,7 +47,7 @@ const TaskDocumentsCard = ({ files }: TaskDocumentsCardProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {files.map((file, index) => (
+                {task_docs?.map((file, index) => (
                   <TableRow key={file.id || index}>
                     <TableCell>
                       <div className="flex items-center gap-2">
