@@ -9,13 +9,10 @@ export async function loginRequest(
   password: string
 ): Promise<string> {
   const { data } = await apiClient.post<LoginResponse>(
-    `${API_URL}/user/api/v2/users/auth/`,
+    `${API_URL}/users/api/v1/users/auth`,
     { username, password }
   );
-  localStorage.setItem("token", data.access);
-  localStorage.setItem("refresh", data.refresh);
-  localStorage.setItem("pin", data.pin);
-
+ 
   return data.pin;
 }
 

@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-import { EmployeeTask } from '../model/types';
 import { useEmployeeTasks } from '../model/queries';
-import { useAuthUser } from 'features/auth/model/queries';
+import { EmployeeTask } from '../model/types';
 import { KanbanBoard } from './KanbanBoard';
 
 interface TaskTabsContentProps {
@@ -82,8 +81,7 @@ const distributeEmployeeTasksByDeadline = (tasks: EmployeeTask[]): EmployeeTaskC
 export const TaskTabsContent: React.FC<TaskTabsContentProps> = ({ 
   selectedFilters = ['all'] 
 }) => {
-  const { data: user } = useAuthUser();
-  console.log(user)
+
   const { data: tasksData, isLoading } = useEmployeeTasks();
   console.log(tasksData)
   const filteredTasks = useMemo(() => {

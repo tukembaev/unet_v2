@@ -20,20 +20,3 @@ export function useLogin() {
     },
   });
 }
-// 🔹 Хук для получения текущего пользователя
-export function useAuthUser() {
-  return useQuery<User | null>({
-    queryKey: USER_QUERY_KEY,
-    queryFn: async () => {
-      // если в кэше нет — берём из localStorage
-      const userStr = localStorage.getItem("user");
-      if (!userStr) return null;
-      return JSON.parse(userStr) as User;
-    },
-    staleTime: Infinity,
-    initialData: () => {
-      const userStr = localStorage.getItem("user");
-      return userStr ? (JSON.parse(userStr) as User) : null;
-    },
-  });
-}
