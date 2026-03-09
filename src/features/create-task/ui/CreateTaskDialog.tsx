@@ -1,6 +1,7 @@
 import { Calendar as CalendarIcon, Upload, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { useWatch } from 'react-hook-form';
 import {
   Dialog,
   DialogContent,
@@ -49,6 +50,11 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
     isSubmitting,
   } = useCreateTaskForm();
 
+  // Используем useWatch вместо form.watch() для оптимизации
+  const isImportant = useWatch({ control: form.control, name: 'isImportant' });
+  const selectedFiles = useWatch({ control: form.control, name: 'selectedFiles' });
+  const deadline = useWatch({ control: form.control, name: 'deadline' });
+
   const handleCancel = () => {
     resetForm();
     onOpenChange(false);
@@ -79,7 +85,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="isImportant"
-                  checked={form.watch('isImportant')}
+                  checked={isImportant}
                   onCheckedChange={(checked) => form.setValue('isImportant', checked === true)}
                 />
                 <Label htmlFor="isImportant" className="text-sm font-normal">
@@ -149,14 +155,14 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
                 className="hidden"
               />
             </div>
-            {form.watch('selectedFiles').length > 0 && (
+            {selectedFiles.length > 0 && (
               <div className="text-sm text-muted-foreground">
-                Выбрано файлов: {form.watch('selectedFiles').length}
+                Выбрано файлов: {selectedFiles.length}
               </div>
             )}
-            {form.watch('selectedFiles').length > 0 && (
+            {selectedFiles.length > 0 && (
               <div className="space-y-2">
-                {form.watch('selectedFiles').map((file, index) => (
+                {selectedFiles.map((file, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border border-border rounded-md bg-card">
                     <div className="flex items-center gap-2">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
@@ -184,7 +190,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
             )}
           </div>
 
-          {/* Responsible (Required) */}
+          Responsible (Required)
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               Ответственный (Обязательное поле)
@@ -290,8 +296,8 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
                   className="w-full justify-start text-left font-normal"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {form.watch('deadline') ? (
-                    format(form.watch('deadline'), 'PPP', { locale: ru })
+                  {deadline ? (
+                    format(deadline, 'PPP', { locale: ru })
                   ) : (
                     <span>Выберите дату</span>
                   )}
@@ -300,7 +306,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={form.watch('deadline')}
+                  selected={deadline}
                   onSelect={(date) => {
                     if (date) {
                       form.setValue('deadline', date);

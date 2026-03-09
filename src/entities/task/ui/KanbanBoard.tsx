@@ -50,7 +50,7 @@ const sectionConfig = [
   },
 ];
 
-export const KanbanBoard: React.FC<KanbanBoardProps> = ({
+const KanbanBoardComponent: React.FC<KanbanBoardProps> = ({
   tasks,
   isLoading = false,
 }) => {
@@ -111,6 +111,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     </div>
   );
 };
+
+export const KanbanBoard = React.memo(KanbanBoardComponent);
 
 // Skeleton Loader Component
 const KanbanSkeleton: React.FC = () => {

@@ -24,7 +24,7 @@ interface TaskSearchFilterProps {
   onAddTask?: () => void;
 }
 
-export const TaskSearchFilter: React.FC<TaskSearchFilterProps> = ({
+const TaskSearchFilterComponent: React.FC<TaskSearchFilterProps> = ({
   onSearch,
   selectedFilters = ['all'],
   onFiltersChange,
@@ -129,3 +129,5 @@ export const TaskSearchFilter: React.FC<TaskSearchFilterProps> = ({
     </div>
   );
 };
+
+export const TaskSearchFilter = React.memo(TaskSearchFilterComponent);

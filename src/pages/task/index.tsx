@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { PageHeader } from 'widgets/page-header'
 import { TaskSearchFilter, TaskTabsContent, CreateTaskDialog } from 'entities/task'
 
@@ -6,18 +6,18 @@ export const TaskPage = () => {
   const [selectedFilters, setSelectedFilters] = useState<string[]>(['all'])
   const [isCreateTaskDialogOpen, setIsCreateTaskDialogOpen] = useState(false)
 
-  const handleSearch = (value: string) => {
+  const handleSearch = useCallback((value: string) => {
     // TODO: Implement search functionality
     console.log('Search:', value)
-  }
+  }, [])
 
-  const handleFiltersChange = (filters: string[]) => {
+  const handleFiltersChange = useCallback((filters: string[]) => {
     setSelectedFilters(filters)
-  }
+  }, [])
 
-  const handleAddTask = () => {
+  const handleAddTask = useCallback(() => {
     setIsCreateTaskDialogOpen(true)
-  }
+  }, [])
 
   return (
     <div className="space-y-6">

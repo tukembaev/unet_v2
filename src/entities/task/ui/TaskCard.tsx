@@ -10,7 +10,7 @@ interface TaskCardProps {
   task: EmployeeTask;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
+const TaskCardComponent: React.FC<TaskCardProps> = ({ task }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
@@ -88,3 +88,5 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     </Card>
   );
 };
+
+export const TaskCard = React.memo(TaskCardComponent);

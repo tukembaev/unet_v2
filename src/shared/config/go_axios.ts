@@ -9,15 +9,6 @@ export const apiClientGo = axios.create({
   withCredentials: true,
 });
 
-// Request interceptor to add auth headers
-apiClientGo.interceptors.request.use(
-  (config) => {
-    // Add X-User-ID header for development
-    config.headers['X-User-ID'] = 'X-User-ID'; // You can make this dynamic based on your auth state
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 // Response interceptor
 apiClientGo.interceptors.response.use(

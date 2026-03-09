@@ -78,7 +78,7 @@ const distributeEmployeeTasksByDeadline = (tasks: EmployeeTask[]): EmployeeTaskC
   return result;
 };
 
-export const TaskTabsContent: React.FC<TaskTabsContentProps> = ({ 
+const TaskTabsContentComponent: React.FC<TaskTabsContentProps> = ({ 
   selectedFilters = ['all'] 
 }) => {
 
@@ -102,3 +102,5 @@ export const TaskTabsContent: React.FC<TaskTabsContentProps> = ({
     </div>
   );
 };
+
+export const TaskTabsContent = React.memo(TaskTabsContentComponent);
