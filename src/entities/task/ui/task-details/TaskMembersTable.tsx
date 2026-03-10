@@ -1,6 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Avatar, AvatarImage, AvatarFallback, Badge } from "shared/ui";
-import { Users } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Avatar, AvatarImage, AvatarFallback, Badge, Button } from "shared/ui";
+import { Plus, Users } from "lucide-react";
 import { TaskMember } from "../../model/types";
+import { EmptyState } from "shared/components/EmptyState";
 
 interface TaskMembersTableProps {
   members: TaskMember[];
@@ -17,17 +18,23 @@ const TaskMembersTable = ({ members }: TaskMembersTableProps) => {
 
   return (
     <Card className="hover:shadow-md transition-all duration-200 ">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5 text-primary" />
           Участники
         </CardTitle>
+        <Button size="sm" variant="outline">
+          <Plus className="h-4 w-4" />
+          Добавить участника
+        </Button>
       </CardHeader>
       <CardContent>
         {members.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            Участники отсутствуют
-          </p>
+          <EmptyState
+            icon={Users}
+            title="Участники отсутствуют"
+            description="К этой задаче еще не добавлены участники"
+          />
         ) : (
           <div className="w-full overflow-x-auto rounded-md border">
             <Table>

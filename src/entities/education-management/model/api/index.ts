@@ -1,4 +1,5 @@
-import { apiClient } from 'shared/config/axios';
+
+import { apiClient } from 'shared/config';
 import { Direction, Discipline, FamilyDirection, FamilyDirectionItem, Reports, SelectOptions, SyllabusRoot, WorkLoad, WorkPlanItem } from '../types';
 
 export const getUsers = async (): Promise<Direction[]> => {

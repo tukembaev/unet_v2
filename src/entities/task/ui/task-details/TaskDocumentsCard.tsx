@@ -1,8 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle, Button, Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "shared/ui";
+import { Card, CardContent, CardHeader, CardTitle, Button, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, FileDragDrop } from "shared/ui";
 import { Plus, FileText, Download } from "lucide-react";
 import { useTaskDocuments } from "entities/task/model/queries";
 import { useLocation } from "react-router-dom";
 import { TaskFile } from "entities/task/model/types";
+import { EmptyState } from "shared/components/EmptyState";
 
 const TaskDocumentsCard = () => {
   const location = useLocation();
@@ -27,16 +28,18 @@ const TaskDocumentsCard = () => {
           <FileText className="h-5 w-5 text-primary" />
           Документы
         </CardTitle>
-        <Button onClick={handleAddDocument} size="sm" variant="outline">
-          <Plus className="h-4 w-4" />
-          Добавить
-        </Button>
+       
       </CardHeader>
       <CardContent>
         {task_docs?.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            Документы отсутствуют
-          </p>
+          <FileDragDrop 
+            files={[]}
+            onFilesChange={() => {}}
+            maxFiles={10}
+            maxFileSize={10 * 1024 * 1024}
+            description="Перетащите файлы сюда или нажмите для выбора"
+            multiple={true}
+          />
         ) : (
           <div className="w-full overflow-x-auto rounded-md border">
             <Table>

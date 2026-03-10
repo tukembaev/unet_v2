@@ -61,6 +61,12 @@ const CommandList = React.forwardRef<
   <CommandPrimitive.List
     ref={ref}
     className={cn("max-h-[300px] overflow-y-auto overflow-x-hidden", className)}
+    onWheelCapture={(e) => {
+      // cmdk находится внутри Popover/Dialog; иногда родитель перехватывает wheel,
+      // из-за чего список не скроллится колесиком. Останавливаем всплытие.
+      e.stopPropagation();
+    }}
+    style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
     {...props}
   />
 ));

@@ -1,4 +1,6 @@
-import { apiClient } from 'shared/config/axios';
+
+
+import { apiClient } from 'shared/config';
 import { Directions } from '../types';
 
 export const getAllSyllabus = async (): Promise<Directions> => {

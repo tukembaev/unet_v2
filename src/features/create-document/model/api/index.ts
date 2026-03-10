@@ -1,4 +1,5 @@
-import { apiClient } from 'shared/config/axios';
+
+import { apiClient } from 'shared/config';
 import { Employee, CreateDocumentFormData } from '../types';
 
 // Fetch employees from API

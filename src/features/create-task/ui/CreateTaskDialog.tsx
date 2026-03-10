@@ -1,39 +1,28 @@
-import { Calendar as CalendarIcon, Upload, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { useWatch } from 'react-hook-form';
+import { AsyncMultiSelect } from 'shared/components/select/AsyncMultiSelect';
+import { AsyncSelect } from 'shared/components/select/AsyncSelect';
 import {
+  Button,
+  Calendar,
+  Checkbox,
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
-  Button,
+  DialogHeader,
+  DialogTitle,
   Input,
   Label,
-  Textarea,
-  Checkbox,
-  Calendar,
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Textarea
 } from 'shared/ui';
-import { AsyncSelect } from 'shared/components/select/AsyncSelect';
-import { AsyncMultiSelect } from 'shared/components/select/AsyncMultiSelect';
+
 import { useCreateTaskForm } from '../model/hooks/useCreateTaskForm';
-import {
-  fetchUsers,
-  fetchStudents,
-  fetchObservers,
-  fetchCoExecutors,
-} from '../model/api';
-import {
-  CreateTaskDialogUser,
-  CreateTaskDialogStudent,
-  CreateTaskDialogObserver,
-  CreateTaskDialogCoExecutor,
-} from '../model/types';
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -43,17 +32,16 @@ interface CreateTaskDialogProps {
 export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) {
   const {
     form,
-    handleFileSelect,
-    removeFile,
     resetForm,
     submitForm,
     isSubmitting,
   } = useCreateTaskForm();
 
-  // Используем useWatch вместо form.watch() для оптимизации
   const isImportant = useWatch({ control: form.control, name: 'isImportant' });
-  const selectedFiles = useWatch({ control: form.control, name: 'selectedFiles' });
   const deadline = useWatch({ control: form.control, name: 'deadline' });
+  const responsible = useWatch({ control: form.control, name: 'responsible' });
+  const observers = useWatch({ control: form.control, name: 'observers' });
+  const coExecutors = useWatch({ control: form.control, name: 'coExecutors' });
 
   const handleCancel = () => {
     resetForm();
@@ -77,7 +65,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="flex flex-col gap-2">
+        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="flex flex-col gap-4">
           {/* Task Name */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -116,102 +104,16 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
             />
           </div>
 
-          {/* File Upload */}
-          <div className="space-y-2">
-            <Label>Прикрепление файла</Label>
-            <div 
-              className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
-              onClick={() => document.getElementById('fileInput')?.click()}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.add('border-primary', 'bg-primary/5');
-              }}
-              onDragLeave={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.remove('border-primary', 'bg-primary/5');
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.remove('border-primary', 'bg-primary/5');
-                const files = Array.from(e.dataTransfer.files);
-                const currentFiles = form.getValues('selectedFiles');
-                form.setValue('selectedFiles', [...currentFiles, ...files]);
-              }}
-            >
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
-                  <Upload className="h-6 w-6 text-primary" />
-                </div>
-              
-                <p className="text-xs text-muted-foreground">
-                  Поддерживаются любые типы файлов
-                </p>
-              </div>
-              <Input
-                id="fileInput"
-                type="file"
-                multiple
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-            </div>
-            {selectedFiles.length > 0 && (
-              <div className="text-sm text-muted-foreground">
-                Выбрано файлов: {selectedFiles.length}
-              </div>
-            )}
-            {selectedFiles.length > 0 && (
-              <div className="space-y-2">
-                {selectedFiles.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border border-border rounded-md bg-card">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
-                        <Upload className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium">{file.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {(file.size / 1024).toFixed(1)} KB
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(index)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          Responsible (Required)
+          {/* Responsible */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
-              Ответственный (Обязательное поле)
+              Ответственный
               <span className="text-red-500">*</span>
             </Label>
-            <AsyncSelect<CreateTaskDialogUser>
-              fetcher={fetchUsers}
-              value={form.watch('responsible')}
-              onChange={(value) => form.setValue('responsible', value)}
-              label="Ответственный"
+            <AsyncSelect
+              value={responsible}
+              onChange={(value) => form.setValue('responsible', value as any)}
               placeholder="Выбрать ответственного"
-              renderOption={(user) => (
-                <div className="flex flex-col">
-                  <span className="font-medium">{user.name}</span>
-                  <span className="text-sm text-muted-foreground">{user.email}</span>
-                </div>
-              )}
-              getOptionValue={(user) => user.id}
-              getDisplayValue={(user) => user.name}
-              width="100%"
-              autoSize={false}
             />
             {form.formState.errors.responsible && (
               <p className="text-sm text-destructive">
@@ -220,75 +122,29 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
             )}
           </div>
 
-          {/* Students */}
-          <div className="space-y-2">
-            <Label>Ответственный</Label>
-            <AsyncMultiSelect<CreateTaskDialogStudent>
-              fetcher={fetchStudents}
-              value={form.watch('students')}
-              onChange={(value) => form.setValue('students', value)}
-              label="Студенты"
-              placeholder="Выбрать студентов"
-              renderOption={(student) => (
-                <div className="flex flex-col">
-                  <span className="font-medium">{student.name}</span>
-                  <span className="text-sm text-muted-foreground">{student.group}</span>
-                </div>
-              )}
-              getOptionValue={(student) => student.id}
-              getDisplayValue={(student) => student.name}
-              width="100%"
-            />
-          </div>
-
           {/* Observers */}
           <div className="space-y-2">
             <Label>Наблюдатель</Label>
-            <AsyncMultiSelect<CreateTaskDialogObserver>
-              fetcher={fetchObservers}
-              value={form.watch('observers')}
+            <AsyncMultiSelect
+              value={observers}
               onChange={(value) => form.setValue('observers', value)}
-              label="Наблюдатели"
               placeholder="Выбрать наблюдателей"
-              renderOption={(observer) => (
-                <div className="flex flex-col">
-                  <span className="font-medium">{observer.name}</span>
-                  <span className="text-sm text-muted-foreground">{observer.role}</span>
-                </div>
-              )}
-              getOptionValue={(observer) => observer.id}
-              getDisplayValue={(observer) => observer.name}
-              width="100%"
             />
           </div>
 
           {/* Co-executors */}
           <div className="space-y-2">
             <Label>Соисполнитель</Label>
-            <AsyncMultiSelect<CreateTaskDialogCoExecutor>
-              fetcher={fetchCoExecutors}
-              value={form.watch('coExecutors')}
+            <AsyncMultiSelect
+              value={coExecutors}
               onChange={(value) => form.setValue('coExecutors', value)}
-              label="Соисполнители"
               placeholder="Выбрать соисполнителей"
-              renderOption={(coExecutor) => (
-                <div className="flex flex-col">
-                  <span className="font-medium">{coExecutor.name}</span>
-                  <span className="text-sm text-muted-foreground">{coExecutor.department}</span>
-                </div>
-              )}
-              getOptionValue={(coExecutor) => coExecutor.id}
-              getDisplayValue={(coExecutor) => coExecutor.name}
-              width="100%"
             />
           </div>
 
           {/* Deadline */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="deadline">Крайний срок</Label>
-              <span className="text-sm text-muted-foreground">Дополнительные параметры</span>
-            </div>
+            <Label htmlFor="deadline">Крайний срок</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button

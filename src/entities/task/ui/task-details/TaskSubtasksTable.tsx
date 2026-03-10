@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, Button, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Badge } from "shared/ui";
 import { Plus, ClipboardList } from "lucide-react";
 import { TaskSubtask } from "../../model/types";
+import { EmptyState } from "shared/components/EmptyState";
 
 interface TaskSubtasksTableProps {
   subtasks: TaskSubtask[];
@@ -31,9 +32,11 @@ const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps)
       </CardHeader>
       <CardContent>
         {subtasks.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            Подзадачи отсутствуют
-          </p>
+          <EmptyState
+            icon={ClipboardList}
+            title="Подзадачи отсутствуют"
+            description="К этой задаче еще не добавлены подзадачи"
+          />
         ) : (
           <div className="w-full overflow-x-auto rounded-md border">
             <Table>

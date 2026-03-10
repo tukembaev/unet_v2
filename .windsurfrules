@@ -1,0 +1,5 @@
+# Language and Documentation Preferences
+- Always respond to the user in Russian (RU).
+- When retrieving information via DeepWiki or indexing local documentation, translate technical summaries and explanations into Russian.
+- Maintain original English technical terms (e.g., "hook", "middleware", "concurrency") in brackets or use them if they are industry standard, but provide the surrounding context in Russian.
+- Ensure all code comments generated or refactored are written in Russian.

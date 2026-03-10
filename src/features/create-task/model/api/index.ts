@@ -1,88 +1,33 @@
+import { apiClientGo } from 'shared/config/go_axios';
 import {
-  CreateTaskDialogUser,
-  CreateTaskDialogStudent,
-  CreateTaskDialogObserver,
-  CreateTaskDialogCoExecutor,
-  CreateTaskFormData,
+  CreateTaskRequest,
+  CreateTaskResponse,
+  UploadTaskFileRequest
 } from '../types';
 
-// Mock functions for fetching data - replace with actual API calls
-export const fetchUsers = async (query?: string): Promise<CreateTaskDialogUser[]> => {
-  // Mock data - replace with actual API call
-  const mockUsers: CreateTaskDialogUser[] = [
-    { id: '1', name: 'Иван Петров', email: 'ivan@example.com' },
-    { id: '2', name: 'Мария Сидорова', email: 'maria@example.com' },
-    { id: '3', name: 'Алексей Козлов', email: 'alexey@example.com' },
-  ];
-  
-  if (query) {
-    return mockUsers.filter(user => 
-      user.name.toLowerCase().includes(query.toLowerCase())
-    );
-  }
-  return mockUsers;
+export const createTask = async (taskData: CreateTaskRequest): Promise<CreateTaskResponse> => {
+  const { data } = await apiClientGo.post<CreateTaskResponse>('tasks', taskData);
+  return data;
 };
 
-export const fetchStudents = async (query?: string): Promise<CreateTaskDialogStudent[]> => {
-  // Mock data - replace with actual API call
-  const mockStudents: CreateTaskDialogStudent[] = [
-    { id: '1', name: 'Анна Иванова', group: 'ИС-21' },
-    { id: '2', name: 'Дмитрий Смирнов', group: 'ИС-21' },
-    { id: '3', name: 'Елена Козлова', group: 'ИС-22' },
-  ];
+export const uploadTaskFile = async ({ taskId, file, url, extra }: UploadTaskFileRequest): Promise<void> => {
+  const formData = new FormData();
   
-  if (query) {
-    return mockStudents.filter(student => 
-      student.name.toLowerCase().includes(query.toLowerCase()) ||
-      student.group.toLowerCase().includes(query.toLowerCase())
-    );
+  if (file) {
+    formData.append('file', file);
   }
-  return mockStudents;
-};
-
-export const fetchObservers = async (query?: string): Promise<CreateTaskDialogObserver[]> => {
-  // Mock data - replace with actual API call
-  const mockObservers: CreateTaskDialogObserver[] = [
-    { id: '1', name: 'Сергей Волков', role: 'Начальник отдела' },
-    { id: '2', name: 'Ольга Морозова', role: 'Заместитель директора' },
-    { id: '3', name: 'Николай Орлов', role: 'Менеджер проекта' },
-  ];
   
-  if (query) {
-    return mockObservers.filter(observer => 
-      observer.name.toLowerCase().includes(query.toLowerCase()) ||
-      observer.role.toLowerCase().includes(query.toLowerCase())
-    );
+  if (url) {
+    formData.append('url', url);
   }
-  return mockObservers;
-};
-
-export const fetchCoExecutors = async (query?: string): Promise<CreateTaskDialogCoExecutor[]> => {
-  // Mock data - replace with actual API call
-  const mockCoExecutors: CreateTaskDialogCoExecutor[] = [
-    { id: '1', name: 'Андрей Лебедев', department: 'IT отдел' },
-    { id: '2', name: 'Татьяна Соколова', department: 'Бухгалтерия' },
-    { id: '3', name: 'Михаил Новиков', department: 'HR отдел' },
-  ];
   
-  if (query) {
-    return mockCoExecutors.filter(coExecutor => 
-      coExecutor.name.toLowerCase().includes(query.toLowerCase()) ||
-      coExecutor.department.toLowerCase().includes(query.toLowerCase())
-    );
+  if (extra) {
+    formData.append('extra', JSON.stringify(extra));
   }
-  return mockCoExecutors;
-};
 
-export const createTask = async (formData: CreateTaskFormData): Promise<void> => {
-  // TODO: Implement actual task creation API call
-  console.log('Creating task:', formData);
-  
-  // Mock API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log('Task created successfully');
-      resolve();
-    }, 1000);
+  await apiClientGo.post(`tasks/${taskId}/files`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   });
 };
