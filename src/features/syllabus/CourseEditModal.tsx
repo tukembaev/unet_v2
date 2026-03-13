@@ -9,6 +9,8 @@ import {
 import { Button, Input, Field, FieldLabel, FieldError } from "shared/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormQuery, useIsFormOpen, useFormClose, useFormParam } from "shared/lib";
+import { useEffect } from "react";
 
 const schema = z.object({
   code: z.string().optional(),
@@ -27,16 +29,19 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 interface Props {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   course: SyllabusCourse | null;
 }
 
-export const CourseEditModal = ({ open, onOpenChange, course }: Props) => {
+export const CourseEditModal = ({ course }: Props) => {
+  const open = useIsFormOpen(FormQuery.EDIT_COURSE);
+  const closeForm = useFormClose();
+  const courseId = useFormParam('courseId');
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -54,13 +59,32 @@ export const CourseEditModal = ({ open, onOpenChange, course }: Props) => {
     },
   });
 
+  // Обновляем форму при изменении курса
+  useEffect(() => {
+    if (course) {
+      reset({
+        code: course.code ?? "",
+        name_subject: course.name_subject ?? "",
+        dep: course.dep ?? "",
+        cycle: course.cycle ?? "",
+        course_type: course.course_type ?? "",
+        control_form: course.control_form ?? "",
+        credit: course.credit ?? 0,
+        amount_hours: course.amount_hours ?? 0,
+        lecture_hours: course.lecture_hours ?? 0,
+        practice_hours: course.practice_hours ?? 0,
+        lab_hours: course.lab_hours ?? 0,
+      });
+    }
+  }, [course, reset]);
+
   const onSubmit = handleSubmit((values) => {
-    console.log("Course submit (mock)", values);
-    onOpenChange(false);
+    console.log("Course submit (mock)", values, "courseId:", courseId);
+    closeForm(FormQuery.EDIT_COURSE);
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={() => closeForm(FormQuery.EDIT_COURSE)}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">Редактирование дисциплины</DialogTitle>
@@ -137,7 +161,7 @@ export const CourseEditModal = ({ open, onOpenChange, course }: Props) => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => closeForm(FormQuery.EDIT_COURSE)}>
               Отмена
             </Button>
             <Button type="submit">Сохранить изменения</Button>

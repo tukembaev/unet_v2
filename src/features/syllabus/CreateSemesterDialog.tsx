@@ -9,6 +9,7 @@ import {
 import { Button, Input, Field, FieldLabel, FieldError, FieldDescription } from "shared/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormQuery, useIsFormOpen, useFormClose } from "shared/lib";
 
 const schema = z.object({
   name_semester: z.string().min(1, "Обязательное поле"),
@@ -21,12 +22,10 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-interface Props {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+export const CreateSemesterDialog = () => {
+  const open = useIsFormOpen(FormQuery.CREATE_SEMESTER);
+  const closeForm = useFormClose();
 
-export const CreateSemesterDialog = ({ open, onOpenChange }: Props) => {
   const {
     register,
     handleSubmit,
@@ -47,11 +46,11 @@ export const CreateSemesterDialog = ({ open, onOpenChange }: Props) => {
   const onSubmit = handleSubmit((values) => {
     console.log("Create semester (mock)", values);
     reset();
-    onOpenChange(false);
+    closeForm(FormQuery.CREATE_SEMESTER);
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={() => closeForm(FormQuery.CREATE_SEMESTER)}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl">Создать новый семестр</DialogTitle>
@@ -102,7 +101,7 @@ export const CreateSemesterDialog = ({ open, onOpenChange }: Props) => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => closeForm(FormQuery.CREATE_SEMESTER)}>
               Отмена
             </Button>
             <Button type="submit">Создать семестр</Button>

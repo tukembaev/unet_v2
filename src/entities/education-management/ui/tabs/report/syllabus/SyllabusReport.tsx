@@ -8,12 +8,12 @@ import { useSyllabusReport } from "entities/education-management/model/queries";
 import { SyllabusTable } from "./SyllabusTable";
 import { CreateSemesterDialog, CreateElectiveDialog } from "features/syllabus/index";
 import { BookDown } from "lucide-react";
+import { FormQuery, useFormNavigation } from "shared/lib";
 
 export const SyllabusReport = () => {
   const { syllabusId, profileId } = useParams();
   const role = "admin"; // mock
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createElectiveOpen, setCreateElectiveOpen] = useState(false);
+  const openForm = useFormNavigation();
 
   const { data, isLoading, isError } = useSyllabusReport(
     syllabusId ? Number(syllabusId) : undefined,
@@ -58,7 +58,7 @@ export const SyllabusReport = () => {
           <div className="space-y-4">
             {semesters.map((s) => (
               <div key={s.id} className="rounded-lg overflow-hidden border border-border">
-                <SyllabusTable semester={s} role={role} onAddElective={() => setCreateElectiveOpen(true)} />
+                <SyllabusTable semester={s} role={role} onAddElective={() => openForm(FormQuery.CREATE_ELECTIVE)} />
               </div>
             ))}
           </div>
@@ -78,7 +78,7 @@ export const SyllabusReport = () => {
                 Нажмите кнопку ниже, чтобы добавить новый семестр к учебному плану
               </EmptyDescription>
               <button
-                onClick={() => setCreateOpen(true)}
+                onClick={() => openForm(FormQuery.CREATE_SEMESTER)}
                 className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
               >
                 Создать семестр
@@ -86,8 +86,8 @@ export const SyllabusReport = () => {
             </EmptyContent>
           </Empty>
         )}
-        <CreateSemesterDialog open={createOpen} onOpenChange={setCreateOpen} />
-        <CreateElectiveDialog open={createElectiveOpen} onOpenChange={setCreateElectiveOpen} />
+        <CreateSemesterDialog />
+        <CreateElectiveDialog />
       </CardContent>
     </Card>
   );

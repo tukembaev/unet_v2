@@ -41,7 +41,11 @@ const TaskDocumentsCard = () => {
             multiple={true}
           />
         ) : (
-          <div className="w-full overflow-x-auto rounded-md border">
+    
+                       <div className="w-full overflow-x-auto rounded-md border">
+
+            
+                    
             <Table>
               <TableHeader>
                 <TableRow>
@@ -72,9 +76,12 @@ const TaskDocumentsCard = () => {
                     </TableCell>
                   </TableRow>
                 ))}
+              
               </TableBody>
             </Table>
           </div>
+     
+       
         )}
       </CardContent>
     </Card>

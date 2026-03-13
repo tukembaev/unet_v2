@@ -3,13 +3,14 @@ import { PageHeader } from 'widgets/page-header';
 import { Input, Button } from 'shared/ui';
 import { Plus, Search } from 'lucide-react';
 import { CurriculumContent, CreateRupDialog } from 'entities/curriculum';
+import { FormQuery, useFormNavigation } from 'shared/lib';
 
 export const CurriculumPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const openForm = useFormNavigation();
 
   const handleOpenDialog = () => {
-    setIsCreateDialogOpen(true);
+    openForm(FormQuery.CREATE_RUP);
   };
 
   return (
@@ -39,10 +40,7 @@ export const CurriculumPage = () => {
 
       <CurriculumContent searchQuery={searchQuery} />
 
-      <CreateRupDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-      />
+      <CreateRupDialog />
     </div>
   );
 };

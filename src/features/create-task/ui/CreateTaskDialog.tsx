@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Calendar as CalendarIcon } from 'lucide-react';
+import React from 'react';
 import { useWatch } from 'react-hook-form';
 import { AsyncMultiSelect } from 'shared/components/select/AsyncMultiSelect';
 import { AsyncSelect } from 'shared/components/select/AsyncSelect';
@@ -21,15 +22,14 @@ import {
   PopoverTrigger,
   Textarea
 } from 'shared/ui';
+import { FormQuery, useIsFormOpen, useFormClose, useStoredFormParam } from 'shared/lib';
 
 import { useCreateTaskForm } from '../model/hooks/useCreateTaskForm';
 
-interface CreateTaskDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) {
+export function CreateTaskDialog() {
+  const open = useIsFormOpen(FormQuery.CREATE_TASK);
+  const closeForm = useFormClose();
+  const parentTaskId = useStoredFormParam(FormQuery.CREATE_TASK, 'task_id');
   const {
     form,
     resetForm,
@@ -45,23 +45,39 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
 
   const handleCancel = () => {
     resetForm();
-    onOpenChange(false);
+    closeForm(FormQuery.CREATE_TASK);
   };
 
   const handleFormSubmit = async (data: any) => {
     const success = await submitForm(data);
     if (success) {
-      onOpenChange(false);
+      closeForm(FormQuery.CREATE_TASK);
     }
   };
 
+  // Устанавливаем parent_task_id когда компонент монтируется или изменяется parentTaskId
+  React.useEffect(() => {
+    if (parentTaskId) {
+      form.setValue('parent_task_id', parentTaskId);
+    } else {
+      form.setValue('parent_task_id', '');
+    }
+  }, [parentTaskId, form]);
+
+  const isSubtaskMode = !!parentTaskId;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={() => closeForm(FormQuery.CREATE_TASK)}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Создать новую задачу</DialogTitle>
+          <DialogTitle>
+            {isSubtaskMode ? 'Создать подзадачу' : 'Создать новую задачу'}
+          </DialogTitle>
           <DialogDescription>
-            Заполните форму ниже для создания новой задачи
+            {isSubtaskMode 
+              ? 'Заполните форму ниже для создания подзадачи' 
+              : 'Заполните форму ниже для создания новой задачи'
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -185,7 +201,10 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
               Отмена
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Создание...' : 'Создать'}
+              {isSubmitting 
+                ? (isSubtaskMode ? 'Создание...' : 'Создание...')
+                : (isSubtaskMode ? 'Создать подзадачу' : 'Создать')
+              }
             </Button>
           </DialogFooter>
         </form>

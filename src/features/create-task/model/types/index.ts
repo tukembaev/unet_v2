@@ -6,7 +6,10 @@ export const createTaskFormSchema = z.object({
   taskName: z.string().min(3, 'Название должно содержать минимум 3 символа'),
   description: z.string().optional(),
   isImportant: z.boolean(),
-
+  parent_task_id: z.union([
+    z.string().uuid('Некорректный формат ID родительской задачи'),
+    z.literal(''),
+  ]).optional(),
   responsible: z.custom<UserListItem>((val) => val !== null, 'Ответственный обязателен'),
   observers: z.array(z.custom<UserListItem>()),
   coExecutors: z.array(z.custom<UserListItem>()),
@@ -25,6 +28,7 @@ export interface CreateTaskRequest {
   observers: string[];
   coExecutors: string[];
   deadline: string;
+  parent_task_id?: string;
 }
 
 export interface CreateTaskResponse {

@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import PageHeader from "widgets/page-header/page-header";
-import { Button } from "shared/ui";
-import { Calendar, CheckCircle2 } from "lucide-react";
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "shared/ui";
+import { Calendar, ChevronDown } from "lucide-react";
 import TaskMembersTable from "./TaskMembersTable";
 import TaskSubtasksTable from "./TaskSubtasksTable";
 import TaskDetailsSkeleton from "./TaskDetailsSkeleton";
-import { cn } from "shared/lib";
-import { useTaskDetails } from "../../model/queries";
+import { useTaskDetails, useUpdateTaskStatus } from "../../model/queries";
 import TaskDocumentsCard from "./TaskDocumentsCard";
+import { CreateTaskDialog } from "../CreateTaskDialog";
+import { AddTaskMembersDialog } from "../AddTaskMembersDialog";
+import { formatDate } from "shared/lib";
 
 const TaskDetails = () => {
   const navigate = useNavigate();
@@ -16,6 +18,7 @@ const TaskDetails = () => {
   const taskId = location.state?.taskId as string | undefined;
   
   const { data: task, isLoading } = useTaskDetails(taskId);
+  const updateStatusMutation = useUpdateTaskStatus();
   const [isEarlyCompletion, setIsEarlyCompletion] = useState(false);
 
   // Determine if task can be completed early
@@ -28,43 +31,70 @@ const TaskDetails = () => {
       setIsEarlyCompletion(today < deadline);
     }
   }, [task]);
-  console.log(task)
+
   if (isLoading || !task) {
     return <TaskDetailsSkeleton />;
   }
 
-  const handleCompleteTask = () => {
-    // TODO: Implement task completion logic
-    console.log('Complete task:', task.id, isEarlyCompletion ? 'early' : 'normal');
+  const handleStatusChange = async (status: string) => {
+    if (!taskId) return;
+    
+    try {
+      await updateStatusMutation.mutateAsync({
+        taskId,
+        data: { status: status as any },
+      });
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+    }
   };
 
+  const statusOptions = [
+    { value: 'PENDING', label: 'В ожидании' },
+    { value: 'IN_PROGRESS', label: 'В работе' },
+    { value: 'PAUSED', label: 'Приостановлена' },
+    { value: 'REVIEW', label: 'На проверке' },
+    { value: 'COMPLETED', label: isEarlyCompletion ? 'Досрочно завершить' : 'Завершить' },
+    { value: 'CANCELED', label: 'Отменить' },
+  ];
+
   return (
-    <div className="container mx-auto p-4 md:p-6 space-y-6">
-      <PageHeader
-        title={task.title}
-        description={task.status}
-      >
-        <Button
-          onClick={handleCompleteTask}
-          variant={isEarlyCompletion ? "secondary" : "default"}
-          className={cn(
-            !isEarlyCompletion && "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white"
-          )}
+    <>
+      <div className="container mx-auto p-4 md:p-6 space-y-6">
+        <PageHeader
+          title={task.title}
+          description={task.status}
         >
-          <CheckCircle2 className="h-4 w-4" />
-          {isEarlyCompletion ? "Досрочно завершить" : "Завершить"}
-        </Button>
-      </PageHeader>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button>
+                Изменить статус
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {statusOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => handleStatusChange(option.value)}
+                  disabled={updateStatusMutation.isPending}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </PageHeader>
 
       {/* Top Info: Deadline and Created Date */}
       <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span>Крайний срок: {task.deadline_at ?? '-'}</span>
+          <span>Крайний срок: {formatDate(task.deadline_at)}</span>
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span>Поставлена: {task.created_at}</span>
+          <span>Поставлена: {formatDate(task.created_at)}</span>
         </div>
       </div>
 
@@ -78,26 +108,31 @@ const TaskDetails = () => {
         </p>
       </div>
 
-      {/* Main Layout: Content on left, Documents on right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* Left side - Main content (2/3) */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Members Table */}
-          <TaskMembersTable members={task.members} />
+        {/* Main Layout: Content on left, Documents on right */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+          {/* Left side - Main content (2/3) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Members Table */}
+            <TaskMembersTable members={task.members} taskId={task.id} />
 
-          {/* Subtasks Table */}
-          <TaskSubtasksTable 
-            subtasks={task.subtasks}
-            onSubtaskClick={(subtaskId) => navigate('/task-details', { state: { taskId: subtaskId } })}
-          />
-        </div>
+            {/* Subtasks Table */}
+            <TaskSubtasksTable 
+              taskId={task.id}
+              subtasks={task.subtasks}
+              onSubtaskClick={(subtaskId) => navigate('/task-details', { state: { taskId: subtaskId } })}
+            />
+          </div>
 
-        {/* Right side - Documents (1/3) */}
-        <div className="lg:col-span-1"> 
-          <TaskDocumentsCard />
+          {/* Right side - Documents (1/3) */}
+          <div className="lg:col-span-1"> 
+            <TaskDocumentsCard />
+          </div>
         </div>
       </div>
-    </div>
+
+      <CreateTaskDialog />
+      <AddTaskMembersDialog />
+    </>
   );
 };
 

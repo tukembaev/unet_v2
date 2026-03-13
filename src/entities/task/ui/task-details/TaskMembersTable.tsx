@@ -2,18 +2,26 @@ import { Card, CardContent, CardHeader, CardTitle, Table, TableHeader, TableBody
 import { Plus, Users } from "lucide-react";
 import { TaskMember } from "../../model/types";
 import { EmptyState } from "shared/components/EmptyState";
+import { useFormNavigation, FormQuery } from "shared/lib";
 
 interface TaskMembersTableProps {
   members: TaskMember[];
+  taskId: string;
 }
 
-const TaskMembersTable = ({ members }: TaskMembersTableProps) => {
+const TaskMembersTable = ({ members, taskId }: TaskMembersTableProps) => {
+  const openForm = useFormNavigation();
+
   const getMemberStatus = (isOnline: boolean) => {
     return isOnline ? "Онлайн" : "Офлайн";
   };
 
   const getStatusBadgeVariant = (isOnline: boolean) => {
     return isOnline ? "default" : "secondary";
+  };
+
+  const handleAddMember = () => {
+    openForm(FormQuery.ADD_TASK_MEMBERS, { task_id: taskId }, { syncUrl: false });
   };
 
   return (
@@ -23,7 +31,7 @@ const TaskMembersTable = ({ members }: TaskMembersTableProps) => {
           <Users className="h-5 w-5 text-primary" />
           Участники
         </CardTitle>
-        <Button size="sm" variant="outline">
+        <Button size="sm" variant="outline" onClick={handleAddMember}>
           <Plus className="h-4 w-4" />
           Добавить участника
         </Button>

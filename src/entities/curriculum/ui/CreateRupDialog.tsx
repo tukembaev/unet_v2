@@ -20,9 +20,10 @@ import {
   FieldGroup,
 } from 'shared/ui/field';
 import { AsyncSelect } from 'shared/components/select';
-import { useForm } from 'shared/lib/form';
+import { useForm, FormQuery, useIsFormOpen, useFormClose } from 'shared/lib';
 import { z } from 'zod';
 import { useFaculties } from 'entities/education-management/model/queries';
+import { SelectOptions } from 'entities/education-management/model/types';
 
 const createRupFormSchema = z
   .object({
@@ -63,12 +64,9 @@ const createRupFormSchema = z
 
 type CreateRupFormData = z.infer<typeof createRupFormSchema>;
 
-interface CreateRupDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export const CreateRupDialog = ({ open, onOpenChange }: CreateRupDialogProps) => {
+export const CreateRupDialog = () => {
+  const open = useIsFormOpen(FormQuery.CREATE_RUP);
+  const closeForm = useFormClose();
   const { data: faculties, isLoading: isLoadingFaculties } = useFaculties();
 
   const form = useForm<CreateRupFormData>({
@@ -92,7 +90,7 @@ export const CreateRupDialog = ({ open, onOpenChange }: CreateRupDialogProps) =>
 
   const handleCancel = () => {
     form.reset();
-    onOpenChange(false);
+    closeForm(FormQuery.CREATE_RUP);
   };
 
   const handleSubmit = async (data: CreateRupFormData) => {
@@ -100,14 +98,14 @@ export const CreateRupDialog = ({ open, onOpenChange }: CreateRupDialogProps) =>
       // TODO: Implement API call to create RUP
       console.log('Creating RUP:', data);
       form.reset();
-      onOpenChange(false);
+      closeForm(FormQuery.CREATE_RUP);
     } catch (error) {
       console.error('Error creating RUP:', error);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={() => closeForm(FormQuery.CREATE_RUP)}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Создать РУП</DialogTitle>
@@ -127,11 +125,11 @@ export const CreateRupDialog = ({ open, onOpenChange }: CreateRupDialogProps) =>
               <AsyncSelect
                 fetcher={fetchFaculties}
                 label="Институт"
-                value={form.watch('institute')}
-                onChange={(value) => form.setValue('institute', value)}
-                renderOption={(option) => <span>{option.label}</span>}
-                getOptionValue={(option) => option.value.toString()}
-                getDisplayValue={(option) => option.label}
+                value={form.watch('institute') ? faculties?.find(f => f.value.toString() === form.watch('institute')) || null : null}
+                onChange={(value: any) => form.setValue('institute', value?.value.toString() || '')}
+                renderOption={(option: any) => <span>{option.label}</span>}
+                getOptionValue={(option: any) => option.value.toString()}
+                getDisplayValue={(option: any) => option.label}
                 placeholder="Выберите институт"
                 disabled={isLoadingFaculties}
               />

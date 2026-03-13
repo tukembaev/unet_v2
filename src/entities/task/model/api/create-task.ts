@@ -9,6 +9,7 @@ export interface CreateTaskRequest {
   allow_change_deadline?: boolean;
   check_after_finish?: boolean;
   auto_complete_parent?: boolean;
+  parent_task_id?: string;
   members: Array<{
     user_id: string;
     user_name: string;
@@ -59,6 +60,7 @@ export const createTask = async (data: CreateTaskRequest): Promise<CreateTaskRes
       allow_change_deadline: data.allow_change_deadline ?? false,
       check_after_finish: data.check_after_finish ?? false,
       auto_complete_parent: data.auto_complete_parent ?? false,
+      parent_task_id: data.parent_task_id,
       members: mockMembers,
       subtasks: [],
     };

@@ -1,7 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { loginRequest } from "../api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { User } from "../types";
+import { loginRequest } from "../api";
 // Ключ для react-query кэша
 const USER_QUERY_KEY = ["authUser"];
 // 🔹 Хук для авторизации

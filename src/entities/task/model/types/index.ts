@@ -42,6 +42,7 @@ export interface User {
     created_at: string;
     updated_at: string;
     deadline_at: string | null;
+    members: TaskMember[];
     allow_change_deadline: boolean;
     check_after_finish: boolean;
     auto_complete_parent: boolean;
@@ -61,6 +62,7 @@ export interface User {
     allow_change_deadline: boolean;
     check_after_finish: boolean;
     auto_complete_parent: boolean;
+    parent_task_id?: string;
     members: TaskMember[];
     subtasks: TaskSubtask[];
   }

@@ -13,6 +13,7 @@ import {
 import { useDocuments } from '../model/queries';
 import { Document, DocumentTab } from '../model/types';
 import { CreateDocumentDialog } from 'features/create-document';
+import { FormQuery, useFormNavigation } from 'shared/lib';
 
 const statusIcons: Record<string, React.ReactNode> = {
   'В режиме ожидания': <Clock className="h-3 w-3 text-yellow-500" />,
@@ -44,10 +45,10 @@ const tabs: TabConfig[] = [
 
 export const DocumentsContent = () => {
   const navigate = useNavigate();
+  const openForm = useFormNavigation();
   const [activeTab, setActiveTab] = useState<DocumentTab>('incoming');
   const [selectedTypes, setSelectedTypes] = useState<string[]>(['all']);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['all']);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const { data, isLoading } = useDocuments({
     tab: activeTab,
@@ -135,7 +136,7 @@ export const DocumentsContent = () => {
     {
       label: 'Создать',
       icon: <Plus className="h-4 w-4" />,
-      onClick: () => setIsCreateDialogOpen(true),
+      onClick: () => openForm(FormQuery.CREATE_DOCUMENT),
       variant: 'default',
     },
   ];
@@ -167,10 +168,7 @@ export const DocumentsContent = () => {
         loadingComponent={<DocumentsTableSkeleton />}
       />
       
-      <CreateDocumentDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-      />
+      <CreateDocumentDialog />
     </>
   );
 };

@@ -2,16 +2,21 @@ import { Card, CardContent, CardHeader, CardTitle, Button, Table, TableHeader, T
 import { Plus, ClipboardList } from "lucide-react";
 import { TaskSubtask } from "../../model/types";
 import { EmptyState } from "shared/components/EmptyState";
+import { useFormNavigation, formatDate } from "shared/lib";
+import { FormQuery } from "shared/lib/form-navigation";
 
 interface TaskSubtasksTableProps {
   subtasks: TaskSubtask[];
+  taskId: string;
   onSubtaskClick?: (subtaskId: string) => void;
 }
 
-const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps) => {
+const TaskSubtasksTable = ({ subtasks, taskId, onSubtaskClick }: TaskSubtasksTableProps) => {
+  const openForm = useFormNavigation();
+
   const handleAddSubtask = () => {
-    // TODO: Implement add subtask logic
-    console.log('Add subtask');
+    // Открываем форму создания задачи, оставаясь на текущей странице (без изменения URL)
+    openForm(FormQuery.CREATE_TASK, { task_id: taskId }, { syncUrl: false });
   };
 
   const handleRowClick = (subtaskId: string) => {
@@ -65,13 +70,13 @@ const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps)
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">-</span>
+                      <span className="text-sm">{subtask.members[0].user_name}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">{subtask.created_at}</span>
+                      <span className="text-sm">{formatDate(subtask.created_at)}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">{subtask.deadline_at ?? '-'}</span>
+                      <span className="text-sm">{formatDate(subtask.deadline_at)}</span>
                     </TableCell>
                   </TableRow>
                 ))}

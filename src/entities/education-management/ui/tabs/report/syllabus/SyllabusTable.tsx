@@ -13,6 +13,7 @@ import {
 import { CourseEditModal } from "features/syllabus/index";
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { FormQuery, useFormNavigation } from "shared/lib";
 
 interface Props {
   semester: SyllabusSemester;
@@ -21,7 +22,7 @@ interface Props {
 }
 
 export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props) => {
-  const [open, setOpen] = useState(false);
+  const openForm = useFormNavigation();
   const [selected, setSelected] = useState<SyllabusCourse | null>(null);
 
   const mainCourses = semester.courses ?? [];
@@ -31,7 +32,7 @@ export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props)
 
   const openEditor = (course: SyllabusCourse) => {
     setSelected(course);
-    setOpen(true);
+    openForm(FormQuery.EDIT_COURSE, { courseId: course.id.toString() });
   };
 
   return (
@@ -167,7 +168,7 @@ export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props)
         </TableBody>
       </Table>
 
-      <CourseEditModal open={open} onOpenChange={setOpen} course={selected} />
+      <CourseEditModal course={selected} />
     </>
   );
 };

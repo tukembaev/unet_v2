@@ -12,6 +12,7 @@ export const useCreateTaskForm = () => {
       taskName: '',
       description: '',
       isImportant: false,
+      parent_task_id: '',
       responsible: null as unknown as UserListItem,
       observers: [],
       coExecutors: [],
@@ -50,6 +51,7 @@ export const useCreateTaskForm = () => {
         observers: data.observers.map(u => u.user_id),
         coExecutors: data.coExecutors.map(u => u.user_id),
         deadline: data.deadline.toISOString(),
+        parent_task_id: data.parent_task_id ? data.parent_task_id : undefined,
       });
 
       toast.success('Задача создана');
