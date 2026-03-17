@@ -1,11 +1,10 @@
-import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent } from "shared/ui/card";
-import { Skeleton } from "shared/ui/skeleton";
 import { Empty, EmptyTitle, EmptyDescription, EmptyContent, EmptyMedia } from "shared/ui";
 
 import { useSyllabusReport } from "entities/education-management/model/queries";
 import { SyllabusTable } from "./SyllabusTable";
+import { SyllabusReportSkeleton } from "./SyllabusReportSkeleton";
 import { CreateSemesterDialog, CreateElectiveDialog } from "features/syllabus/index";
 import { BookDown } from "lucide-react";
 import { FormQuery, useFormNavigation } from "shared/lib";
@@ -20,7 +19,7 @@ export const SyllabusReport = () => {
     profileId ? Number(profileId) : undefined
   );
 
-  if (isLoading) return <Skeleton className="h-64 w-full" />;
+  if (isLoading) return <SyllabusReportSkeleton />;
   if (isError || !data) return <p>Ошибка загрузки данных</p>;
 
   const semesters = data.semesters ?? [];

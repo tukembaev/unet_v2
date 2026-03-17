@@ -127,7 +127,7 @@ const GenericHistory = ({
                         item.status === "Одобрено" ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-800" :
                         item.status === "В ожидании" ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-400 dark:border-yellow-800" :
                         item.status === "Отклонено" ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800" :
-                        "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-950 dark:text-gray-400 dark:border-gray-800"
+                        "bg-muted text-muted-foreground border-border"
                       }`}>
                         {item.status}
                       </span>
