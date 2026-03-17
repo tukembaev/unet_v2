@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "shared/ui";
 import { CourseEditModal } from "features/syllabus/index";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Plus } from "lucide-react";
 import { FormQuery, useFormNavigation } from "shared/lib";
 
@@ -30,10 +30,10 @@ export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props)
 
   let rowIndex = 1;
 
-  const openEditor = (course: SyllabusCourse) => {
+  const openEditor = useCallback((course: SyllabusCourse) => {
     setSelected(course);
     openForm(FormQuery.EDIT_COURSE, { courseId: course.id.toString() });
-  };
+  }, [openForm]);
 
   return (
     <>

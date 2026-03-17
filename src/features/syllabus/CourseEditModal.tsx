@@ -44,24 +44,11 @@ export const CourseEditModal = ({ course }: Props) => {
     reset,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      code: course?.code ?? "",
-      name_subject: course?.name_subject ?? "",
-      dep: course?.dep ?? "",
-      cycle: course?.cycle ?? "",
-      course_type: course?.course_type ?? "",
-      control_form: course?.control_form ?? "",
-      credit: course?.credit ?? 0,
-      amount_hours: course?.amount_hours ?? 0,
-      lecture_hours: course?.lecture_hours ?? 0,
-      practice_hours: course?.practice_hours ?? 0,
-      lab_hours: course?.lab_hours ?? 0,
-    },
   });
 
-  // Обновляем форму при изменении курса
+  // Обновляем форму при изменении курса и открытии формы
   useEffect(() => {
-    if (course) {
+    if (course && open) {
       reset({
         code: course.code ?? "",
         name_subject: course.name_subject ?? "",
@@ -76,7 +63,7 @@ export const CourseEditModal = ({ course }: Props) => {
         lab_hours: course.lab_hours ?? 0,
       });
     }
-  }, [course, reset]);
+  }, [course, open, reset]);
 
   const onSubmit = handleSubmit((values) => {
     console.log("Course submit (mock)", values, "courseId:", courseId);

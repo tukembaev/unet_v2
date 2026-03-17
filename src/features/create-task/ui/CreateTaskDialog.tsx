@@ -55,13 +55,9 @@ import { useCreateTaskForm } from '../model/hooks/useCreateTaskForm';
 
 
 export function CreateTaskDialog() {
-
   const open = useIsFormOpen(FormQuery.CREATE_TASK);
-
   const closeForm = useFormClose();
-
   const parentTaskId = useStoredFormParam(FormQuery.CREATE_TASK, 'task_id');
-
   const {
 
     form,
@@ -164,9 +160,9 @@ export function CreateTaskDialog() {
 
           <DialogDescription>
 
-            {isSubtaskMode 
+            {isSubtaskMode
 
-              ? 'Заполните форму ниже для создания подзадачи' 
+              ? 'Заполните форму ниже для создания подзадачи'
 
               : 'Заполните форму ниже для создания новой задачи'
 
@@ -418,7 +414,7 @@ export function CreateTaskDialog() {
 
             <Button type="submit" disabled={isSubmitting}>
 
-              {isSubmitting 
+              {isSubmitting
 
                 ? (isSubtaskMode ? 'Создание...' : 'Создание...')
 

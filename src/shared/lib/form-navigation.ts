@@ -31,20 +31,36 @@ export type FormParams = Record<string, string>;
 const formStateStore = new Map<FormQuery, { open: boolean; params: Record<string, string> }>();
 
 /**
+ * Подписчики на изменения состояния форм
+ */
+const formStateListeners = new Set<() => void>();
+
+/**
+ * Уведомить всех подписчиков об изменении состояния
+ */
+function notifyFormStateChange() {
+  formStateListeners.forEach(listener => listener());
+}
+
+/**
  * Хук для получения параметров формы из in-memory store (без привязки к URL)
  */
 export function useStoredFormParams(formType: FormQuery): Record<string, string> {
-  const [, setTrigger] = useState(0);
+  const [params, setParams] = useState(() => formStateStore.get(formType)?.params ?? {});
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTrigger(prev => prev + 1);
-    }, 50);
+    const listener = () => {
+      const state = formStateStore.get(formType);
+      setParams(state?.params ?? {});
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    formStateListeners.add(listener);
+    return () => {
+      formStateListeners.delete(listener);
+    };
+  }, [formType]);
 
-  return formStateStore.get(formType)?.params ?? {};
+  return params;
 }
 
 /**
@@ -90,6 +106,9 @@ export function useFormNavigation() {
         params: additionalParams || {},
       });
 
+      // Уведомляем подписчиков об изменении
+      notifyFormStateChange();
+
       // Обновляем URL только для параметров, не для видимости формы
       if (!syncUrl) return;
 
@@ -123,6 +142,9 @@ export function useFormClose() {
     if (formType) {
       stateRef.current.set(formType, { open: false, params: {} });
       formStateStore.set(formType, { open: false, params: {} });
+      
+      // Уведомляем подписчиков об изменении
+      notifyFormStateChange();
     }
   }, []);
 }
@@ -138,22 +160,33 @@ export function useFormClose() {
  * }
  */
 export function useCurrentForm(): FormQuery | null {
-  const [, setTrigger] = useState(0);
+  const [currentForm, setCurrentForm] = useState<FormQuery | null>(() => {
+    for (const [formType, state] of formStateStore.entries()) {
+      if (state.open) {
+        return formType;
+      }
+    }
+    return null;
+  });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTrigger(prev => prev + 1);
-    }, 50);
+    const listener = () => {
+      for (const [formType, state] of formStateStore.entries()) {
+        if (state.open) {
+          setCurrentForm(formType);
+          return;
+        }
+      }
+      setCurrentForm(null);
+    };
 
-    return () => clearInterval(interval);
+    formStateListeners.add(listener);
+    return () => {
+      formStateListeners.delete(listener);
+    };
   }, []);
 
-  for (const [formType, state] of formStateStore.entries()) {
-    if (state.open) {
-      return formType;
-    }
-  }
-  return null;
+  return currentForm;
 }
 
 /**
@@ -170,18 +203,15 @@ export function useIsFormOpen(formType: FormQuery): boolean {
   });
 
   useEffect(() => {
-    const checkOpen = () => {
+    const listener = () => {
       const state = formStateStore.get(formType);
       setIsOpen(state?.open ?? false);
     };
 
-    // Проверяем состояние при монтировании
-    checkOpen();
-
-    // Используем MutationObserver для отслеживания изменений в хранилище
-    const interval = setInterval(checkOpen, 50);
-
-    return () => clearInterval(interval);
+    formStateListeners.add(listener);
+    return () => {
+      formStateListeners.delete(listener);
+    };
   }, [formType]);
 
   return isOpen;

@@ -28,7 +28,7 @@ export const AddTaskMembersDialog = () => {
   const handleClose = () => {
     setCoExecutors([]);
     setObservers([]);
-    closeForm();
+    closeForm(FormQuery.ADD_TASK_MEMBERS);
   };
 
   const handleSubmit = async () => {
@@ -64,7 +64,11 @@ export const AddTaskMembersDialog = () => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        handleClose();
+      }
+    }}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Добавить участников</DialogTitle>
