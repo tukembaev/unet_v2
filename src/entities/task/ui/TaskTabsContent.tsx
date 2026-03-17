@@ -1,78 +1,47 @@
 import React, { useMemo } from 'react';
 import { useEmployeeTasks } from '../model/queries';
-import { EmployeeTask } from '../model/types';
+import { EmployeeTask, TaskCategory } from '../model/types';
 import { KanbanBoard } from './KanbanBoard';
 
 interface TaskTabsContentProps {
   selectedFilters?: string[];
 }
 
-type EmployeeTaskCategory = {
-  OVERDUE: EmployeeTask[];
-  TODAY: EmployeeTask[];
-  WEEK: EmployeeTask[];
-  MONTH: EmployeeTask[];
-  LONGRANGE: EmployeeTask[];
-  INDEFINITE: EmployeeTask[];
-};
-
-const emptyEmployeeTaskCategory = (): EmployeeTaskCategory => {
+const emptyTaskCategory = (): TaskCategory => {
   return {
-    OVERDUE: [],
-    TODAY: [],
-    WEEK: [],
-    MONTH: [],
-    LONGRANGE: [],
-    INDEFINITE: [],
+    PENDING: [],
+    IN_PROGRESS: [],
+    REVIEW: [],
+    COMPLETED: [],
+    CANCELED: [],
   };
 };
 
-const distributeEmployeeTasksByDeadline = (tasks: EmployeeTask[]): EmployeeTaskCategory => {
-  const result = emptyEmployeeTaskCategory();
-
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-
-  const endOfWeek = new Date(endOfToday);
-  endOfWeek.setDate(endOfWeek.getDate() + 7);
-
-  const endOfMonth = new Date(endOfToday);
-  endOfMonth.setDate(endOfMonth.getDate() + 30);
+const distributeTasksByStatus = (tasks: EmployeeTask[]): TaskCategory => {
+  const result = emptyTaskCategory();
 
   tasks.forEach((task) => {
-    if (!task.deadline_at) {
-      result.INDEFINITE.push(task);
-      return;
+    switch (task.status) {
+      case 'PENDING':
+        result.PENDING.push(task);
+        break;
+      case 'IN_PROGRESS':
+        result.IN_PROGRESS.push(task);
+        break;
+      case 'REVIEW':
+        result.REVIEW.push(task);
+        break;
+      case 'COMPLETED':
+        result.COMPLETED.push(task);
+        break;
+      case 'CANCELED':
+        result.CANCELED.push(task);
+        break;
+      default:
+        // Если статус неизвестен, помещаем в PENDING
+        result.PENDING.push(task);
+        break;
     }
-
-    const deadline = new Date(task.deadline_at);
-    if (Number.isNaN(deadline.getTime())) {
-      result.INDEFINITE.push(task);
-      return;
-    }
-
-    if (deadline < startOfToday) {
-      result.OVERDUE.push(task);
-      return;
-    }
-
-    if (deadline >= startOfToday && deadline <= endOfToday) {
-      result.TODAY.push(task);
-      return;
-    }
-
-    if (deadline > endOfToday && deadline <= endOfWeek) {
-      result.WEEK.push(task);
-      return;
-    }
-
-    if (deadline > endOfWeek && deadline <= endOfMonth) {
-      result.MONTH.push(task);
-      return;
-    }
-
-    result.LONGRANGE.push(task);
   });
 
   return result;
@@ -86,11 +55,11 @@ const TaskTabsContentComponent: React.FC<TaskTabsContentProps> = ({
   console.log(tasksData)
   const filteredTasks = useMemo(() => {
     if (!tasksData) {
-      return emptyEmployeeTaskCategory();
+      return emptyTaskCategory();
     }
 
     void selectedFilters;
-    return distributeEmployeeTasksByDeadline(tasksData);
+    return distributeTasksByStatus(tasksData);
   }, [tasksData, selectedFilters]);
 
   return (

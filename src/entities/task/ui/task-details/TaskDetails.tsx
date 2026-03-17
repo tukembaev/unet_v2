@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import PageHeader from "widgets/page-header/page-header";
 import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "shared/ui";
-import { Calendar, ChevronDown } from "lucide-react";
+import { Calendar, ChevronDown, Clock, Play, Pause, CheckCircle, XCircle, Eye } from "lucide-react";
 import TaskMembersTable from "./TaskMembersTable";
 import TaskSubtasksTable from "./TaskSubtasksTable";
 import TaskDetailsSkeleton from "./TaskDetailsSkeleton";
@@ -50,12 +50,11 @@ const TaskDetails = () => {
   };
 
   const statusOptions = [
-    { value: 'PENDING', label: 'В ожидании' },
-    { value: 'IN_PROGRESS', label: 'В работе' },
-    { value: 'PAUSED', label: 'Приостановлена' },
-    { value: 'REVIEW', label: 'На проверке' },
-    { value: 'COMPLETED', label: isEarlyCompletion ? 'Досрочно завершить' : 'Завершить' },
-    { value: 'CANCELED', label: 'Отменить' },
+    { value: 'PENDING', label: 'В ожидании', icon: Clock },
+    { value: 'IN_PROGRESS', label: 'В работе', icon: Play },
+    { value: 'REVIEW', label: 'На проверке', icon: Eye },
+    { value: 'COMPLETED', label: isEarlyCompletion ? 'Досрочно завершить' : 'Завершить', icon: CheckCircle },
+    { value: 'CANCELED', label: 'Отменить', icon: XCircle },
   ];
 
   return (
@@ -73,15 +72,19 @@ const TaskDetails = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {statusOptions.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  onClick={() => handleStatusChange(option.value)}
-                  disabled={updateStatusMutation.isPending}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
+              {statusOptions.map((option) => {
+                const IconComponent = option.icon;
+                return (
+                  <DropdownMenuItem
+                    key={option.value}
+                    onClick={() => handleStatusChange(option.value)}
+                    disabled={updateStatusMutation.isPending}
+                  >
+                    <IconComponent className="mr-2 h-4 w-4" />
+                    {option.label}
+                  </DropdownMenuItem>
+                );
+              })}
             </DropdownMenuContent>
           </DropdownMenu>
         </PageHeader>

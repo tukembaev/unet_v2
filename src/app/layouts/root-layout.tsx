@@ -6,7 +6,7 @@ export function RootLayout() {
     <div className=" min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1">
-        <div className="container mx-auto px-4 pb-12 pt-6">
+        <div className="px-8 pb-12 pt-6">
           <Outlet />
         </div>
       </main>

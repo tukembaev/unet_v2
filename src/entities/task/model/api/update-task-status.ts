@@ -1,7 +1,8 @@
+import { apiClientGo } from 'shared/config';
 import { TaskStatus } from '../types';
 
 export interface UpdateTaskStatusRequest {
-  status: TaskStatus | 'PAUSED' | 'REVIEW';
+  status: TaskStatus;
 }
 
 export interface UpdateTaskStatusResponse {
@@ -14,18 +15,7 @@ export const updateTaskStatus = async (
   data: UpdateTaskStatusRequest
 ): Promise<UpdateTaskStatusResponse> => {
   try {
-    const response = await fetch(`/api/tasks/${taskId}/status`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
+    await apiClientGo.patch(`tasks/${taskId}/status`, data);
     return {
       success: true,
     };

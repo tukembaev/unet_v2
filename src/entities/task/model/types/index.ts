@@ -13,7 +13,7 @@ export interface User {
     is_online: boolean;
   }
   
-  export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED';
+  export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED' | 'REVIEW';
 
   export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
 
@@ -70,6 +70,7 @@ export interface User {
   export interface EmployeeTask {
     id: string;
     title: string;
+    status: TaskStatus | string;
     created_at: string;
     deadline_at: string | null;
     responsible_user_id: string;
@@ -84,12 +85,11 @@ export interface User {
   }
 
   export interface TaskCategory {
-    OVERDUE: EmployeeTask[];
-    TODAY: EmployeeTask[];
-    WEEK: EmployeeTask[];
-    MONTH: EmployeeTask[];
-    LONGRANGE: EmployeeTask[];
-    INDEFINITE: EmployeeTask[];
+    PENDING: EmployeeTask[];
+    IN_PROGRESS: EmployeeTask[];
+    REVIEW: EmployeeTask[];
+    COMPLETED: EmployeeTask[];
+    CANCELED: EmployeeTask[];
   }
 
   export interface TasksRoot {

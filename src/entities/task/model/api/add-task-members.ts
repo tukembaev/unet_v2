@@ -1,3 +1,5 @@
+import { apiClientGo } from 'shared/config';
+
 export interface AddTaskMembersRequest {
   coExecutors: string[];
   observers: string[];
@@ -13,20 +15,10 @@ export const addTaskMembers = async (
   data: AddTaskMembersRequest
 ): Promise<AddTaskMembersResponse> => {
   try {
-    const response = await fetch(`/api/tasks/${taskId}/members`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        coExecutors: data.coExecutors,
-        observers: data.observers,
-      }),
+    await apiClientGo.post(`tasks/${taskId}/members`, {
+      coExecutors: data.coExecutors,
+      observers: data.observers,
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
 
     return {
       success: true,
