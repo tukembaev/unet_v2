@@ -7,9 +7,10 @@ import { useFormNavigation, FormQuery } from "shared/lib";
 interface TaskMembersTableProps {
   members: TaskMember[];
   taskId: string;
+  canAddMembers: boolean;
 }
 
-const TaskMembersTable = ({ members, taskId }: TaskMembersTableProps) => {
+const TaskMembersTable = ({ members, taskId, canAddMembers }: TaskMembersTableProps) => {
   const openForm = useFormNavigation();
 
   const getMemberStatus = (isOnline: boolean) => {
@@ -31,10 +32,12 @@ const TaskMembersTable = ({ members, taskId }: TaskMembersTableProps) => {
           <Users className="h-5 w-5 text-primary" />
           Участники
         </CardTitle>
-        <Button size="sm" variant="outline" onClick={handleAddMember}>
-          <Plus className="h-4 w-4" />
-          Добавить участника
-        </Button>
+        {canAddMembers && (
+          <Button size="sm" variant="outline" onClick={handleAddMember}>
+            <Plus className="h-4 w-4" />
+            Добавить участника
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         {members.length === 0 ? (

@@ -8,7 +8,7 @@ export const EMPLOYEE_TASKS_QUERY_KEY = 'employee-tasks';
 
 export const useTaskDetails = (id: string | undefined) => {
   return useQuery({
-    queryKey: [TASK_DETAILS_QUERY_KEY],
+    queryKey: [TASK_DETAILS_QUERY_KEY , id],
     queryFn: () => getTaskDetails(id!),
     enabled: !!id,
   });
@@ -36,8 +36,8 @@ export const useAddTaskMembers = () => {
   return useMutation({
     mutationFn: ({ taskId, data }: { taskId: string; data: AddTaskMembersRequest }) =>
       addTaskMembers(taskId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [TASK_DETAILS_QUERY_KEY] });
+    onSuccess: (taskId) => {
+      queryClient.invalidateQueries({ queryKey: [TASK_DETAILS_QUERY_KEY , taskId] });
     },
   });
 };

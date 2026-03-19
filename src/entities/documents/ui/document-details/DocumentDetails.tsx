@@ -1,13 +1,9 @@
 import PageHeader from "widgets/page-header/page-header";
-import DocumentApprovalFlow, {
-  ApprovalParticipant,
-} from "./approval-chain/DocumentApprovalFlow";
+import { ApprovalParticipant } from "./approval-chain/DocumentApprovalFlow";
 import DocumentDetailsSkeleton from "./DocumentDetailsSkeleton";
 import PdfViewer from "shared/components/pdf-viewer/PdfViewer";
 import DocFileCard from "./tabs/DocFileCard";
-import DocTaskSection from "./tabs/DocTaskSection";
-import { Separator } from "shared/ui/separator";
-import { GenericHistory } from "shared/components";
+import DocumentTabsCard from "./tabs/DocumentTabsCard";
 import { useDocumentHistory } from "../../model/queries";
 import { useState, useEffect } from "react";
 
@@ -119,26 +115,21 @@ const DocumentDetails = () => {
       {/* Split layout: PDF слева, карточки справа */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Left side - PDF Viewer (50% на десктопе) */}
-        <div className="w-full flex flex-col gap-4">
+        <div className="w-full">
           <PdfViewer url="https://utask.kstu.kg/media/media/zayavki/order_iEWwAIU.pdf" />
-          <DocumentApprovalFlow participants={mockParticipants} />
         </div>
 
         {/* Right side - Cards (50% на десктопе) */}
         <div className="w-full space-y-4 md:space-y-6">
+               <DocumentTabsCard 
+            participants={mockParticipants}
+            history={history}
+            isHistoryLoading={isHistoryLoading}
+          />
           <DocFileCard />
-          <DocTaskSection />
+     
         </div>
       </div>
-
-      <Separator className="my-6" />
-
-      <GenericHistory
-        history={history}
-        isLoading={isHistoryLoading}
-        title="История документа"
-        emptyMessage="История отсутствует"
-      />
     </div>
   );
 };

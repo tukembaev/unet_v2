@@ -9,9 +9,10 @@ interface TaskSubtasksTableProps {
   subtasks: TaskSubtask[];
   taskId: string;
   onSubtaskClick?: (subtaskId: string) => void;
+  canAddSubtasks: boolean;
 }
 
-const TaskSubtasksTable = ({ subtasks, taskId, onSubtaskClick }: TaskSubtasksTableProps) => {
+const TaskSubtasksTable = ({ subtasks, taskId, onSubtaskClick, canAddSubtasks }: TaskSubtasksTableProps) => {
   const openForm = useFormNavigation();
 
   const handleAddSubtask = () => {
@@ -30,10 +31,12 @@ const TaskSubtasksTable = ({ subtasks, taskId, onSubtaskClick }: TaskSubtasksTab
           <ClipboardList className="h-5 w-5 text-primary" />
           Подзадачи
         </CardTitle>
-        <Button onClick={handleAddSubtask} size="sm" variant="outline">
-          <Plus className="h-4 w-4" />
-          Добавить подзадачу
-        </Button>
+        {canAddSubtasks && (
+          <Button onClick={handleAddSubtask} size="sm" variant="outline">
+            <Plus className="h-4 w-4" />
+            Добавить подзадачу
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         {subtasks.length === 0 ? (
