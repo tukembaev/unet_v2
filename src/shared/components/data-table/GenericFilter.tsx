@@ -70,7 +70,7 @@ export const GenericFilter: React.FC<GenericFilterProps> = ({
       </Button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-50 dark:bg-gray-900 dark:border-gray-700">
+        <div className="absolute top-full left-0 mt-2 w-72 bg-popover border border-border rounded-lg shadow-lg z-50">
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-medium text-sm">Фильтры</h3>
@@ -79,7 +79,7 @@ export const GenericFilter: React.FC<GenericFilterProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={onClearAll}
-                  className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  className="text-xs text-muted-foreground hover:text-foreground"
                 >
                   <X className="h-3 w-3 mr-1" />
                   Очистить
@@ -89,14 +89,14 @@ export const GenericFilter: React.FC<GenericFilterProps> = ({
 
             {filterGroups.map((group, index) => (
               <div key={group.id} className={index > 0 ? 'mt-4' : ''}>
-                <h4 className="text-xs font-medium text-gray-500 mb-2 dark:text-gray-400">
+                <h4 className="text-xs font-medium text-muted-foreground mb-2">
                   {group.label}
                 </h4>
                 <div className="space-y-2">
                   {group.options.map((option) => (
                     <div
                       key={option.value}
-                      className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded dark:hover:bg-gray-800"
+                      className="flex items-center space-x-2 cursor-pointer hover:bg-accent p-2 rounded"
                       onClick={() =>
                         handleFilterToggle(option.value, group.selectedValues, group.onChange)
                       }

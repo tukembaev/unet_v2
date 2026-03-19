@@ -92,7 +92,7 @@ export const TaskFilter: React.FC<TaskFilterProps> = ({
               {filterOptions.map((option) => (
                 <div
                   key={option.value}
-                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded"
+                  className="flex items-center space-x-2 cursor-pointer hover:bg-accent p-2 rounded"
                   onClick={() => handleFilterToggle(option.value)}
                 >
                   <Checkbox
