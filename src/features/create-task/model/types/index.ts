@@ -29,6 +29,9 @@ export interface CreateTaskRequest {
   coExecutors: string[];
   deadline: string;
   parent_task_id?: string;
+  doc_title?:string;
+  doc_id?:string;
+  doc_type?:string
 }
 
 export interface CreateTaskResponse {

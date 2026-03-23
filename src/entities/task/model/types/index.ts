@@ -59,6 +59,10 @@ export interface User {
     created_at: string;
     updated_at: string;
     deadline_at: string | null;
+    doc_type:string;
+    doc_title:string;
+    doc_id:string;
+    cancel_reason:string;
     allow_change_deadline: boolean;
     check_after_finish: boolean;
     auto_complete_parent: boolean;
