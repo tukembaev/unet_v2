@@ -33,7 +33,7 @@ export interface PerformanceReportResponse {
 }
 
 // Новые типы для отчета по задачам
-export type TaskRole = 'RESPONSIBLE' | 'EXECUTOR' | 'OBSERVER';
+export type TaskRole = 'RESPONSIBLE' | 'EXECUTOR' | 'OBSERVER' | 'CREATOR';
 export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'PAUSED' | 'REVIEW' | 'COMPLETED' | 'CANCELED';
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type TaskType = 'EPIC' | 'TASK' | 'SUBTASK';

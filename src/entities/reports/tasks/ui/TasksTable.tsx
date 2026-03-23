@@ -34,6 +34,8 @@ const ROLE_LABELS: Record<TaskRole | 'ALL', string> = {
   RESPONSIBLE: 'Ответственный',
   EXECUTOR: 'Исполнитель',
   OBSERVER: 'Наблюдатель',
+  CREATOR: 'Поручитель',
+
 };
 
 const STATUS_LABELS: Record<TaskStatus | 'ALL', string> = {
