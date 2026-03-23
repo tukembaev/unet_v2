@@ -4,8 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { FormField } from "shared/lib/form";
-import { Button } from "shared/ui/button";
-import { Card, CardContent } from "shared/ui/card";
+import { Button, Label } from "shared/ui";
 
 interface ForgotPasswordFormProps {
   setForgotPassword: (value: boolean) => void;
@@ -44,39 +43,43 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   };
 
   return (
-    <Card className="w-full max-w-md border border-border">
-      <CardContent className="p-6">
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
-          {/* Поле ИНН */}
+    <section className="mx-auto w-full max-w-[400px] font-['Nunito',sans-serif]">
+        <h2 className="mb-5 text-[22px] font-bold leading-[1.25] tracking-[-0.02em] text-foreground">
+          Восстановление пароля
+        </h2>
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="mt-2 space-y-5"
+        >
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1">
+            <Label htmlFor="recover-inn" className="mb-1.5 text-[13px] font-semibold text-muted-foreground">
               ИНН
-            </label>
+            </Label>
             <FormField
               form={form}
               name="inn"
               placeholder="Введите ИНН"
-
             />
           </div>
 
-          {/* Кнопка отправки */}
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="w-full rounded-xl py-3 font-semibold"
+            disabled={isLoading}
+          >
             {isLoading ? "Отправка..." : "Отправить"}
           </Button>
 
-          {/* Кнопка назад */}
           <Button
             type="button"
             variant="outline"
             onClick={() => setForgotPassword(false)}
-            className="w-full flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 rounded-xl"
           >
             <ArrowLeft size={18} />
             Назад
           </Button>
         </form>
-      </CardContent>
-    </Card>
+    </section>
   );
 };

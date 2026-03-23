@@ -102,7 +102,11 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.TASK_REPORTS,
         element: <TaskReportsPage />,
-      }
+      },
+      {
+        path: ROUTES.KPI_REPORTS,
+        element: <KpiReportPage />,
+      },
 
     ],
 
