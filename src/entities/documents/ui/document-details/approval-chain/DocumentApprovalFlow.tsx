@@ -1,9 +1,10 @@
 import { useRef, useMemo, useState, useEffect } from "react";
 import { AnimatedBeam, Circle, StaticLine } from "shared/components/animated-ui/AnimatedBeam";
 import { Avatar, AvatarFallback, AvatarImage } from "shared/ui/avatar";
+import { Button } from "shared/ui";
 import { TooltipProvider } from "shared/ui/tooltip";
 import { cn } from "shared/lib";
-import { GitBranch } from "lucide-react";
+import { GitBranch, X, Check } from "lucide-react";
 import ApprovalUserTooltip from "./ApprovalUserTooltip";
 
 export type ApprovalRole = "Отправитель" | "Согласующий" | "Получатель";
@@ -22,9 +23,11 @@ export interface ApprovalParticipant {
 
 interface DocumentApprovalFlowProps {
   participants: ApprovalParticipant[];
+  onApprove?: () => void;
+  onReject?: () => void;
 }
 
-const DocumentApprovalFlow = ({ participants }: DocumentApprovalFlowProps) => {
+const DocumentApprovalFlow = ({ participants, onApprove, onReject }: DocumentApprovalFlowProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRefsReady, setIsRefsReady] = useState(false);
   const [usersPerRow, setUsersPerRow] = useState(4);
@@ -100,9 +103,39 @@ const DocumentApprovalFlow = ({ participants }: DocumentApprovalFlowProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-4">
-        <GitBranch className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-semibold">Цепочка согласования</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <GitBranch className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">Цепочка согласования</h3>
+        </div>
+        
+        {/* Кнопки управления */}
+        {(onApprove || onReject) && (
+          <div className="flex items-center gap-2">
+            {onReject && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={onReject}
+                className="flex items-center gap-2"
+              >
+                <X className="h-3 w-3" />
+                Отказать
+              </Button>
+            )}
+            {onApprove && (
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={onApprove}
+                className="flex items-center gap-2"
+              >
+                <Check className="h-3 w-3" />
+                Одобрить
+              </Button>
+            )}
+          </div>
+        )}
       </div>
       
       <TooltipProvider delayDuration={0}>

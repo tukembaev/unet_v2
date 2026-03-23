@@ -6,8 +6,9 @@ import DocFileCard from "./tabs/DocFileCard";
 import DocumentTabsCard from "./tabs/DocumentTabsCard";
 import { useDocumentHistory } from "../../model/queries";
 import { useState, useEffect } from "react";
-import { Button, Badge } from "shared/ui";
-import { ClipboardList, ExternalLink, X, Check } from "lucide-react";
+import { Badge, Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "shared/ui";
+import { ClipboardList, ExternalLink, LucideCookie } from "lucide-react";
+import { FormQuery, useFormNavigation } from "shared/lib";
 
 // Моковые данные участников подписания документа
 const mockParticipants: ApprovalParticipant[] = [
@@ -88,6 +89,14 @@ const DocumentDetails = () => {
   // Simulate loading state
   const [isLoading, setIsLoading] = useState(true);
   const { data: history, isLoading: isHistoryLoading } = useDocumentHistory(documentId);
+  const openForm = useFormNavigation();
+
+  // Моковые данные для создания задачи
+  const mockDocumentData = {
+    name: "Заявление на отпуск с 01.11.2025 по 15.11.2025",
+    doc_id: documentId.toString(),
+    type: "Заявление на отпуск"
+  };
 
   const handleApprove = () => {
     // TODO: Implement approve logic
@@ -102,6 +111,21 @@ const DocumentDetails = () => {
   const handleTaskClick = () => {
     // TODO: Navigate to task details
     console.log("Navigate to task:", mockTask.taskId);
+  };
+
+  const handleCreateTask = () => {
+    // Открываем диалог создания задачи с передачей данных документа
+    console.log("Opening create task dialog with data:", {
+      documentName: mockDocumentData.name,
+      doc_id: mockDocumentData.doc_id,
+      documentType: mockDocumentData.type
+    });
+    
+    openForm(FormQuery.CREATE_TASK, {
+      documentName: mockDocumentData.name,
+      doc_id: mockDocumentData.doc_id,
+      documentType: mockDocumentData.type
+    });
   };
 
   useEffect(() => {
@@ -123,26 +147,19 @@ const DocumentDetails = () => {
         title="Детали документа"
         description="Просмотр процесса согласования и подписания документа"
       >
-        {/* Кнопки управления */}
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="destructive" 
-            size="sm"
-            onClick={handleReject}
-            className="flex items-center gap-2"
-          >
-            <X className="h-4 w-4" />
-            Отказать
-          </Button>
-          <Button 
-            size="sm"
-            onClick={handleApprove}
-            className="flex items-center gap-2"
-          >
-            <Check className="h-4 w-4" />
-            Одобрить
-          </Button>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant={'outline'} onClick={handleCreateTask}>
+                <LucideCookie />
+                Сформировать задачу
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Сформировать задачу на основе этого документа</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </PageHeader>
 
 
@@ -162,8 +179,29 @@ const DocumentDetails = () => {
 
       {/* Split layout: PDF слева, карточки справа */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-        {/* Left side - PDF Viewer (50% на десктопе) */}
-        <div className="w-full">
+        {/* Left side - Task card + PDF Viewer (50% на десктопе) */}
+        <div className="w-full space-y-4">
+          {/* Карточка задачи выше PDF */}
+          {mockTask && (
+            <div 
+              onClick={handleTaskClick}
+              className="flex items-center gap-3 p-4 rounded-lg border border-border hover:border-primary/50 hover:shadow-sm transition-all duration-200 bg-background cursor-pointer group"
+            >
+              <ClipboardList className="h-5 w-5 text-primary shrink-0" />
+              <div className="space-y-1 min-w-0 flex-1">
+                <p className="font-medium text-base">{mockTask.name}</p>
+                <div className="flex items-center gap-3">
+                  <Badge variant="secondary" className="text-sm">
+                    {mockTask.status}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">ID: #{mockTask.taskId}</span>
+                </div>
+              </div>
+              <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary shrink-0" />
+            </div>
+          )}
+          
+          {/* PDF Viewer */}
           <PdfViewer url="https://utask.kstu.kg/media/media/zayavki/order_iEWwAIU.pdf" />
         </div>
 
@@ -173,6 +211,8 @@ const DocumentDetails = () => {
             participants={mockParticipants}
             history={history}
             isHistoryLoading={isHistoryLoading}
+            onApprove={handleApprove}
+            onReject={handleReject}
           />
           <DocFileCard />
      
