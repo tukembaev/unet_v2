@@ -17,6 +17,7 @@ import StreamsPage from "pages/streams";
 import { StreamsInfo } from "entities/streams";
 import ProfilePage from "pages/profile";
 import { TaskDetails } from "entities/task/ui/task-details";
+import { KpiReportPage } from "pages/kpi-report";
 import { CurriculumPage } from "pages/curriculum";
 import { TaskReportsPage } from "pages/task-reports";
 
@@ -101,7 +102,11 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.TASK_REPORTS,
         element: <TaskReportsPage />,
-      }
+      },
+      {
+        path: ROUTES.KPI_REPORTS,
+        element: <KpiReportPage />,
+      },
 
     ],
 
