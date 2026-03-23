@@ -1,27 +1,80 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import PageHeader from "widgets/page-header/page-header";
-import { Button } from "shared/ui";
-import { Calendar, CheckCircle2 } from "lucide-react";
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "shared/ui";
+import { Calendar, ChevronDown, Clock, Play, CheckCircle, XCircle, Eye } from "lucide-react";
 import TaskMembersTable from "./TaskMembersTable";
 import TaskSubtasksTable from "./TaskSubtasksTable";
-import TaskDocumentsCard from "./TaskDocumentsCard";
 import TaskDetailsSkeleton from "./TaskDetailsSkeleton";
-import { cn } from "shared/lib";
-import { useTaskDetails } from "../../model/queries";
+import { useTaskDetails, useUpdateTaskStatus } from "../../model/queries";
+import TaskDocumentsCard from "./TaskDocumentsCard";
+import { CreateTaskDialog } from "../CreateTaskDialog";
+import { AddTaskMembersDialog } from "../AddTaskMembersDialog";
+import { formatDate } from "shared/lib";
+import { TaskStatus } from "../../model/types";
+import { useCurrentUser } from "../../../user/model/queries";
+
+type UserRole = 'CREATOR' | 'RESPONSIBLE' | 'CO_EXECUTOR' | 'OBSERVER' | null;
 
 const TaskDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const taskId = location.state?.taskId as number | undefined;
+  const taskId = location.state?.taskId as string | undefined;
   
   const { data: task, isLoading } = useTaskDetails(taskId);
+  const { data: currentUser } = useCurrentUser();
+  const updateStatusMutation = useUpdateTaskStatus();
   const [isEarlyCompletion, setIsEarlyCompletion] = useState(false);
+
+  // Определяем роль текущего пользователя в задаче
+  const userRole = useMemo((): UserRole => {
+    if (!task || !currentUser) return null;
+    
+    // Проверяем, является ли пользователь создателем
+    if (task.creator_id === currentUser.id) {
+      return 'CREATOR';
+    }
+    
+    // Проверяем роль среди участников
+    const member = task.members.find(m => m.user_id === currentUser.id);
+    if (member) {
+      if (member.role === 'RESPONSIBLE') return 'RESPONSIBLE';
+      if (member.role === 'CO_EXECUTOR') return 'CO_EXECUTOR';
+      if (member.role === 'OBSERVER') return 'OBSERVER';
+    }
+    
+    return null;
+  }, [task, currentUser]);
+
+  // Определяем доступные статусы в зависимости от роли
+  const availableStatuses = useMemo((): TaskStatus[] => {
+    if (!userRole) return [];
+    
+    switch (userRole) {
+      case 'CREATOR':
+        return ['COMPLETED', 'CANCELED'];
+      case 'RESPONSIBLE':
+      case 'CO_EXECUTOR':
+        return ['IN_PROGRESS', 'REVIEW'];
+      case 'OBSERVER':
+        return [];
+      default:
+        return [];
+    }
+  }, [userRole]);
+
+  // Проверяем, может ли пользователь менять статус
+  const canChangeStatus = availableStatuses.length > 0;
+
+  // Проверяем права на добавление подзадач, документов и участников
+  const canAddSubtasks = userRole === 'CREATOR' || userRole === 'RESPONSIBLE' || userRole === 'CO_EXECUTOR';
+  const canAddDocuments = userRole === 'CREATOR' || userRole === 'RESPONSIBLE' || userRole === 'CO_EXECUTOR';
+  const canAddMembers = userRole === 'CREATOR' || userRole === 'RESPONSIBLE';
 
   // Determine if task can be completed early
   useEffect(() => {
-    if (task?.deadline_date) {
-      const deadline = new Date(task.deadline_date.split('.').reverse().join('-'));
+    if (task?.deadline_at) {
+      const deadline = new Date(task.deadline_at);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       deadline.setHours(0, 0, 0, 0);
@@ -33,38 +86,84 @@ const TaskDetails = () => {
     return <TaskDetailsSkeleton />;
   }
 
-  const handleCompleteTask = () => {
-    // TODO: Implement task completion logic
-    console.log('Complete task:', task.id, isEarlyCompletion ? 'early' : 'normal');
+  const handleStatusChange = async (status: string) => {
+    if (!taskId) return;
+    
+    try {
+      await updateStatusMutation.mutateAsync({
+        taskId,
+        data: { status: status as any },
+      });
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+    }
   };
 
+  const statusOptions = [
+    { value: 'PENDING', label: 'Очередь', icon: Clock, color: 'bg-gray-600 hover:bg-gray-700 dark:bg-gray-400 dark:hover:bg-gray-500', iconColor: 'text-gray-600 dark:text-gray-400' },
+    { value: 'IN_PROGRESS', label: 'В работе', icon: Play, color: 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-400 dark:hover:bg-blue-500', iconColor: 'text-blue-600 dark:text-blue-400' },
+    { value: 'REVIEW', label: 'Контроль', icon: Eye, color: 'bg-orange-600 hover:bg-orange-700 dark:bg-orange-400 dark:hover:bg-orange-500', iconColor: 'text-orange-600 dark:text-orange-400' },
+    { value: 'COMPLETED', label: isEarlyCompletion ? 'Досрочно завершить' : 'Готово', icon: CheckCircle, color: 'bg-green-600 hover:bg-green-700 dark:bg-green-400 dark:hover:bg-green-500', iconColor: 'text-green-600 dark:text-green-400' },
+    { value: 'CANCELED', label: 'Отмена', icon: XCircle, color: 'bg-red-600 hover:bg-red-700 dark:bg-red-400 dark:hover:bg-red-500', iconColor: 'text-red-600 dark:text-red-400' },
+  ];
+
+  const currentStatus = statusOptions.find(opt => opt.value === task.status) || statusOptions[0];
+  const CurrentIcon = currentStatus.icon;
+
+  // Фильтруем опции статусов для отображения в dropdown
+  const filteredStatusOptions = statusOptions.filter(opt => 
+    availableStatuses.includes(opt.value as TaskStatus)
+  );
+
   return (
-    <div className="container mx-auto p-4 md:p-6 space-y-6">
-      <PageHeader
-        title={task.task_name}
-        description={task.status}
-      >
-        <Button
-          onClick={handleCompleteTask}
-          variant={isEarlyCompletion ? "secondary" : "default"}
-          className={cn(
-            !isEarlyCompletion && "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white"
-          )}
+    <>
+      <div className="container mx-auto p-4 md:p-6 space-y-6">
+        <PageHeader
+          title={task.title}
+        
         >
-          <CheckCircle2 className="h-4 w-4" />
-          {isEarlyCompletion ? "Досрочно завершить" : "Завершить"}
-        </Button>
-      </PageHeader>
+          {canChangeStatus ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className={`${currentStatus.color} text-white`}>
+                  <CurrentIcon className="mr-2 h-4 w-4" />
+                  {currentStatus.label}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {filteredStatusOptions.map((option) => {
+                  const IconComponent = option.icon;
+                  return (
+                    <DropdownMenuItem
+                      key={option.value}
+                      onClick={() => handleStatusChange(option.value)}
+                      disabled={updateStatusMutation.isPending}
+                    >
+                      <IconComponent className={`mr-2 h-4 w-4 ${option.iconColor}`} />
+                      {option.label}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button className={`${currentStatus.color} text-white`} disabled>
+              <CurrentIcon className="mr-2 h-4 w-4" />
+              {currentStatus.label}
+            </Button>
+          )}
+        </PageHeader>
 
       {/* Top Info: Deadline and Created Date */}
       <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span>Крайний срок: {task.deadline_date}</span>
+          <span>Крайний срок: {formatDate(task.deadline_at)}</span>
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span>Поставлена: {task.create_date}</span>
+          <span>Поставлена: {formatDate(task.created_at)}</span>
         </div>
       </div>
 
@@ -78,26 +177,32 @@ const TaskDetails = () => {
         </p>
       </div>
 
-      {/* Main Layout: Content on left, Documents on right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* Left side - Main content (2/3) */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Members Table */}
-          <TaskMembersTable members={task.members} />
+        {/* Main Layout: Content on left, Documents on right */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+          {/* Left side - Main content (2/3) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Members Table */}
+            <TaskMembersTable members={task.members} taskId={task.id} canAddMembers={canAddMembers} />
 
-          {/* Subtasks Table */}
-          <TaskSubtasksTable 
-            subtasks={task.subtasks}
-            onSubtaskClick={(subtaskId) => navigate('/task-details', { state: { taskId: subtaskId } })}
-          />
-        </div>
+            {/* Subtasks Table */}
+            <TaskSubtasksTable 
+              taskId={task.id}
+              subtasks={task.subtasks}
+              onSubtaskClick={(subtaskId) => navigate('/task-details', { state: { taskId: subtaskId } })}
+              canAddSubtasks={canAddSubtasks}
+            />
+          </div>
 
-        {/* Right side - Documents (1/3) */}
-        <div className="lg:col-span-1">
-          <TaskDocumentsCard files={task.files} />
+          {/* Right side - Documents (1/3) */}
+          <div className="lg:col-span-1"> 
+            <TaskDocumentsCard canAddDocuments={canAddDocuments} />
+          </div>
         </div>
       </div>
-    </div>
+
+      <CreateTaskDialog />
+      <AddTaskMembersDialog />
+    </>
   );
 };
 

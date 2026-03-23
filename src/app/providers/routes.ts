@@ -26,6 +26,9 @@ export const ROUTES = {
   STREAMS: '/education/streams',
   WORKLOAD: '/education/workload',
   STREAM_DETAILS: '/education/stream',
+  
+  // Отчетность
+  TASK_REPORTS: '/reports/tasks',
 } as const;
 
 // Type for route paths

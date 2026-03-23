@@ -1,28 +1,27 @@
 import { Card, CardContent, CardHeader, CardTitle, Button, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Badge } from "shared/ui";
 import { Plus, ClipboardList } from "lucide-react";
 import { TaskSubtask } from "../../model/types";
+import { EmptyState } from "shared/components/EmptyState";
+import { useFormNavigation, formatDate } from "shared/lib";
+import { FormQuery } from "shared/lib/form-navigation";
 
 interface TaskSubtasksTableProps {
   subtasks: TaskSubtask[];
-  onSubtaskClick?: (subtaskId: number) => void;
+  taskId: string;
+  onSubtaskClick?: (subtaskId: string) => void;
+  canAddSubtasks: boolean;
 }
 
-const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps) => {
+const TaskSubtasksTable = ({ subtasks, taskId, onSubtaskClick, canAddSubtasks }: TaskSubtasksTableProps) => {
+  const openForm = useFormNavigation();
+
   const handleAddSubtask = () => {
-    // TODO: Implement add subtask logic
-    console.log('Add subtask');
+    // Открываем форму создания задачи, оставаясь на текущей странице (без изменения URL)
+    openForm(FormQuery.CREATE_TASK, { task_id: taskId }, { syncUrl: false });
   };
 
-  const handleRowClick = (subtaskId: number) => {
+  const handleRowClick = (subtaskId: string) => {
     onSubtaskClick?.(subtaskId);
-  };
-
-  const getResponsibleMembers = (subtask: TaskSubtask) => {
-    const responsible = subtask.members_subtask
-      .filter(m => m.member_type === "Ответственный")
-      .map(m => m.member?.surname_name || "")
-      .filter(Boolean);
-    return responsible.join(", ") || "-";
   };
 
   return (
@@ -32,16 +31,20 @@ const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps)
           <ClipboardList className="h-5 w-5 text-primary" />
           Подзадачи
         </CardTitle>
-        <Button onClick={handleAddSubtask} size="sm" variant="outline">
-          <Plus className="h-4 w-4" />
-          Добавить подзадачу
-        </Button>
+        {canAddSubtasks && (
+          <Button onClick={handleAddSubtask} size="sm" variant="outline">
+            <Plus className="h-4 w-4" />
+            Добавить подзадачу
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         {subtasks.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            Подзадачи отсутствуют
-          </p>
+          <EmptyState
+            icon={ClipboardList}
+            title="Подзадачи отсутствуют"
+            description="К этой задаче еще не добавлены подзадачи"
+          />
         ) : (
           <div className="w-full overflow-x-auto rounded-md border">
             <Table>
@@ -62,7 +65,7 @@ const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps)
                     onClick={() => handleRowClick(subtask.id)}
                   >
                     <TableCell className="font-medium">
-                      {subtask.subtask_name}
+                      {subtask.title}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
@@ -70,13 +73,13 @@ const TaskSubtasksTable = ({ subtasks, onSubtaskClick }: TaskSubtasksTableProps)
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">{getResponsibleMembers(subtask)}</span>
+                      <span className="text-sm">{subtask.members[0].user_name}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">{subtask.create_date}</span>
+                      <span className="text-sm">{formatDate(subtask.created_at)}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm">{subtask.deadline_date}</span>
+                      <span className="text-sm">{formatDate(subtask.deadline_at)}</span>
                     </TableCell>
                   </TableRow>
                 ))}

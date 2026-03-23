@@ -9,6 +9,7 @@ import {
 import { Button, Input, Field, FieldLabel, FieldError, FieldDescription } from "shared/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormQuery, useIsFormOpen, useFormClose } from "shared/lib";
 
 const schema = z.object({
   code: z.string().min(1, "Обязательное поле"),
@@ -26,12 +27,10 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-interface Props {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+export const CreateElectiveDialog = () => {
+  const open = useIsFormOpen(FormQuery.CREATE_ELECTIVE);
+  const closeForm = useFormClose();
 
-export const CreateElectiveDialog = ({ open, onOpenChange }: Props) => {
   const {
     register,
     handleSubmit,
@@ -57,11 +56,11 @@ export const CreateElectiveDialog = ({ open, onOpenChange }: Props) => {
   const onSubmit = handleSubmit((values) => {
     console.log("Create elective (mock)", values);
     reset();
-    onOpenChange(false);
+    closeForm(FormQuery.CREATE_ELECTIVE);
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={() => closeForm(FormQuery.CREATE_ELECTIVE)}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">Добавить предмет по выбору</DialogTitle>
@@ -142,7 +141,7 @@ export const CreateElectiveDialog = ({ open, onOpenChange }: Props) => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => closeForm(FormQuery.CREATE_ELECTIVE)}>
               Отмена
             </Button>
             <Button type="submit">Добавить курс</Button>

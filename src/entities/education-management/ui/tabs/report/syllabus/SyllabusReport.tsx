@@ -1,26 +1,25 @@
-import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent } from "shared/ui/card";
-import { Skeleton } from "shared/ui/skeleton";
 import { Empty, EmptyTitle, EmptyDescription, EmptyContent, EmptyMedia } from "shared/ui";
 
 import { useSyllabusReport } from "entities/education-management/model/queries";
 import { SyllabusTable } from "./SyllabusTable";
+import { SyllabusReportSkeleton } from "./SyllabusReportSkeleton";
 import { CreateSemesterDialog, CreateElectiveDialog } from "features/syllabus/index";
 import { BookDown } from "lucide-react";
+import { FormQuery, useFormNavigation } from "shared/lib";
 
 export const SyllabusReport = () => {
   const { syllabusId, profileId } = useParams();
   const role = "admin"; // mock
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createElectiveOpen, setCreateElectiveOpen] = useState(false);
+  const openForm = useFormNavigation();
 
   const { data, isLoading, isError } = useSyllabusReport(
     syllabusId ? Number(syllabusId) : undefined,
     profileId ? Number(profileId) : undefined
   );
 
-  if (isLoading) return <Skeleton className="h-64 w-full" />;
+  if (isLoading) return <SyllabusReportSkeleton />;
   if (isError || !data) return <p>Ошибка загрузки данных</p>;
 
   const semesters = data.semesters ?? [];
@@ -58,7 +57,7 @@ export const SyllabusReport = () => {
           <div className="space-y-4">
             {semesters.map((s) => (
               <div key={s.id} className="rounded-lg overflow-hidden border border-border">
-                <SyllabusTable semester={s} role={role} onAddElective={() => setCreateElectiveOpen(true)} />
+                <SyllabusTable semester={s} role={role} onAddElective={() => openForm(FormQuery.CREATE_ELECTIVE)} />
               </div>
             ))}
           </div>
@@ -78,7 +77,7 @@ export const SyllabusReport = () => {
                 Нажмите кнопку ниже, чтобы добавить новый семестр к учебному плану
               </EmptyDescription>
               <button
-                onClick={() => setCreateOpen(true)}
+                onClick={() => openForm(FormQuery.CREATE_SEMESTER)}
                 className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
               >
                 Создать семестр
@@ -86,8 +85,8 @@ export const SyllabusReport = () => {
             </EmptyContent>
           </Empty>
         )}
-        <CreateSemesterDialog open={createOpen} onOpenChange={setCreateOpen} />
-        <CreateElectiveDialog open={createElectiveOpen} onOpenChange={setCreateElectiveOpen} />
+        <CreateSemesterDialog />
+        <CreateElectiveDialog />
       </CardContent>
     </Card>
   );

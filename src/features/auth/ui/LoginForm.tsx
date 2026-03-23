@@ -1,21 +1,20 @@
-import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { loginSchema, LoginFormValues } from "../model/schema";
-import { useLogin } from "../model/queries";
-import { Button, Card, CardContent, CardHeader, CardTitle, Input } from "shared/ui";
-import { FormField } from "shared/lib";
-import { ScaleLoader } from "react-spinners";
 import {
+  Download,
   Eye,
   EyeOff,
   HelpCircle,
-  Download,
-  QrCode,
   LogIn,
   Mail,
+  QrCode,
 } from "lucide-react";
-import { PinModal } from "./PinCodeModal";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { ScaleLoader } from "react-spinners";
+import { Button, Card, CardContent, CardHeader, CardTitle, Input } from "shared/ui";
+import { useLogin } from "../model/queries";
+import { LoginFormValues, loginSchema } from "../model/schema";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 
@@ -30,11 +29,11 @@ export const LoginForm: React.FC = () => {
   const { mutateAsync: login, isPending } = useLogin();
   const [showPassword, setShowPassword] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
-  const [showPinModal, setShowPinModal] = useState(false);
+  const navigate = useNavigate();
   const handleLogin = async (values: LoginFormValues) => {
     try {
       await login(values);
-      setShowPinModal(true)
+      navigate("/home");
     } catch (err) {
       console.error("Ошибка входа:", err);
     }
@@ -178,7 +177,6 @@ export const LoginForm: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-      <PinModal open={showPinModal} onClose={() => setShowPinModal(false)}  />
     </div>
     
   );

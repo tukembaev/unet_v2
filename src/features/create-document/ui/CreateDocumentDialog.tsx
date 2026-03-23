@@ -23,16 +23,14 @@ import {
   FieldGroup,
 } from 'shared/ui/field';
 import { AsyncSelect } from 'shared/components/select/AsyncSelect';
+import { FormQuery, useIsFormOpen, useFormClose } from 'shared/lib';
 import { useCreateDocumentForm } from '../model/hooks/useCreateDocumentForm';
 import { fetchEmployees } from '../model/api';
 import { Employee, DOCUMENT_TYPES } from '../model/types';
 
-interface CreateDocumentDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function CreateDocumentDialog({ open, onOpenChange }: CreateDocumentDialogProps) {
+export function CreateDocumentDialog() {
+  const open = useIsFormOpen(FormQuery.CREATE_DOCUMENT);
+  const closeForm = useFormClose();
   const {
     form,
     handleMainFileSelect,
@@ -46,18 +44,18 @@ export function CreateDocumentDialog({ open, onOpenChange }: CreateDocumentDialo
 
   const handleCancel = () => {
     resetForm();
-    onOpenChange(false);
+    closeForm(FormQuery.CREATE_DOCUMENT);
   };
 
   const handleFormSubmit = async (data: any) => {
     const success = await submitForm(data);
     if (success) {
-      onOpenChange(false);
+      closeForm(FormQuery.CREATE_DOCUMENT);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={() => closeForm(FormQuery.CREATE_DOCUMENT)}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Создать обращение</DialogTitle>
@@ -69,7 +67,7 @@ export function CreateDocumentDialog({ open, onOpenChange }: CreateDocumentDialo
         <form onSubmit={form.handleSubmit(handleFormSubmit)}>
           <FieldGroup>
             {/* Document Type */}
-            <Field>
+            {/* <Field>
               <FieldLabel>
                 Тип документа
                 <span className="text-red-500 ml-1">*</span>
@@ -94,10 +92,10 @@ export function CreateDocumentDialog({ open, onOpenChange }: CreateDocumentDialo
                   {form.formState.errors.type_doc.message}
                 </FieldError>
               )}
-            </Field>
+            </Field> */}
 
             {/* Addressee (Кому) */}
-            <Field>
+            {/* <Field>
               <FieldLabel>
                 Кому
                 <span className="text-red-500 ml-1">*</span>
@@ -126,7 +124,7 @@ export function CreateDocumentDialog({ open, onOpenChange }: CreateDocumentDialo
                   {form.formState.errors.addressee.message}
                 </FieldError>
               )}
-            </Field>
+            </Field> */}
 
             {/* Theme/Subject */}
             <Field>

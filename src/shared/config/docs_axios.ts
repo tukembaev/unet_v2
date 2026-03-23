@@ -1,22 +1,32 @@
 import axios from 'axios';
 
-export const apiClient = axios.create({
-  baseURL: 'https://utask.kstu.kg/api/',
+export const apiDocsClient = axios.create({
+  baseURL: 'https://uadmin.kstu.kg/docs/api/v1/',
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 // Request interceptor
-apiClient.interceptors.request.use(
+apiDocsClient.interceptors.request.use(
   (config) => {
     // Add auth token if available
-    const token = localStorage.getItem('token');
-    console.log(token);
+      type AuthData = {
+  access_token: string;
+  refresh_token: string;
+  csrf_token: string;
+};
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+
+    const userStr = localStorage.getItem('user');
+
+    const user: AuthData | null = userStr ? JSON.parse(userStr) : null;
+
+
+    if (user) {
+      config.headers.Authorization = `Bearer ${user.access_token}`;
   }
     return config;
   },
@@ -26,7 +36,7 @@ apiClient.interceptors.request.use(
 );
 
 // Response interceptor
-apiClient.interceptors.response.use(
+apiDocsClient.interceptors.response.use(
   (response) => response,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (error: any) => {

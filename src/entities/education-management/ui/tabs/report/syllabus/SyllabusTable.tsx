@@ -2,6 +2,10 @@ import {
   SyllabusCourse,
   SyllabusSemester,
 } from "entities/education-management/model/types";
+import { CourseEditDialog } from "features/syllabus/index";
+import { Plus } from "lucide-react";
+import { useCallback, useState } from "react";
+import { FormQuery, useFormNavigation } from "shared/lib";
 import {
   Table,
   TableBody,
@@ -10,9 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "shared/ui";
-import { CourseEditModal } from "features/syllabus/index";
-import { useState } from "react";
-import { Plus } from "lucide-react";
 
 interface Props {
   semester: SyllabusSemester;
@@ -21,7 +22,7 @@ interface Props {
 }
 
 export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props) => {
-  const [open, setOpen] = useState(false);
+  const openForm = useFormNavigation();
   const [selected, setSelected] = useState<SyllabusCourse | null>(null);
 
   const mainCourses = semester.courses ?? [];
@@ -29,10 +30,10 @@ export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props)
 
   let rowIndex = 1;
 
-  const openEditor = (course: SyllabusCourse) => {
+  const openEditor = useCallback((course: SyllabusCourse) => {
     setSelected(course);
-    setOpen(true);
-  };
+    openForm(FormQuery.EDIT_COURSE, { courseId: course.id.toString() });
+  }, [openForm]);
 
   return (
     <>
@@ -167,7 +168,7 @@ export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props)
         </TableBody>
       </Table>
 
-      <CourseEditModal open={open} onOpenChange={setOpen} course={selected} />
+      <CourseEditDialog course={selected} />
     </>
   );
 };

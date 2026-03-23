@@ -19,6 +19,7 @@ import ProfilePage from "pages/profile";
 import { TaskDetails } from "entities/task/ui/task-details";
 import { KpiReportPage } from "pages/kpi-report";
 import { CurriculumPage } from "pages/curriculum";
+import { TaskReportsPage } from "pages/task-reports";
 
 
 
@@ -93,13 +94,14 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.CURRICULUM,
         element: <CurriculumPage />,
-      }, {
+      },
+      {
         path: ROUTES.PERSONAL_CARD,
         element: <ProfilePage />,
       },
       {
-        path: ROUTES.KPI_REPORTS,
-        element: <KpiReportPage />,
+        path: ROUTES.TASK_REPORTS,
+        element: <TaskReportsPage />,
       }
 
     ],

@@ -1,0 +1,185 @@
+import { z } from "zod";
+import { SyllabusCourse } from "entities/education-management/model/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "shared/ui/dialog";
+import { Button, Input } from "shared/ui";
+import {
+  Field,
+  FieldLabel,
+  FieldError,
+  FieldGroup,
+} from "shared/ui/field";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FormQuery, useIsFormOpen, useFormClose, useFormParam } from "shared/lib";
+import { useEffect } from "react";
+
+const schema = z.object({
+  code: z.string().optional(),
+  name_subject: z.string().min(1, "Обязательное поле"),
+  dep: z.string().optional(),
+  cycle: z.string().optional(),
+  course_type: z.string().optional(),
+  control_form: z.string().optional(),
+  credit: z.coerce.number().min(0, "Минимум 0").optional(),
+  amount_hours: z.coerce.number().min(0, "Минимум 0").optional(),
+  lecture_hours: z.coerce.number().min(0, "Минимум 0").optional(),
+  practice_hours: z.coerce.number().min(0, "Минимум 0").optional(),
+  lab_hours: z.coerce.number().min(0, "Минимум 0").optional(),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+interface Props {
+  course: SyllabusCourse | null;
+}
+
+export const CourseEditDialog = ({ course }: Props) => {
+  const open = useIsFormOpen(FormQuery.EDIT_COURSE);
+  const closeForm = useFormClose();
+  const courseId = useFormParam('courseId');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+  });
+
+  useEffect(() => {
+    if (course && open) {
+      reset({
+        code: course.code ?? "",
+        name_subject: course.name_subject ?? "",
+        dep: course.dep ?? "",
+        cycle: course.cycle ?? "",
+        course_type: course.course_type ?? "",
+        control_form: course.control_form ?? "",
+        credit: course.credit ?? 0,
+        amount_hours: course.amount_hours ?? 0,
+        lecture_hours: course.lecture_hours ?? 0,
+        practice_hours: course.practice_hours ?? 0,
+        lab_hours: course.lab_hours ?? 0,
+      });
+    }
+  }, [course, open, reset]);
+
+  const onSubmit = handleSubmit((values) => {
+    console.log("Course submit (mock)", values, "courseId:", courseId);
+    closeForm(FormQuery.EDIT_COURSE);
+  });
+
+  const handleCancel = () => {
+    reset();
+    closeForm(FormQuery.EDIT_COURSE);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={() => closeForm(FormQuery.EDIT_COURSE)}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Редактирование дисциплины</DialogTitle>
+          <DialogDescription>
+            Измените параметры выбранного курса
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={onSubmit}>
+          <FieldGroup>
+            <div className="grid grid-cols-2 gap-4">
+              <Field>
+                <FieldLabel>Код дисциплины</FieldLabel>
+                <Input {...register("code")} placeholder="Введите код" />
+                {errors.code && <FieldError>{errors.code.message}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel>
+                  Наименование предмета
+                  <span className="text-red-500 ml-1">*</span>
+                </FieldLabel>
+                <Input {...register("name_subject")} placeholder="Введите название" />
+                {errors.name_subject && <FieldError>{errors.name_subject.message}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel>Кафедра</FieldLabel>
+                <Input {...register("dep")} placeholder="Введите кафедру" />
+                {errors.dep && <FieldError>{errors.dep.message}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel>Цикл</FieldLabel>
+                <Input {...register("cycle")} placeholder="ОГЦ / МЕН / Проф" />
+                {errors.cycle && <FieldError>{errors.cycle.message}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel>Статус курса</FieldLabel>
+                <Input {...register("course_type")} placeholder="Базовая часть / Вузовский компонент" />
+                {errors.course_type && <FieldError>{errors.course_type.message}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel>Форма контроля</FieldLabel>
+                <Input {...register("control_form")} placeholder="Экзамен / Зачет" />
+                {errors.control_form && <FieldError>{errors.control_form.message}</FieldError>}
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-5 gap-4">
+              <Field>
+                <FieldLabel>Кредиты</FieldLabel>
+                <Input type="number" {...register("credit")} placeholder="0" />
+                {errors.credit && <FieldError>{errors.credit.message}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel>Всего ауд.</FieldLabel>
+                <Input type="number" {...register("amount_hours")} placeholder="0" />
+                {errors.amount_hours && <FieldError>{errors.amount_hours.message}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel>Лекции</FieldLabel>
+                <Input type="number" {...register("lecture_hours")} placeholder="0" />
+                {errors.lecture_hours && <FieldError>{errors.lecture_hours.message}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel>Практики</FieldLabel>
+                <Input type="number" {...register("practice_hours")} placeholder="0" />
+                {errors.practice_hours && <FieldError>{errors.practice_hours.message}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel>Лабы</FieldLabel>
+                <Input type="number" {...register("lab_hours")} placeholder="0" />
+                {errors.lab_hours && <FieldError>{errors.lab_hours.message}</FieldError>}
+              </Field>
+            </div>
+          </FieldGroup>
+
+          <DialogFooter className="mt-6">
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
+              Отмена
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Сохранение...' : 'Сохранить изменения'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default CourseEditDialog;

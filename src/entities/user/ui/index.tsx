@@ -112,3 +112,5 @@ export const UserCard: React.FC<Props> = ({ user }) => {
     </Card>
   );
 };
+
+export { default as UserTooltip } from './UserTooltip';

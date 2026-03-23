@@ -109,3 +109,4 @@ export {
   SelectScrollUpButton,
   SelectScrollDownButton,
 } from './select'
+export { FileDragDrop } from './file-drag-drop'

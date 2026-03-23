@@ -5,7 +5,7 @@ import { Badge } from 'shared/ui';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from 'shared/ui';
 import { Popover, PopoverContent, PopoverTrigger } from 'shared/ui';
 import { Search, Filter, Plus, Check, ChevronDown, X } from 'lucide-react';
-import { cn } from 'shared/lib';
+import { cn, FormQuery, useFormNavigation } from 'shared/lib';
 
 const filterOptions = [
   { key: 'ALL', label: 'Все', value: 'all' },
@@ -21,15 +21,16 @@ interface TaskSearchFilterProps {
   onSearch?: (value: string) => void;
   selectedFilters?: string[];
   onFiltersChange?: (filters: string[]) => void;
-  onAddTask?: () => void;
+
 }
 
-export const TaskSearchFilter: React.FC<TaskSearchFilterProps> = ({
+const TaskSearchFilterComponent: React.FC<TaskSearchFilterProps> = ({
   onSearch,
   selectedFilters = ['all'],
   onFiltersChange,
-  onAddTask,
 }) => {
+
+  const openForm = useFormNavigation()
   const [isOpen, setIsOpen] = useState(false);
 
   const handleFilterToggle = (value: string) => {
@@ -121,7 +122,7 @@ export const TaskSearchFilter: React.FC<TaskSearchFilterProps> = ({
       </Popover>
 
       {/* Add Task Button */}
-      <Button onClick={onAddTask} className="w-full sm:w-auto">
+      <Button onClick={() =>  openForm(FormQuery.CREATE_TASK)} className="w-full sm:w-auto">
         <Plus className="h-4 w-4 sm:mr-2" />
         <span className="hidden xs:inline ml-2 sm:ml-0 text-sm">Добавить задачу</span>
         <span className="xs:hidden text-sm">Добавить</span>
@@ -129,3 +130,5 @@ export const TaskSearchFilter: React.FC<TaskSearchFilterProps> = ({
     </div>
   );
 };
+
+export const TaskSearchFilter = React.memo(TaskSearchFilterComponent);

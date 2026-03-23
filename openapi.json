@@ -1,0 +1,770 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FastAPI",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "/document-flow"
+    }
+  ],
+  "paths": {
+    "/api/document/v1/application/": {
+      "get": {
+        "tags": [
+          "document",
+          "application v1"
+        ],
+        "summary": "Get Documents",
+        "operationId": "get_documents_api_document_v1_application__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/document/v1/order/": {
+      "get": {
+        "tags": [
+          "document",
+          "order v1"
+        ],
+        "summary": "Get Documents",
+        "operationId": "get_documents_api_document_v1_order__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/document/create/": {
+      "post": {
+        "tags": [
+          "document"
+        ],
+        "summary": "Create Document",
+        "operationId": "create_document_api_document_create__post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_document_api_document_create__post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/document/type-approval/": {
+      "post": {
+        "tags": [
+          "document"
+        ],
+        "summary": "Create Type Approval",
+        "operationId": "create_type_approval_api_document_type_approval__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TypeApprovalCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TypeApprovalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/document/{id}/": {
+      "get": {
+        "tags": [
+          "document"
+        ],
+        "summary": "Get Document Detail",
+        "operationId": "get_document_detail_api_document__id___get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "document"
+        ],
+        "summary": "Update Document",
+        "operationId": "update_document_api_document__id___patch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDocStatus"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateDocStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/document/add-member/{id}/": {
+      "patch": {
+        "tags": [
+          "document"
+        ],
+        "summary": "Add Document Member",
+        "operationId": "add_document_member_api_document_add_member__id___patch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AddDocumentMember"
+                },
+                "title": "Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AddDocumentMember"
+                  },
+                  "title": "Response Add Document Member Api Document Add Member  Id   Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddDocumentMember": {
+        "properties": {
+          "type_approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Type Approval Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type_approval_id",
+          "user_id"
+        ],
+        "title": "AddDocumentMember"
+      },
+      "Body_create_document_api_document_create__post": {
+        "properties": {
+          "sender_id": {
+            "type": "integer",
+            "title": "Sender Id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TypeDocument"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "binary"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status",
+            "default": "В процессе выполнения"
+          },
+          "members": {
+            "type": "string",
+            "title": "Members",
+            "examples": [
+              "[{\"user_id\": 0, \"type_approval_id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\"}]"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "sender_id",
+          "type"
+        ],
+        "title": "Body_create_document_api_document_create__post"
+      },
+      "DocumentDetailResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "sender_id": {
+            "type": "integer",
+            "title": "Sender Id"
+          },
+          "sender_first_name": {
+            "type": "string",
+            "title": "Sender First Name"
+          },
+          "sender_last_name": {
+            "type": "string",
+            "title": "Sender Last Name"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TypeDocument"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentMember"
+            },
+            "type": "array",
+            "title": "Members"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sender_id",
+          "sender_first_name",
+          "sender_last_name",
+          "type",
+          "title",
+          "status",
+          "created_at",
+          "file",
+          "members"
+        ],
+        "title": "DocumentDetailResponse"
+      },
+      "DocumentListResponse": {
+        "properties": {
+          "inbox": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentResponse"
+            },
+            "type": "array",
+            "title": "Inbox"
+          },
+          "outbox": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentResponse"
+            },
+            "type": "array",
+            "title": "Outbox"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentResponse"
+            },
+            "type": "array",
+            "title": "History"
+          }
+        },
+        "type": "object",
+        "required": [
+          "inbox",
+          "outbox",
+          "history"
+        ],
+        "title": "DocumentListResponse"
+      },
+      "DocumentMember": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "type_approval_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Type Approval Id"
+          },
+          "type_approval_name": {
+            "type": "string",
+            "title": "Type Approval Name"
+          },
+          "approve_name": {
+            "type": "string",
+            "title": "Approve Name"
+          },
+          "member_id": {
+            "type": "integer",
+            "title": "Member Id"
+          },
+          "sender_last_name": {
+            "type": "string",
+            "title": "Sender Last Name"
+          },
+          "sender_first_name": {
+            "type": "string",
+            "title": "Sender First Name"
+          },
+          "queue": {
+            "type": "integer",
+            "title": "Queue"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "signature": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature"
+          },
+          "reason_reject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Reject"
+          },
+          "turn": {
+            "type": "boolean",
+            "title": "Turn"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type_approval_id",
+          "type_approval_name",
+          "approve_name",
+          "member_id",
+          "sender_last_name",
+          "sender_first_name",
+          "queue",
+          "status",
+          "signature",
+          "reason_reject",
+          "turn"
+        ],
+        "title": "DocumentMember"
+      },
+      "DocumentResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "sender_id": {
+            "type": "integer",
+            "title": "Sender Id"
+          },
+          "sender_first_name": {
+            "type": "string",
+            "title": "Sender First Name"
+          },
+          "sender_last_name": {
+            "type": "string",
+            "title": "Sender Last Name"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TypeDocument"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sender_id",
+          "sender_first_name",
+          "sender_last_name",
+          "type",
+          "title",
+          "status",
+          "created_at"
+        ],
+        "title": "DocumentResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "TypeApprovalCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "approve_name": {
+            "type": "string",
+            "title": "Approve Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "approve_name"
+        ],
+        "title": "TypeApprovalCreate"
+      },
+      "TypeApprovalResponse": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "approve_name": {
+            "type": "string",
+            "title": "Approve Name"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "approve_name",
+          "id"
+        ],
+        "title": "TypeApprovalResponse"
+      },
+      "TypeDocument": {
+        "type": "string",
+        "enum": [
+          "ORDER_STUD",
+          "ORDER_EMPL",
+          "APPLICATION",
+          "MAIL",
+          "REPORT"
+        ],
+        "title": "TypeDocument"
+      },
+      "UpdateDocStatus": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "UpdateDocStatus"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

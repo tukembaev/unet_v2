@@ -1,20 +1,28 @@
-import { Task, User, Member } from '../types';
+import { TaskDetail, TaskMember, TaskMemberRole, TaskPriority, TaskStatus } from '../types';
 
 export interface CreateTaskRequest {
-  task_name: string;
-  description?: string;
-  is_important?: boolean;
-  attached_document?: string;
-  deadline_date?: string;
-  members: {
-    user_id: number;
-    member_type: 'Ответственный' | 'Соисполнитель' | 'Наблюдатель';
-  }[];
+  type?: string;
+  title: string;
+  description: string;
+  priority?: TaskPriority;
+  deadline_at?: string | null;
+  allow_change_deadline?: boolean;
+  check_after_finish?: boolean;
+  auto_complete_parent?: boolean;
+  parent_task_id?: string;
+  members: Array<{
+    user_id: string;
+    user_name: string;
+    role: TaskMemberRole | string;
+    avatar_url?: string;
+    is_online?: boolean;
+    email?: string;
+  }>;
 }
 
 export interface CreateTaskResponse {
   success: boolean;
-  task?: Task;
+  task?: TaskDetail;
   error?: string;
 }
 
@@ -24,42 +32,37 @@ export const createTask = async (data: CreateTaskRequest): Promise<CreateTaskRes
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Mock user data (in real app, this would come from auth context)
-    const mockCreator: User = {
-      id: 1,
-      user: 1,
-      first_name: "Ариф",
-      surname: "Тукембаев",
-      surname_name: "Тукембаев Ариф",
-      short_name: "Тукембаев А.",
-      number_phone: "0700000000",
-      imeag: "https://www.hindustantimes.com/ht-img/img/2023/07/15/550x309/jennie_1689410686831_1689410687014.jpg",
-      email: "arif@example.com",
-      division: "Отдел разработки",
-      position: "Frontend разработчик",
-      is_online: true,
-    };
+    const nowIso = new Date().toISOString();
+    const newTaskId = crypto.randomUUID?.() ?? String(Date.now());
 
-    // Mock member data
-    const mockMembers: Member[] = data.members.map((member, index) => ({
-      id: index + 1,
-      member: {
-        ...mockCreator,
-        id: member.user_id,
-      },
-      member_type: member.member_type,
+    const mockMembers: TaskMember[] = data.members.map((member) => ({
+      task_id: newTaskId,
+      user_id: member.user_id,
+      user_name: member.user_name,
+      role: member.role,
+      avatar_url: member.avatar_url ?? '',
+      is_online: member.is_online ?? false,
+      email: member.email ?? '',
+      assigned_at: nowIso,
     }));
 
-    // Create new task
-    const newTask: Task = {
-      id: Date.now(), // Simple ID generation for mock
-      task_name: data.task_name,
-      creator: mockCreator,
-      status: "Ждет выполнения",
-      attached_document: data.attached_document || "",
-      create_date: new Date().toLocaleString('ru-RU'),
-      deadline_date: data.deadline_date || null,
+    const newTask: TaskDetail = {
+      id: newTaskId,
+      type: data.type ?? '',
+      title: data.title,
+      description: data.description,
+      status: 'PENDING' satisfies TaskStatus,
+      priority: data.priority ?? 'MEDIUM',
+      creator_id: 'mock-creator',
+      created_at: nowIso,
+      updated_at: nowIso,
+      deadline_at: data.deadline_at ?? null,
+      allow_change_deadline: data.allow_change_deadline ?? false,
+      check_after_finish: data.check_after_finish ?? false,
+      auto_complete_parent: data.auto_complete_parent ?? false,
+      parent_task_id: data.parent_task_id,
       members: mockMembers,
+      subtasks: [],
     };
 
     return {

@@ -1,28 +1,27 @@
 import { Card, CardContent, CardHeader, Skeleton } from 'shared/ui';
-import { Separator } from 'shared/ui/separator';
 
 const TaskDetailsSkeleton = () => {
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-6">
       {/* Header Skeleton */}
       <div className="space-y-2">
-        <Skeleton className="h-8 w-64 bg-muted" />
-        <Skeleton className="h-4 w-96 bg-muted" />
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-4 w-96" />
       </div>
 
       {/* Top Info Skeleton */}
       <div className="flex flex-wrap items-center gap-4">
-        <Skeleton className="h-4 w-48 bg-muted" />
-        <Skeleton className="h-4 w-48 bg-muted" />
+        <Skeleton className="h-4 w-48" />
+        <Skeleton className="h-4 w-48" />
       </div>
 
       {/* Description Skeleton */}
       <div className="space-y-3">
-        <Skeleton className="h-6 w-48 bg-muted" />
+        <Skeleton className="h-6 w-48" />
         <div className="space-y-2">
-          <Skeleton className="h-4 w-full bg-muted" />
-          <Skeleton className="h-4 w-full bg-muted" />
-          <Skeleton className="h-4 w-3/4 bg-muted" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
         </div>
       </div>
 
@@ -33,21 +32,21 @@ const TaskDetailsSkeleton = () => {
           {/* Members Table Skeleton */}
           <Card className="hover:shadow-md transition-all duration-200">
             <CardHeader>
-              <Skeleton className="h-6 w-32 bg-muted" />
+              <Skeleton className="h-6 w-32" />
             </CardHeader>
             <CardContent>
               <div className="w-full overflow-x-auto rounded-md border">
                 <div className="space-y-3 p-4">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <div key={i} className="flex items-center gap-4">
-                      <Skeleton className="h-10 w-10 rounded-full bg-muted" />
+                      <Skeleton className="h-10 w-10 rounded-full" />
                       <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-48 bg-muted" />
-                        <Skeleton className="h-3 w-32 bg-muted" />
+                        <Skeleton className="h-4 w-48" />
+                        <Skeleton className="h-3 w-32" />
                       </div>
-                      <Skeleton className="h-6 w-20 rounded-full bg-muted" />
-                      <Skeleton className="h-6 w-24 rounded-full bg-muted" />
-                      <Skeleton className="h-4 w-32 bg-muted" />
+                      <Skeleton className="h-6 w-20 rounded-full" />
+                      <Skeleton className="h-6 w-24 rounded-full" />
+                      <Skeleton className="h-4 w-32" />
                     </div>
                   ))}
                 </div>
@@ -58,19 +57,19 @@ const TaskDetailsSkeleton = () => {
           {/* Subtasks Table Skeleton */}
           <Card className="hover:shadow-md transition-all duration-200">
             <CardHeader className="flex flex-row items-center justify-between">
-              <Skeleton className="h-6 w-32 bg-muted" />
-              <Skeleton className="h-9 w-40 bg-muted" />
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-9 w-40" />
             </CardHeader>
             <CardContent>
               <div className="w-full overflow-x-auto rounded-md border">
                 <div className="space-y-3 p-4">
                   {Array.from({ length: 2 }).map((_, i) => (
                     <div key={i} className="flex items-center gap-4">
-                      <Skeleton className="h-4 w-48 bg-muted" />
-                      <Skeleton className="h-6 w-24 rounded-full bg-muted" />
-                      <Skeleton className="h-4 w-32 bg-muted" />
-                      <Skeleton className="h-4 w-24 bg-muted" />
-                      <Skeleton className="h-4 w-24 bg-muted" />
+                      <Skeleton className="h-4 w-48" />
+                      <Skeleton className="h-6 w-24 rounded-full" />
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-24" />
                     </div>
                   ))}
                 </div>
@@ -83,16 +82,16 @@ const TaskDetailsSkeleton = () => {
         <div className="lg:col-span-1">
           <Card className="hover:shadow-md transition-all duration-200">
             <CardHeader className="flex flex-row items-center justify-between">
-              <Skeleton className="h-6 w-32 bg-muted" />
-              <Skeleton className="h-9 w-28 bg-muted" />
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-9 w-28" />
             </CardHeader>
             <CardContent>
               <div className="w-full overflow-x-auto rounded-md border">
                 <div className="space-y-3 p-4">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <div key={i} className="flex items-center justify-between">
-                      <Skeleton className="h-4 w-32 bg-muted" />
-                      <Skeleton className="h-8 w-8 rounded bg-muted" />
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-8 w-8 rounded" />
                     </div>
                   ))}
                 </div>
