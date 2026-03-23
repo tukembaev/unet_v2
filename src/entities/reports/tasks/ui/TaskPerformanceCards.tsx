@@ -11,28 +11,28 @@ export function TaskPerformanceCards({ performance, isLoading }: TaskPerformance
   const cards = [
     {
       title: 'Всего создано',
-      value: performance.totalCreated,
+      value: performance.total_created,
       icon: TrendingUp,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
     },
     {
       title: 'Всего завершено',
-      value: performance.totalCompleted,
+      value: performance.total_completed,
       icon: CheckCircle2,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
     {
       title: 'Среднее время',
-      value: `${performance.avgCompletionTime.toFixed(1)}ч`,
+      value: `${performance.avg_completion_time.toFixed(1)}ч`,
       icon: Clock,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100',
     },
     {
       title: 'Процент завершения',
-      value: `${performance.completionRate.toFixed(1)}%`,
+      value: `${performance.completion_rate.toFixed(1)}%`,
       icon: Target,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',

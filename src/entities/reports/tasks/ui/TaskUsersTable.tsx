@@ -12,7 +12,11 @@ import {
   TableHeader,
   TableRow,
   Button,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
 } from 'shared/ui';
+import UserTooltip from 'entities/user/ui/UserTooltip';
 import type { UserTaskStats } from '../model';
 
 interface TaskUsersTableProps {
@@ -20,12 +24,21 @@ interface TaskUsersTableProps {
   isLoading?: boolean;
 }
 
-type SortField = 'userName' | 'totalAssigned' | 'completed' | 'avgCompletionTime';
+type SortField = 'user_name' | 'total_assigned' | 'completed' | 'avg_completion_time';
 type SortOrder = 'asc' | 'desc';
 
 export function TaskUsersTable({ users, isLoading }: TaskUsersTableProps) {
-  const [sortField, setSortField] = useState<SortField>('totalAssigned');
+  const [sortField, setSortField] = useState<SortField>('total_assigned');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .map(n => n[0])
+      .join('')
+      .toUpperCase();
+  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -39,8 +52,8 @@ export function TaskUsersTable({ users, isLoading }: TaskUsersTableProps) {
   const sortedUsers = [...users].sort((a, b) => {
     const multiplier = sortOrder === 'asc' ? 1 : -1;
     
-    if (sortField === 'userName') {
-      return multiplier * a.userName.localeCompare(b.userName);
+    if (sortField === 'user_name') {
+      return multiplier * a.user_name.localeCompare(b.user_name);
     }
     
     const aValue = a[sortField] ?? 0;
@@ -79,7 +92,7 @@ export function TaskUsersTable({ users, isLoading }: TaskUsersTableProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleSort('userName')}
+                    onClick={() => handleSort('user_name')}
                     className="h-8 px-2"
                   >
                     Исполнитель
@@ -90,7 +103,7 @@ export function TaskUsersTable({ users, isLoading }: TaskUsersTableProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleSort('totalAssigned')}
+                    onClick={() => handleSort('total_assigned')}
                     className="h-8 px-2"
                   >
                     Назначено
@@ -113,7 +126,7 @@ export function TaskUsersTable({ users, isLoading }: TaskUsersTableProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleSort('avgCompletionTime')}
+                    onClick={() => handleSort('avg_completion_time')}
                     className="h-8 px-2"
                   >
                     Среднее время
@@ -125,18 +138,30 @@ export function TaskUsersTable({ users, isLoading }: TaskUsersTableProps) {
             </TableHeader>
             <TableBody>
               {sortedUsers.map((user) => {
-                const completionPercent = user.totalAssigned > 0
-                  ? (user.completed / user.totalAssigned) * 100
+                const completionPercent = user.total_assigned > 0
+                  ? (user.completed / user.total_assigned) * 100
                   : 0;
 
                 return (
-                  <TableRow key={user.userId}>
-                    <TableCell className="font-medium">{user.userName}</TableCell>
-                    <TableCell className="text-center">{user.totalAssigned}</TableCell>
+                  <TableRow key={user.user_id}>
+                    <TableCell className="font-medium">
+                      <UserTooltip userId={user.user_id}>
+                        <div className="flex items-center gap-3 cursor-pointer">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={user.avatar_url || undefined} alt={user.user_name} />
+                            <AvatarFallback className="text-xs">
+                              {getInitials(user.user_name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span>{user.user_name}</span>
+                        </div>
+                      </UserTooltip>
+                    </TableCell>
+                    <TableCell className="text-center">{user.total_assigned}</TableCell>
                     <TableCell className="text-center">{user.completed}</TableCell>
-                    <TableCell className="text-center">{user.inProgress}</TableCell>
+                    <TableCell className="text-center">{user.in_progress}</TableCell>
                     <TableCell className="text-center">
-                      {(user.avgCompletionTime ?? 0).toFixed(1)}ч
+                      {(user.avg_completion_time ?? 0).toFixed(1)}ч
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">

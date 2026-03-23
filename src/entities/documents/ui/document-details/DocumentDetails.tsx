@@ -6,6 +6,8 @@ import DocFileCard from "./tabs/DocFileCard";
 import DocumentTabsCard from "./tabs/DocumentTabsCard";
 import { useDocumentHistory } from "../../model/queries";
 import { useState, useEffect } from "react";
+import { Button, Badge } from "shared/ui";
+import { ClipboardList, ExternalLink, X, Check } from "lucide-react";
 
 // Моковые данные участников подписания документа
 const mockParticipants: ApprovalParticipant[] = [
@@ -70,6 +72,14 @@ const mockParticipants: ApprovalParticipant[] = [
   },
 ];
 
+// Моковые данные задачи (если есть)
+const mockTask = {
+  id: "TSK-2024-001",
+  name: "Согласование заявления на отпуск",
+  status: "В процессе" as const,
+  taskId: 12345
+};
+
 const DocumentDetails = () => {
   // TODO: Получить documentId из URL params или props
   // Для примера используем hardcoded ID
@@ -78,6 +88,21 @@ const DocumentDetails = () => {
   // Simulate loading state
   const [isLoading, setIsLoading] = useState(true);
   const { data: history, isLoading: isHistoryLoading } = useDocumentHistory(documentId);
+
+  const handleApprove = () => {
+    // TODO: Implement approve logic
+    console.log("Document approved");
+  };
+
+  const handleReject = () => {
+    // TODO: Implement reject logic
+    console.log("Document rejected");
+  };
+
+  const handleTaskClick = () => {
+    // TODO: Navigate to task details
+    console.log("Navigate to task:", mockTask.taskId);
+  };
 
   useEffect(() => {
     // Simulate API call
@@ -97,7 +122,30 @@ const DocumentDetails = () => {
       <PageHeader
         title="Детали документа"
         description="Просмотр процесса согласования и подписания документа"
-      />
+      >
+        {/* Кнопки управления */}
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="destructive" 
+            size="sm"
+            onClick={handleReject}
+            className="flex items-center gap-2"
+          >
+            <X className="h-4 w-4" />
+            Отказать
+          </Button>
+          <Button 
+            size="sm"
+            onClick={handleApprove}
+            className="flex items-center gap-2"
+          >
+            <Check className="h-4 w-4" />
+            Одобрить
+          </Button>
+        </div>
+      </PageHeader>
+
+
 
       {/* Секция описания документа */}
       <div className="space-y-3">
@@ -121,7 +169,7 @@ const DocumentDetails = () => {
 
         {/* Right side - Cards (50% на десктопе) */}
         <div className="w-full space-y-4 md:space-y-6">
-               <DocumentTabsCard 
+          <DocumentTabsCard 
             participants={mockParticipants}
             history={history}
             isHistoryLoading={isHistoryLoading}

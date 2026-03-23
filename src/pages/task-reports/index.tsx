@@ -14,7 +14,7 @@ export const TaskReportsPage = () => {
   // Queries
   const usersQuery = useUsersReport(dateRange);
   const performanceQuery = usePerformanceReport(dateRange);
-
+  console.log(performanceQuery)
   return (
     <div className="space-y-6 p-6">
       <TaskReportsHeader
@@ -27,11 +27,11 @@ export const TaskReportsPage = () => {
       {/* Секция: Производительность */}
       <TaskPerformanceCards
         performance={
-          performanceQuery.data?.performance || {
-            totalCreated: 0,
-            totalCompleted: 0,
-            avgCompletionTime: 0,
-            completionRate: 0,
+          performanceQuery.data?.stats || {
+            total_created: 0,
+            total_completed: 0,
+            avg_completion_time: 0,
+            completion_rate: 0,
           }
         }
         isLoading={performanceQuery.isLoading}

@@ -1,19 +1,19 @@
 // Типы для отчетов по задачам
 
 export interface UserTaskStats {
-  userId: string;
-  userName: string;
-  totalAssigned: number;
+  user_id: string;
+  user_name: string;
+  total_assigned: number;
   completed: number;
-  inProgress: number;
-  avgCompletionTime: number; // в часах
-}
-
+  in_progress: number;
+  avg_completion_time: number; // в часах
+  avatar_url?: string;
+} 
 export interface PerformanceStats {
-  totalCreated: number;
-  totalCompleted: number;
-  avgCompletionTime: number;
-  completionRate: number; // процент
+  total_created: number;
+  total_completed: number;
+  avg_completion_time: number;
+  completion_rate: number; // процент
 }
 
 // Параметры для запросов (даты в RFC3339 формате: 2026-03-16T00:00:00Z)
@@ -29,7 +29,7 @@ export interface UsersReportResponse {
 }
 
 export interface PerformanceReportResponse {
-  performance: PerformanceStats;
+  stats: PerformanceStats;
 }
 
 // Новые типы для отчета по задачам
