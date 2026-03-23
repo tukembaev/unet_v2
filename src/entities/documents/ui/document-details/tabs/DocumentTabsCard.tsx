@@ -10,9 +10,11 @@ interface DocumentTabsCardProps {
   participants: ApprovalParticipant[];
   history?: BaseHistory[];
   isHistoryLoading?: boolean;
+  onApprove?: () => void;
+  onReject?: () => void;
 }
 
-const DocumentTabsCard = ({ participants, history, isHistoryLoading = false }: DocumentTabsCardProps) => {
+const DocumentTabsCard = ({ participants, history, isHistoryLoading = false, onApprove, onReject }: DocumentTabsCardProps) => {
   const [activeTab, setActiveTab] = useState("approval");
 
   return (
@@ -44,7 +46,11 @@ const DocumentTabsCard = ({ participants, history, isHistoryLoading = false }: D
 
           <TabsContent value="approval" className="mt-0">
             <div className="pt-2">
-              <DocumentApprovalFlow participants={participants} />
+              <DocumentApprovalFlow 
+                participants={participants} 
+                onApprove={onApprove}
+                onReject={onReject}
+              />
             </div>
           </TabsContent>
 

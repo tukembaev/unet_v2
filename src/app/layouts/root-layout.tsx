@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { cn } from "shared/lib/utils";
 import { Card } from "shared/ui";
 import { Navbar } from "widgets/navbar";
+import { CreateTaskDialog } from "features/create-task";
 
 export function RootLayout() {
   return (
@@ -27,6 +28,9 @@ export function RootLayout() {
           FSD architecture.
         </div>
       </footer>
+      
+      {/* Global Dialogs */}
+      <CreateTaskDialog />
     </div>
   );
 }

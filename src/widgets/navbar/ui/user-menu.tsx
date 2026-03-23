@@ -36,7 +36,7 @@ import { useCurrentUser } from "entities/user";
 export function UserMenu() {
   const navigate = useNavigate();
   const { data: user, isLoading } = useCurrentUser();
-
+  console.log(user)
   const onLogout = () => {
     navigate("/");
     localStorage.removeItem("token");
