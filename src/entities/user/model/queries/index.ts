@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getUsersList, syncUsers } from "../api";
+import { getUsersList, syncUsers, getCurrentUser, getEmployeeDetails } from "../api";
 
 export function useUsersList() {
   return useQuery({
@@ -11,5 +11,20 @@ export function useUsersList() {
 export function useSyncUsers() {
   return useMutation({
     mutationFn: syncUsers,
+  });
+}
+
+export function useCurrentUser() {
+  return useQuery({
+    queryKey: ['currentUser'],
+    queryFn: getCurrentUser,
+  });
+}
+
+export function useEmployeeDetails(userId: string, enabled = true) {
+  return useQuery({
+    queryKey: ['employeeDetails', userId],
+    queryFn: () => getEmployeeDetails(userId),
+    enabled: enabled && !!userId,
   });
 }

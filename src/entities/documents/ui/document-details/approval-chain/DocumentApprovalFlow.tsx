@@ -1,9 +1,10 @@
 import { useRef, useMemo, useState, useEffect } from "react";
 import { AnimatedBeam, Circle, StaticLine } from "shared/components/animated-ui/AnimatedBeam";
 import { Avatar, AvatarFallback, AvatarImage } from "shared/ui/avatar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "shared/ui/tooltip";
+import { TooltipProvider } from "shared/ui/tooltip";
 import { cn } from "shared/lib";
-import { CheckCircle2, XCircle, Clock, GitBranch } from "lucide-react";
+import { GitBranch } from "lucide-react";
+import ApprovalUserTooltip from "./ApprovalUserTooltip";
 
 export type ApprovalRole = "Отправитель" | "Согласующий" | "Получатель";
 
@@ -126,85 +127,29 @@ const DocumentApprovalFlow = ({ participants }: DocumentApprovalFlowProps) => {
                     gridColumn: col + 1,
                   }}
                 >
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <Circle
-                          ref={(el) => {
-                            participantRefs.current[index] = el;
-                          }}
-                          className={cn(
-                            "transition-all cursor-pointer hover:scale-110 w-10 h-10 sm:w-12 sm:h-12",
-                            getStatusColor(participant, index)
-                          )}
-                        >
-                          <Avatar className="size-full">
-                            <AvatarImage src={participant.photo} alt={participant.name} />
-                            <AvatarFallback className="text-xs">{getInitials(participant.name)}</AvatarFallback>
-                          </Avatar>
-                        </Circle>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-[280px]">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={participant.photo} alt={participant.name} />
-                            <AvatarFallback className="text-xs">{getInitials(participant.name)}</AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <p className="font-semibold text-sm">{participant.name}</p>
-                            <p className="text-xs text-muted-foreground">{participant.role}</p>
-                          </div>
-                        </div>
-                        
-                        {(participant.division || participant.position) && (
-                          <div className="space-y-1 text-xs">
-                            {participant.position && (
-                              <div className="flex items-start gap-2">
-                                <span className="text-muted-foreground min-w-[70px]">Должность:</span>
-                                <span className="font-medium flex-1">{participant.position}</span>
-                              </div>
-                            )}
-                            {participant.division && (
-                              <div className="flex items-start gap-2">
-                                <span className="text-muted-foreground min-w-[70px]">Отдел:</span>
-                                <span className="font-medium flex-1">{participant.division}</span>
-                              </div>
-                            )}
-                          </div>
+                  <ApprovalUserTooltip
+                    userId={participant.id}
+                    participant={participant}
+                    index={index}
+                    allParticipants={participants}
+                  >
+                    <div>
+                      <Circle
+                        ref={(el) => {
+                          participantRefs.current[index] = el;
+                        }}
+                        className={cn(
+                          "transition-all cursor-pointer hover:scale-110 w-10 h-10 sm:w-12 sm:h-12",
+                          getStatusColor(participant, index)
                         )}
-
-                        
-                        <div className="flex items-center gap-2 pt-2 border-t">
-                          {participant.isSigned ? (
-                            <>
-                              <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
-                              <span className="text-xs text-green-600 dark:text-green-400 font-medium">Подписано</span>
-                            </>
-                          ) : participant.rejectionReason ? (
-                            <>
-                              <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
-                              <div className="flex-1">
-                                <p className="text-xs text-red-600 dark:text-red-400 font-medium">Отклонено</p>
-                                <p className="text-xs text-muted-foreground mt-1">{participant.rejectionReason}</p>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <Clock className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                {(() => {
-                                  const allPreviousSigned = index === 0 || participants.slice(0, index).every(p => p.isSigned);
-                                  return allPreviousSigned ? "На подписании" : "Ожидает";
-                                })()}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
+                      >
+                        <Avatar className="size-full">
+                          <AvatarImage src={participant.photo} alt={participant.name} />
+                          <AvatarFallback className="text-xs">{getInitials(participant.name)}</AvatarFallback>
+                        </Avatar>
+                      </Circle>
+                    </div>
+                  </ApprovalUserTooltip>
 
                   <span className="text-[10px] sm:text-xs font-medium text-center max-w-[60px] sm:max-w-[80px] md:max-w-[120px] truncate">
                     {participant.role}

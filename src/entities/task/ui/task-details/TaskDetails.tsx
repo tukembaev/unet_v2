@@ -12,9 +12,7 @@ import { CreateTaskDialog } from "../CreateTaskDialog";
 import { AddTaskMembersDialog } from "../AddTaskMembersDialog";
 import { formatDate } from "shared/lib";
 import { TaskStatus } from "../../model/types";
-
-// Временный ID текущего пользователя (в будущем получать из контекста/auth)
-const CURRENT_USER_ID = "69298";
+import { useCurrentUser } from "../../../user/model/queries";
 
 type UserRole = 'CREATOR' | 'RESPONSIBLE' | 'CO_EXECUTOR' | 'OBSERVER' | null;
 
@@ -24,20 +22,21 @@ const TaskDetails = () => {
   const taskId = location.state?.taskId as string | undefined;
   
   const { data: task, isLoading } = useTaskDetails(taskId);
+  const { data: currentUser } = useCurrentUser();
   const updateStatusMutation = useUpdateTaskStatus();
   const [isEarlyCompletion, setIsEarlyCompletion] = useState(false);
 
   // Определяем роль текущего пользователя в задаче
   const userRole = useMemo((): UserRole => {
-    if (!task) return null;
+    if (!task || !currentUser) return null;
     
     // Проверяем, является ли пользователь создателем
-    if (task.creator_id === CURRENT_USER_ID) {
+    if (task.creator_id === currentUser.id) {
       return 'CREATOR';
     }
     
     // Проверяем роль среди участников
-    const member = task.members.find(m => m.user_id === CURRENT_USER_ID);
+    const member = task.members.find(m => m.user_id === currentUser.id);
     if (member) {
       if (member.role === 'RESPONSIBLE') return 'RESPONSIBLE';
       if (member.role === 'CO_EXECUTOR') return 'CO_EXECUTOR';
@@ -45,7 +44,7 @@ const TaskDetails = () => {
     }
     
     return null;
-  }, [task]);
+  }, [task, currentUser]);
 
   // Определяем доступные статусы в зависимости от роли
   const availableStatuses = useMemo((): TaskStatus[] => {

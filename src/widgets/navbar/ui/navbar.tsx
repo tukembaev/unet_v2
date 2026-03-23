@@ -115,6 +115,17 @@ const navigationSections: NavSection[] = [
       },
     ],
   },
+  {
+    title: 'Отчетность',
+    items: [
+      {
+        title: 'Задачи',
+        href: ROUTES.TASK_REPORTS,
+        description: 'Сформировать отчеты по задачам',
+        icon: BarChart3,
+      },
+    ],
+  },
 ];
 
 export function Navbar() {

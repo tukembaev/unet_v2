@@ -18,6 +18,7 @@ import { StreamsInfo } from "entities/streams";
 import ProfilePage from "pages/profile";
 import { TaskDetails } from "entities/task/ui/task-details";
 import { CurriculumPage } from "pages/curriculum";
+import { TaskReportsPage } from "pages/task-reports";
 
 
 
@@ -92,9 +93,14 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.CURRICULUM,
         element: <CurriculumPage />,
-      }, {
+      },
+      {
         path: ROUTES.PERSONAL_CARD,
         element: <ProfilePage />,
+      },
+      {
+        path: ROUTES.TASK_REPORTS,
+        element: <TaskReportsPage />,
       }
 
     ],

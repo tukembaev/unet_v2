@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-export const apiUserClient = axios.create({
-  baseURL: 'https://uadmin.kstu.kg/users/api/v1/',
+export const apiDocsClient = axios.create({
+  baseURL: 'https://uadmin.kstu.kg/docs/api/v1/',
   timeout: 10000,
   withCredentials: true,
   headers: {
@@ -10,7 +10,7 @@ export const apiUserClient = axios.create({
 });
 
 // Request interceptor
-apiUserClient.interceptors.request.use(
+apiDocsClient.interceptors.request.use(
   (config) => {
     // Add auth token if available
       type AuthData = {
@@ -36,7 +36,7 @@ apiUserClient.interceptors.request.use(
 );
 
 // Response interceptor
-apiUserClient.interceptors.response.use(
+apiDocsClient.interceptors.response.use(
   (response) => response,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (error: any) => {

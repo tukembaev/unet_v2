@@ -3,6 +3,7 @@ import { Plus, Users } from "lucide-react";
 import { TaskMember } from "../../model/types";
 import { EmptyState } from "shared/components/EmptyState";
 import { useFormNavigation, FormQuery } from "shared/lib";
+import { UserTooltip } from "entities/user";
 
 interface TaskMembersTableProps {
   members: TaskMember[];
@@ -62,21 +63,23 @@ const TaskMembersTable = ({ members, taskId, canAddMembers }: TaskMembersTablePr
                   return (
                     <TableRow key={member.user_id}>
                       <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={member.avatar_url} alt={member.user_name} />
-                            <AvatarFallback>
-                              {member.user_name
-                                .split(' ')
-                                .filter(Boolean)
-                                .map(n => n[0])
-                                .join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{member.user_name}</span>
+                        <UserTooltip userId={member.user_id}>
+                          <div className="flex items-center gap-3 cursor-pointer">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={member.avatar_url} alt={member.user_name} />
+                              <AvatarFallback>
+                                {member.user_name
+                                  .split(' ')
+                                  .filter(Boolean)
+                                  .map(n => n[0])
+                                  .join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <span className="font-medium hover:underline">{member.user_name}</span>
+                            </div>
                           </div>
-                        </div>
+                        </UserTooltip>
                       </TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(member.is_online)}>

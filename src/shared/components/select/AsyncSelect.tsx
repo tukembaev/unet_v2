@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "shared/ui";
+import { SelectSkeleton } from "./SelectSkeleton";
 
 interface AsyncSelectProps {
   value: UserListItem | null;
@@ -133,9 +134,7 @@ export function AsyncSelect({
 
           {/* Virtualized list */}
           {isLoading ? (
-            <p className="py-6 text-center text-sm text-muted-foreground">
-              Загрузка...
-            </p>
+            <SelectSkeleton />
           ) : filteredUsers.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
               Пользователи не найдены

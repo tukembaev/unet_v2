@@ -9,6 +9,25 @@ export const apiClientGo = axios.create({
   withCredentials: true,
 });
 
+// TODO убрать через auth bearer и сделать после заливки на uadmin через куки
+apiClientGo.interceptors.request.use((config) => {
+  type AuthData = {
+  access_token: string;
+  refresh_token: string;
+  csrf_token: string;
+};
+
+const userStr = localStorage.getItem('user');
+
+const user: AuthData | null = userStr ? JSON.parse(userStr) : null;
+
+
+  if (user?.access_token) {
+    config.headers.Authorization = `Bearer ${user.access_token}`;
+  }
+
+  return config;
+});
 
 // Response interceptor
 apiClientGo.interceptors.response.use(
