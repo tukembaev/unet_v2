@@ -12,7 +12,7 @@ export const ROUTES = {
   EDUCATION_MANAGEMENT: '/education-management',
 
   IT_DEPARTMENT: '/structure/it-department',
-  KPI_REPORTS: '/structure/kpi-reports',
+  KPI_REPORTS: '/kpi-reports',
   
   REPORT_SYLLABUS: 'report-syllabus',
   // Документооборот
