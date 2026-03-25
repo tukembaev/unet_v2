@@ -1,10 +1,8 @@
+import { GitBranch, History, MessageSquare } from "lucide-react";
 import { useState } from "react";
-import { Card, CardContent, Tabs, TabsList, TabsTrigger, TabsContent } from "shared/ui";
-import { GitBranch, ClipboardList, History, MessageSquare } from "lucide-react";
+import GenericHistory, { BaseHistory } from "shared/components/history/GenericHistory";
+import { Card, CardContent, Tabs, TabsContent, TabsList, TabsTrigger } from "shared/ui";
 import DocumentApprovalFlow, { ApprovalParticipant } from "../approval-chain/DocumentApprovalFlow";
-import DocTaskSection from "./DocTaskSection";
-import GenericHistory from "shared/components/history/GenericHistory";
-import { BaseHistory } from "shared/components/history/GenericHistory";
 
 interface DocumentTabsCardProps {
   participants: ApprovalParticipant[];
@@ -27,11 +25,7 @@ const DocumentTabsCard = ({ participants, history, isHistoryLoading = false, onA
               <span className="hidden sm:inline">Согласование</span>
               <span className="sm:hidden">Согл.</span>
             </TabsTrigger>
-            <TabsTrigger value="tasks" className="flex items-center gap-1.5 text-xs sm:text-sm">
-              <ClipboardList className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Задачи</span>
-              <span className="sm:hidden">Задачи</span>
-            </TabsTrigger>
+      
             <TabsTrigger value="history" className="flex items-center gap-1.5 text-xs sm:text-sm">
               <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">История</span>
@@ -53,13 +47,6 @@ const DocumentTabsCard = ({ participants, history, isHistoryLoading = false, onA
               />
             </div>
           </TabsContent>
-
-          <TabsContent value="tasks" className="mt-0">
-            <div className="pt-2">
-              <DocTaskSection />
-            </div>
-          </TabsContent>
-
           <TabsContent value="history" className="mt-0">
             <div className="pt-2">
               <GenericHistory

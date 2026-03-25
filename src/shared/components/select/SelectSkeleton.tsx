@@ -2,7 +2,7 @@ import { Skeleton } from "shared/ui";
 
 export function SelectSkeleton() {
   return (
-    <div className="py-2">
+    <div className="py-2 animate-pulse">
       {Array.from({ length: 5 }).map((_, index) => (
         <div key={index} className="flex items-center gap-3 px-2 py-1.5">
           <Skeleton className="h-8 w-8 rounded-full shrink-0" />
