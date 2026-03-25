@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle, Button, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Popover, PopoverTrigger, PopoverContent, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "shared/ui";
 import { FileText, Download, Upload, Link2 } from "lucide-react";
 import { useTaskDocuments } from "entities/task/model/queries";
-import { useDocuments } from "entities/documents/model/queries";
+import { useApplicationDocuments } from "entities/documents/model/queries";
 import { useLocation } from "react-router-dom";
 import { TaskFile } from "entities/task/model/types";
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClientGo } from "shared/config";
 import { TASK_DOCUMENTS_QUERY_KEY } from "entities/task/model/queries";
@@ -22,7 +22,12 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string>("");
 
   const { data: task_docs } = useTaskDocuments(taskId);
-  const { data: documentsData } = useDocuments({ tab: 'incoming', types: [], statuses: [], search: '' });
+  const { data: documentsData } = useApplicationDocuments('inbox');
+
+  // Получаем список документов из inbox
+  const documents = useMemo(() => {
+    return documentsData || [];
+  }, [documentsData]);
 
   // Mutation для загрузки файла
   const uploadFileMutation = useMutation({
@@ -122,11 +127,11 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
                       <SelectValue placeholder="Выберите документ" />
                     </SelectTrigger>
                     <SelectContent>
-                      {documentsData?.documents.map((doc) => (
-                        <SelectItem key={doc.id} value={String(doc.id)}>
+                      {documents.map((doc) => (
+                        <SelectItem key={doc.id} value={doc.id}>
                           <div className="flex flex-col">
-                            <span className="font-medium">{doc.number}</span>
-                            <span className="text-xs text-muted-foreground">{doc.type}</span>
+                            <span className="font-medium">{doc.id}</span>
+                            <span className="text-xs text-muted-foreground">{doc.title || 'Без названия'}</span>
                           </div>
                         </SelectItem>
                       ))}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, FileText, Clock, CircleDot, CheckCircle2, XCircle } from 'lucide-react';
 import { Badge } from 'shared/ui';
@@ -10,8 +10,8 @@ import {
   TabConfig,
   ButtonConfig,
 } from 'shared/components/data-table';
-import { useDocuments } from '../model/queries';
-import { Document, DocumentTab } from '../model/types';
+import { useApplicationDocuments } from '../model/queries';
+import { Document, DocumentTab, DocumentType } from '../model/types';
 import { CreateDocumentDialog } from 'features/create-document';
 import { FormQuery, useFormNavigation } from 'shared/lib';
 
@@ -22,11 +22,21 @@ const statusIcons: Record<string, React.ReactNode> = {
   'Отклонено': <XCircle className="h-3 w-3 text-red-500" />,
 };
 
+const typeLabels: Record<DocumentType, string> = {
+  ORDER_STUD: 'Приказ (студент)',
+  ORDER_EMPL: 'Приказ (сотрудник)',
+  APPLICATION: 'Заявление',
+  MAIL: 'Письмо',
+  REPORT: 'Отчет',
+};
+
 const typeOptions = [
   { label: 'Все', value: 'all' },
-  { label: 'Рапорт', value: 'Рапорт' },
-  { label: 'Письмо', value: 'Письмо' },
-  { label: 'Заявление', value: 'Заявление' },
+  { label: 'Приказ (студент)', value: 'ORDER_STUD' },
+  { label: 'Приказ (сотрудник)', value: 'ORDER_EMPL' },
+  { label: 'Заявление', value: 'APPLICATION' },
+  { label: 'Письмо', value: 'MAIL' },
+  { label: 'Отчет', value: 'REPORT' },
 ];
 
 const statusOptions = [
@@ -38,54 +48,69 @@ const statusOptions = [
 ];
 
 const tabs: TabConfig[] = [
-  { value: 'incoming', label: 'Входящие' },
-  { value: 'outgoing', label: 'Исходящие' },
+  { value: 'inbox', label: 'Входящие' },
+  { value: 'outbox', label: 'Исходящие' },
   { value: 'history', label: 'История' },
 ];
 
 export const DocumentsContent = () => {
   const navigate = useNavigate();
   const openForm = useFormNavigation();
-  const [activeTab, setActiveTab] = useState<DocumentTab>('incoming');
+  const [activeTab, setActiveTab] = useState<DocumentTab>('inbox');
   const [selectedTypes, setSelectedTypes] = useState<string[]>(['all']);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['all']);
 
-  const { data, isLoading } = useDocuments({
-    tab: activeTab,
-    types: selectedTypes,
-    statuses: selectedStatuses,
-  });
+  const { data, isLoading } = useApplicationDocuments(activeTab);
+
+  // Фильтрация данных на клиенте
+  const filteredData = useMemo(() => {
+    if (!data) return [];
+
+    let documents = data;
+
+    // Фильтр по типам
+    if (selectedTypes.length > 0 && !selectedTypes.includes('all')) {
+      documents = documents.filter((doc) => selectedTypes.includes(doc.type));
+    }
+
+    // Фильтр по статусам
+    if (selectedStatuses.length > 0 && !selectedStatuses.includes('all')) {
+      documents = documents.filter((doc) => doc.status && selectedStatuses.includes(doc.status));
+    }
+
+    return documents;
+  }, [data, selectedTypes, selectedStatuses]);
 
   const columns: ColumnConfig<Document>[] = [
     {
-      key: 'number',
-      label: 'Номер',
+      key: 'id',
+      label: 'ID',
       width: '180px',
       minWidth: '180px',
       className: 'font-medium whitespace-nowrap',
-      render: (doc) => doc.number,
+      render: (doc) => doc.id,
     },
     {
-      key: 'employee',
-      label: 'Заявитель',
+      key: 'sender',
+      label: 'Отправитель',
       width: '200px',
       minWidth: '200px',
       className: 'whitespace-nowrap',
-      render: (doc) => doc.employee.surname_name,
+      render: (doc) => doc.sender_full_name,
     },
     {
-      key: 'type_doc',
+      key: 'type',
       label: 'Тип',
       width: '150px',
       minWidth: '150px',
       className: 'whitespace-nowrap',
-      render: (doc) => doc.type_doc,
+      render: (doc) => typeLabels[doc.type] || doc.type,
     },
     {
-      key: 'type',
+      key: 'title',
       label: 'Тема',
       minWidth: '250px',
-      render: (doc) => doc.type,
+      render: (doc) => doc.title || '-',
     },
     {
       key: 'status',
@@ -94,18 +119,18 @@ export const DocumentsContent = () => {
       minWidth: '180px',
       render: (doc) => (
         <Badge variant="outline" className="gap-1.5 whitespace-nowrap">
-          {statusIcons[doc.status]}
-          {doc.status}
+          {doc.status && statusIcons[doc.status]}
+          {doc.status || 'Без статуса'}
         </Badge>
       ),
     },
     {
-      key: 'date_zayavki',
-      label: 'Дата подачи',
+      key: 'created_at',
+      label: 'Дата создания',
       width: '150px',
       minWidth: '150px',
       className: 'whitespace-nowrap',
-      render: (doc) => doc.date_zayavki,
+      render: (doc) => new Date(doc.created_at).toLocaleDateString('ru-RU'),
     },
   ];
 
@@ -154,9 +179,9 @@ export const DocumentsContent = () => {
     <>
       <GenericTabsContent
         tabs={tabs}
-        defaultTab="incoming"
+        defaultTab="inbox"
         columns={columns}
-        data={data?.documents}
+        data={filteredData}
         isLoading={isLoading}
         onTabChange={(tab) => setActiveTab(tab as DocumentTab)}
         filterGroups={filterGroups}
