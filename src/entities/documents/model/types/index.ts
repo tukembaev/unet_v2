@@ -32,9 +32,8 @@ export interface DocumentMember {
   type_approval_id: string;
   type_approval_name: string;
   approve_name: string;
-  member_id: number;
-  sender_last_name: string;
-  sender_first_name: string;
+  member_id: string;
+  member_full_name: string;
   queue: number;
   status: string;
   signature: string | null;
@@ -48,7 +47,7 @@ export interface DocumentDetailResponse {
   sender_full_name: string;
   type: DocumentType;
   title: string | null;
-  status: string | null;
+  status: string;
   created_at: string;
   file: string | null;
   members: DocumentMember[];

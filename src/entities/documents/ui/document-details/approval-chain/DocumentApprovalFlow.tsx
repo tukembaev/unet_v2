@@ -13,12 +13,11 @@ export interface ApprovalParticipant {
   id: string;
   name: string;
   photo?: string;
-  role: ApprovalRole;
+  status:string
   isSigned: boolean;
   rejectionReason?: string;
   isCurrent?: boolean;
-  division?: string;
-  position?: string;
+  type_approval: string
 }
 
 interface DocumentApprovalFlowProps {
@@ -185,7 +184,7 @@ const DocumentApprovalFlow = ({ participants, onApprove, onReject }: DocumentApp
                   </ApprovalUserTooltip>
 
                   <span className="text-[10px] sm:text-xs font-medium text-center max-w-[60px] sm:max-w-[80px] md:max-w-[120px] truncate">
-                    {participant.role}
+                    {participant.status}
                   </span>
                 </div>
               );

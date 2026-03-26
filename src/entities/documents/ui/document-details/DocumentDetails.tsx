@@ -18,21 +18,20 @@ const DocumentDetails = () => {
   
   const { data: document, isLoading } = useDocumentDetails(id || '');
   const updateStatusMutation = useUpdateDocumentStatus();
-
+  console.log(document)
   // Преобразуем members в формат ApprovalParticipant
   const participants: ApprovalParticipant[] = useMemo(() => {
     if (!document?.members) return [];
     
     return document.members.map((member) => ({
-      id: member.id,
-      name: `${member.sender_last_name} ${member.sender_first_name}`,
+      id: member.member_id,
+      name: member.member_full_name,
       photo: undefined,
-      role: member.approve_name as ApprovalParticipant['role'],
-      isSigned: member.status === 'approved',
+      status: member.status ,
+      isSigned: member.approve_name === member.status,
       rejectionReason: member.reason_reject || undefined,
       isCurrent: member.turn,
-      division: undefined,
-      position: member.type_approval_name,
+      type_approval: member.type_approval_name
     }));
   }, [document?.members]);
 
@@ -90,29 +89,27 @@ const DocumentDetails = () => {
         title="Детали документа"
         description="Просмотр процесса согласования и подписания документа"
       >
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant={'outline'} onClick={handleCreateTask}>
-                <LucideCookie />
-                Сформировать задачу
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Сформировать задачу на основе этого документа</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex items-center gap-3">
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant={'outline'} onClick={handleCreateTask}>
+                  <LucideCookie />
+                  Сформировать задачу
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Сформировать задачу на основе этого документа</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </PageHeader>
 
       {/* Информация о документе */}
       <div className="space-y-3">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-bold">Информация о документе</h2>
-          {document.status && (
-            <Badge variant="outline">{document.status}</Badge>
-          )}
-        </div>
+        <h2 className="text-lg font-bold">Информация о документе</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-muted-foreground">ID:</span> {document.id}
@@ -145,7 +142,7 @@ const DocumentDetails = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Left side - PDF Viewer */}
         <div className="w-full space-y-4">
-          {document.file && <PdfViewer url={document.file} />}
+          {document.file && <PdfViewer url={document.file} status={document.status} />}
           {!document.file && (
             <div className="border rounded-lg p-8 text-center text-muted-foreground">
               Файл документа отсутствует
