@@ -1,24 +1,35 @@
+import { useUpdateDocumentStatus } from "features/create-document/model/queries";
+import { LucideCookie } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import PdfViewer from "shared/components/pdf-viewer/PdfViewer";
+import { FormQuery, useFormNavigation } from "shared/lib";
+import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "shared/ui";
 import PageHeader from "widgets/page-header/page-header";
+import { useDocumentDetails } from "../../model/queries";
 import { ApprovalParticipant } from "./approval-chain/DocumentApprovalFlow";
 import DocumentDetailsSkeleton from "./DocumentDetailsSkeleton";
-import PdfViewer from "shared/components/pdf-viewer/PdfViewer";
 import DocFileCard from "./tabs/DocFileCard";
 import DocumentTabsCard from "./tabs/DocumentTabsCard";
-import { useDocumentDetails } from "../../model/queries";
-import { useParams } from "react-router-dom";
-import { Badge, Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "shared/ui";
-import { LucideCookie } from "lucide-react";
-import { FormQuery, useFormNavigation } from "shared/lib";
-import { useMemo } from "react";
-import { useUpdateDocumentStatus } from "features/create-document/model/queries";
+import { AddMembersDialog } from "./AddMembersDialog";
+import { documentsActionApi } from "features/create-document/model/api";
+import { useCurrentUser } from "entities/user/model/queries";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const DocumentDetails = () => {
   const { id } = useParams<{ id: string }>();
   const openForm = useFormNavigation();
+  const queryClient = useQueryClient();
   
   const { data: document, isLoading } = useDocumentDetails(id || '');
+  const { data: currentUser } = useCurrentUser();
   const updateStatusMutation = useUpdateDocumentStatus();
-  console.log(document)
+  
+  const [isAddMembersOpen, setIsAddMembersOpen] = useState(false);
+  const [isAddingMembers, setIsAddingMembers] = useState(false);
+  
+  console.log(document);
   // Преобразуем members в формат ApprovalParticipant
   const participants: ApprovalParticipant[] = useMemo(() => {
     if (!document?.members) return [];
@@ -27,7 +38,7 @@ const DocumentDetails = () => {
       id: member.member_id,
       name: member.member_full_name,
       photo: undefined,
-      status: member.status ,
+      status: member.status,
       isSigned: member.approve_name === member.status,
       rejectionReason: member.reason_reject || undefined,
       isCurrent: member.turn,
@@ -35,15 +46,34 @@ const DocumentDetails = () => {
     }));
   }, [document?.members]);
 
+  // Находим текущего участника (чья очередь подписывать)
+  const currentParticipant = useMemo(() => {
+    if (!document?.members || !currentUser?.id) return null;
+    return document.members.find(m => m.turn && m.member_id === currentUser.id);
+  }, [document?.members, currentUser?.id]);
+
   const handleApprove = async () => {
-    if (!id) return;
+    if (!id || !currentParticipant) return;
     try {
       await updateStatusMutation.mutateAsync({
         id,
-        payload: { status: 'Одобрено' },
+        payload: { status: currentParticipant.approve_name },
       });
+      
+      toast.success("Документ одобрен", {
+        description: `Статус изменен на: ${currentParticipant.approve_name}`,
+      });
+      
+      // Обновляем данные документа и списки документов
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['documentDetails', id] }),
+        queryClient.invalidateQueries({ queryKey: ['documents'] }),
+      ]);
     } catch (error) {
       console.error('Error approving document:', error);
+      toast.error("Ошибка при одобрении", {
+        description: "Не удалось одобрить документ. Попробуйте снова.",
+      });
     }
   };
 
@@ -52,10 +82,51 @@ const DocumentDetails = () => {
     try {
       await updateStatusMutation.mutateAsync({
         id,
-        payload: { status: 'Отклонено' },
+        payload: { status: 'Доработать' },
       });
+      
+      toast.success("Документ отправлен на доработку", {
+        description: "Статус изменен на: Доработать",
+      });
+      
+      // Обновляем данные документа и списки документов
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['documentDetails', id] }),
+        queryClient.invalidateQueries({ queryKey: ['documents'] }),
+      ]);
     } catch (error) {
       console.error('Error rejecting document:', error);
+      toast.error("Ошибка при отказе", {
+        description: "Не удалось отклонить документ. Попробуйте снова.",
+      });
+    }
+  };
+
+  const handleAddMembers = async (members: { user_id: string; type_approval_id: string }[]) => {
+    if (!id) return;
+    
+    setIsAddingMembers(true);
+    try {
+      await documentsActionApi.addDocumentMembers(id, members);
+      
+      // Обновляем данные документа и списки документов
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['documentDetails', id] }),
+        queryClient.invalidateQueries({ queryKey: ['documents'] }),
+      ]);
+      
+      toast.success("Согласующие добавлены", {
+        description: `Успешно добавлено участников: ${members.length}`,
+      });
+      
+      setIsAddMembersOpen(false);
+    } catch (error) {
+      console.error('Error adding members:', error);
+      toast.error("Ошибка при добавлении согласующих", {
+        description: "Не удалось добавить участников. Попробуйте снова.",
+      });
+    } finally {
+      setIsAddingMembers(false);
     }
   };
 
@@ -92,7 +163,8 @@ const DocumentDetails = () => {
         <div className="flex items-center gap-3">
           
           <TooltipProvider>
-            <Tooltip>
+        
+              <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant={'outline'} onClick={handleCreateTask}>
                   <LucideCookie />
@@ -154,14 +226,24 @@ const DocumentDetails = () => {
         <div className="w-full space-y-4 md:space-y-6">
           <DocumentTabsCard 
             participants={participants}
+            currentUserId={currentUser?.id}
             history={[]}
             isHistoryLoading={false}
             onApprove={handleApprove}
             onReject={handleReject}
+            onAddMembers={() => setIsAddMembersOpen(true)}
           />
           <DocFileCard />
         </div>
       </div>
+
+      {/* Диалог добавления согласующих */}
+      <AddMembersDialog
+        open={isAddMembersOpen}
+        onOpenChange={setIsAddMembersOpen}
+        onAddMembers={handleAddMembers}
+        isSubmitting={isAddingMembers}
+      />
     </div>
   );
 };

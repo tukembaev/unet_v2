@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "shared/ui/avatar";
 import { Button } from "shared/ui";
 import { TooltipProvider } from "shared/ui/tooltip";
 import { cn } from "shared/lib";
-import { GitBranch, X, Check } from "lucide-react";
+import { GitBranch, X, Check, Plus } from "lucide-react";
 import ApprovalUserTooltip from "./ApprovalUserTooltip";
 
 export type ApprovalRole = "Отправитель" | "Согласующий" | "Получатель";
@@ -22,11 +22,19 @@ export interface ApprovalParticipant {
 
 interface DocumentApprovalFlowProps {
   participants: ApprovalParticipant[];
+  currentUserId?: string;
   onApprove?: () => void;
   onReject?: () => void;
+  onAddMembers?: () => void;
 }
 
-const DocumentApprovalFlow = ({ participants, onApprove, onReject }: DocumentApprovalFlowProps) => {
+const DocumentApprovalFlow = ({ 
+  participants, 
+  currentUserId,
+  onApprove, 
+  onReject,
+  onAddMembers 
+}: DocumentApprovalFlowProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRefsReady, setIsRefsReady] = useState(false);
   const [usersPerRow, setUsersPerRow] = useState(4);
@@ -91,6 +99,10 @@ const DocumentApprovalFlow = ({ participants, onApprove, onReject }: DocumentApp
     if (participant.rejectionReason) {
       return "border-red-500";
     }
+
+    if (participant.status === "Доработать") {
+      return "border-red-500";
+    }
     const allPreviousSigned = index === 0 || participants.slice(0, index).every(p => p.isSigned);
     if (!participant.isSigned && !participant.rejectionReason && allPreviousSigned) {
       return "border-yellow-500";
@@ -100,20 +112,36 @@ const DocumentApprovalFlow = ({ participants, onApprove, onReject }: DocumentApp
 
   const firstRejectedIndex = participants.findIndex((p) => p.rejectionReason);
 
+  // Находим текущего участника (чья очередь подписывать)
+  const currentParticipant = participants.find(p => p.isCurrent && p.id === currentUserId);
+  const isUserTurn = !!currentParticipant;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <GitBranch className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold">Цепочка согласования</h3>
+          
+          {/* Кнопка добавления согласующих */}
+          {onAddMembers && (
+            <Button 
+              variant="secondary"
+              size="sm"
+              onClick={onAddMembers}
+              className="flex items-center gap-1 h-8 w-8 p-0"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          )}
         </div>
         
-        {/* Кнопки управления */}
-        {(onApprove || onReject) && (
+        {/* Кнопки управления - показываем только если очередь пользователя */}
+        {isUserTurn && (onApprove || onReject) && (
           <div className="flex items-center gap-2">
             {onReject && (
               <Button 
-                variant="outline" 
+                variant="destructive"
                 size="sm"
                 onClick={onReject}
                 className="flex items-center gap-2"
@@ -122,15 +150,15 @@ const DocumentApprovalFlow = ({ participants, onApprove, onReject }: DocumentApp
                 Отказать
               </Button>
             )}
-            {onApprove && (
+            {onApprove && currentParticipant && (
               <Button 
-                variant="outline"
+                variant="default"
                 size="sm"
                 onClick={onApprove}
                 className="flex items-center gap-2"
               >
                 <Check className="h-3 w-3" />
-                Одобрить
+                {currentParticipant.type_approval}
               </Button>
             )}
           </div>

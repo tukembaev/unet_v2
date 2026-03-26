@@ -25,4 +25,13 @@ export const taskReportsApi = {
     const { data } = await apiClientGo.get<TasksReportResponse>('reports/tasks', { params });
     return data;
   },
+
+  // Скачать PDF-отчет по задачам
+  downloadTasksPdf: async (params: TasksReportParams): Promise<Blob> => {
+    const { data } = await apiClientGo.get('reports/tasks/pdf', {
+      params,
+      responseType: 'blob',
+    });
+    return data;
+  },
 };
