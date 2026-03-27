@@ -35,7 +35,7 @@ export function CreateTaskDialog() {
   const documentName = useStoredFormParam(FormQuery.CREATE_TASK, 'documentName');
   const docId = useStoredFormParam(FormQuery.CREATE_TASK, 'doc_id');
   const documentType = useStoredFormParam(FormQuery.CREATE_TASK, 'documentType');
-  console.log(documentName , docId , documentType)
+
   const {
     form,
     resetForm,
@@ -76,6 +76,19 @@ export function CreateTaskDialog() {
       form.setValue('parent_task_id', '');
     }
   }, [parentTaskId, form]);
+
+  // Устанавливаем данные документа, если они переданы
+  React.useEffect(() => {
+    if (documentName) {
+      form.setValue('doc_title', documentName);
+    }
+    if (docId) {
+      form.setValue('doc_id', docId);
+    }
+    if (documentType) {
+      form.setValue('doc_type', documentType);
+    }
+  }, [documentName, docId, documentType, form]);
 
 
   const isSubtaskMode = !!parentTaskId;
