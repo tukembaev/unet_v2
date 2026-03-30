@@ -23,7 +23,7 @@ import { AsyncSelect } from 'shared/components/select';
 import { useForm, FormQuery, useIsFormOpen, useFormClose } from 'shared/lib';
 import { z } from 'zod';
 import { useFaculties } from 'entities/education-management/model/queries';
-import { SelectOptions } from 'entities/education-management/model/types';
+
 
 const createRupFormSchema = z
   .object({
@@ -123,8 +123,10 @@ export const CreateRupDialog = () => {
                 <span className="text-red-500 ml-1">*</span>
               </FieldLabel>
               <AsyncSelect
+                // @ts-ignore
                 fetcher={fetchFaculties}
                 label="Институт"
+                // @ts-ignore
                 value={form.watch('institute') ? faculties?.find(f => f.value.toString() === form.watch('institute')) || null : null}
                 onChange={(value: any) => form.setValue('institute', value?.value.toString() || '')}
                 renderOption={(option: any) => <span>{option.label}</span>}

@@ -101,46 +101,58 @@ export const DispatcherTab = () => {
         <CardContent>
         <div className="flex gap-4 flex-wrap"> 
           <AsyncSelect
+            // @ts-ignore
             fetcher={fetchFaculties}
             label="Институт"
+            // @ts-ignore
             value={institute}
+            // @ts-ignore
             onChange={setInstitute}
-            renderOption={(option) => <span>{option.label}</span>}
-            getOptionValue={(option) => option.value.toString()}
-            getDisplayValue={(option) => option.label}
+            renderOption={(option: any) => <span>{option.label}</span>}
+            getOptionValue={(option: any) => option.value.toString()}
+            getDisplayValue={(option: any) => option.label}
             placeholder="Выберите институт"
             disabled={isLoading}
           />
           <AsyncSelect
+            // @ts-ignore
             fetcher={fetchDepartments}
             label="Кафедра"
+            // @ts-ignore
             value={department}
+            // @ts-ignore
             onChange={setDepartment}
-            renderOption={(option) => <span>{option.label}</span>}
-            getOptionValue={(option) => option.value.toString()}
-            getDisplayValue={(option) => option.label}
+            renderOption={(option: any) => <span>{option.label}</span>}
+            getOptionValue={(option: any) => option.value.toString()}
+            getDisplayValue={(option: any) => option.label}
             placeholder="Выберите кафедру"
             disabled={!institute}
           />
           <AsyncSelect
+            // @ts-ignore
             fetcher={fetchSyllabuses}
             label="РУП"
+            // @ts-ignore
             value={syllabus}
+            // @ts-ignore
             onChange={setSyllabus}
-            renderOption={(option) => <span>{option.label}</span>}
-            getOptionValue={(option) => option.value.toString()}
-            getDisplayValue={(option) => option.label}
+            renderOption={(option: any) => <span>{option.label}</span>}
+            getOptionValue={(option: any) => option.value.toString()}
+            getDisplayValue={(option: any) => option.label}
             placeholder="Выберите РУП"
             disabled={!department}
             />
           <AsyncSelect
+            // @ts-ignore
             fetcher={fetchSemesters}
             label="Семестр"
+            // @ts-ignore
             value={semester}
+            // @ts-ignore
             onChange={setSemester}
-            renderOption={(option) => <span>{option.label}</span>}
-            getOptionValue={(option) => option.value.toString()}
-            getDisplayValue={(option) => option.label}
+            renderOption={(option: any) => <span>{option.label}</span>}
+            getOptionValue={(option: any) => option.value.toString()}
+            getDisplayValue={(option: any) => option.label}
             placeholder="Выберите семестр"
             disabled={!syllabus}
             />

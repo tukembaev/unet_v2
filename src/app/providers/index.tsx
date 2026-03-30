@@ -15,7 +15,7 @@ interface AppProvidersProps {
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="system" storageKey="unet-ui-theme">
+      <ThemeProvider defaultTheme="standard" storageKey="unet-ui-theme">
         <QueryClientProvider client={queryClient}>
           {children || <RouterProvider router={router} />}
           <Toaster position="top-right" richColors />

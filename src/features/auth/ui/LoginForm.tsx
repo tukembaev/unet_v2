@@ -3,7 +3,7 @@ import { BookOpen, Download, Eye, EyeOff, QrCode } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { ScaleLoader } from "react-spinners";
+
 import {
   Button,
   Card,
