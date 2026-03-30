@@ -157,7 +157,7 @@ export function Navbar() {
               <NavigationMenuList>
                 {navigationSections.map((section) => (
                   <NavigationMenuItem key={section.title}>
-                    <NavigationMenuTrigger className="h-9">
+                    <NavigationMenuTrigger className="h-9 border-none bg-transparent">
                       {section.title}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>

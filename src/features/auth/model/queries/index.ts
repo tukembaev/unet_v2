@@ -12,7 +12,6 @@ export function useLogin() {
 
     onSuccess: (user) => {
       queryClient.setQueryData(USER_QUERY_KEY, user);
-      debugger
     },
 
     onError: (error: any) => {
