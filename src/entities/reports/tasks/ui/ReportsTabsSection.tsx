@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from 'shared/ui/tabs';
 import { TaskUsersTable } from './TaskUsersTable';
 import { TasksTable } from './TasksTable';
 import { useTasksReport } from '../model/queries';
+import { useDownloadTasksPdf } from '../model/hooks';
 import type { UserTaskStats, TaskRole, TaskStatus, DateRangeParams } from '../model/types';
 
 interface ReportsTabsSectionProps {
@@ -18,6 +19,7 @@ export const ReportsTabsSection = ({
 }: ReportsTabsSectionProps) => {
   const [selectedRole, setSelectedRole] = useState<TaskRole | 'ALL'>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<TaskStatus | 'ALL'>('ALL');
+  const { downloadPdf, isDownloading } = useDownloadTasksPdf();
 
   // Параметры для запроса задач
   const tasksParams = {
@@ -27,6 +29,14 @@ export const ReportsTabsSection = ({
   };
 
   const tasksQuery = useTasksReport(tasksParams);
+
+  const handleDownloadPdf = async () => {
+    try {
+      await downloadPdf(tasksParams);
+    } catch (error) {
+      console.error('Не удалось скачать PDF:', error);
+    }
+  };
 
   return (
     <Tabs defaultValue="users" className="space-y-4">
@@ -47,6 +57,8 @@ export const ReportsTabsSection = ({
           onStatusChange={setSelectedStatus}
           selectedRole={selectedRole}
           selectedStatus={selectedStatus}
+          onDownloadPdf={handleDownloadPdf}
+          isDownloading={isDownloading}
         />
       </TabsContent>
     </Tabs>

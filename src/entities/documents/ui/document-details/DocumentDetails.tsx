@@ -1,144 +1,157 @@
+import { useUpdateDocumentStatus } from "features/create-document/model/queries";
+import { LucideCookie } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import PdfViewer from "shared/components/pdf-viewer/PdfViewer";
+import { FormQuery, useFormNavigation } from "shared/lib";
+import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "shared/ui";
 import PageHeader from "widgets/page-header/page-header";
+import { useDocumentDetails } from "../../model/queries";
 import { ApprovalParticipant } from "./approval-chain/DocumentApprovalFlow";
 import DocumentDetailsSkeleton from "./DocumentDetailsSkeleton";
-import PdfViewer from "shared/components/pdf-viewer/PdfViewer";
 import DocFileCard from "./tabs/DocFileCard";
 import DocumentTabsCard from "./tabs/DocumentTabsCard";
-import { useDocumentHistory } from "../../model/queries";
-import { useState, useEffect } from "react";
-import { Badge, Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "shared/ui";
-import { ClipboardList, ExternalLink, LucideCookie } from "lucide-react";
-import { FormQuery, useFormNavigation } from "shared/lib";
-
-// Моковые данные участников подписания документа
-const mockParticipants: ApprovalParticipant[] = [
-  {
-    id: "1",
-    name: "Иванов Иван Иванович",
-    photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ivan",
-    role: "Отправитель",
-    isSigned: true,
-    position: "Менеджер отдела",
-    division: "Отдел кадров",
-  },
-  {
-    id: "2",
-    name: "Петров Петр Петрович",
-    photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Petr",
-    role: "Согласующий",
-    isSigned: true,
-    position: "Начальник отдела",
-    division: "Юридический отдел",
-  },
-  {
-    id: "3",
-    name: "Сидорова Мария Александровна",
-    photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria",
-    role: "Согласующий",
-    isSigned: true,
-    // rejectionReason: "Необходимо уточнить пункт 3.2 договора",
-    position: "Главный бухгалтер",
-    division: "Бухгалтерия",
-  },
-  {
-    id: "4",
-    name: "Козлов Алексей Сергеевич",
-    photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alexey",
-    role: "Согласующий",
-    isSigned: false,
-    rejectionReason: "Необходимо уточнить пункт 3.2 договора",
-
-    position: "Заместитель директора",
-    division: "Административный отдел",
-  },
-  {
-    id: "5",
-    name: "Крутой типчик",
-    photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elena",
-    role: "Согласующий",
-    isSigned: false,
-    // rejectionReason: "Необходимо уточнить пункт 3.2 договора",
-
-    position: "Директор",
-    division: "Программное обеспечение компьютерных систем",
-  },
-  {
-    id: "6",
-    name: "Смирнова Елена Викторовна",
-    photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elena",
-    role: "Получатель",
-    isSigned: false,
-    position: "Директор",
-    division: "Программное обеспечение компьютерных систем",
-  },
-];
-
-// Моковые данные задачи (если есть)
-const mockTask = {
-  id: "TSK-2024-001",
-  name: "Согласование заявления на отпуск",
-  status: "В процессе" as const,
-  taskId: 12345
-};
+import { AddMembersDialog } from "./AddMembersDialog";
+import { documentsActionApi } from "features/create-document/model/api";
+import { useCurrentUser } from "entities/user/model/queries";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const DocumentDetails = () => {
-  // TODO: Получить documentId из URL params или props
-  // Для примера используем hardcoded ID
-  const documentId = 1395;
-
-  // Simulate loading state
-  const [isLoading, setIsLoading] = useState(true);
-  const { data: history, isLoading: isHistoryLoading } = useDocumentHistory(documentId);
+  const { id } = useParams<{ id: string }>();
   const openForm = useFormNavigation();
+  const queryClient = useQueryClient();
+  
+  const { data: document, isLoading } = useDocumentDetails(id || '');
+  const { data: currentUser } = useCurrentUser();
+  const updateStatusMutation = useUpdateDocumentStatus();
+  
+  const [isAddMembersOpen, setIsAddMembersOpen] = useState(false);
+  const [isAddingMembers, setIsAddingMembers] = useState(false);
+  
+  console.log(document);
+  // Преобразуем members в формат ApprovalParticipant
+  const participants: ApprovalParticipant[] = useMemo(() => {
+    if (!document?.members) return [];
+    
+    return document.members.map((member) => ({
+      id: member.member_id,
+      name: member.member_full_name,
+      photo: undefined,
+      status: member.status,
+      isSigned: member.approve_name === member.status,
+      rejectionReason: member.reason_reject || undefined,
+      isCurrent: member.turn,
+      type_approval: member.type_approval_name
+    }));
+  }, [document?.members]);
 
-  // Моковые данные для создания задачи
-  const mockDocumentData = {
-    name: "Заявление на отпуск с 01.11.2025 по 15.11.2025",
-    doc_id: documentId.toString(),
-    type: "Заявление на отпуск"
+  // Находим текущего участника (чья очередь подписывать)
+  const currentParticipant = useMemo(() => {
+    if (!document?.members || !currentUser?.id) return null;
+    return document.members.find(m => m.turn && m.member_id === currentUser.id);
+  }, [document?.members, currentUser?.id]);
+
+  const handleApprove = async () => {
+    if (!id || !currentParticipant) return;
+    try {
+      await updateStatusMutation.mutateAsync({
+        id,
+        payload: { status: currentParticipant.approve_name },
+      });
+      
+      toast.success("Документ одобрен", {
+        description: `Статус изменен на: ${currentParticipant.approve_name}`,
+      });
+      
+      // Обновляем данные документа и списки документов
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['documentDetails', id] }),
+        queryClient.invalidateQueries({ queryKey: ['documents'] }),
+      ]);
+    } catch (error) {
+      console.error('Error approving document:', error);
+      toast.error("Ошибка при одобрении", {
+        description: "Не удалось одобрить документ. Попробуйте снова.",
+      });
+    }
   };
 
-  const handleApprove = () => {
-    // TODO: Implement approve logic
-    console.log("Document approved");
+  const handleReject = async () => {
+    if (!id) return;
+    try {
+      await updateStatusMutation.mutateAsync({
+        id,
+        payload: { status: 'Доработать' },
+      });
+      
+      toast.success("Документ отправлен на доработку", {
+        description: "Статус изменен на: Доработать",
+      });
+      
+      // Обновляем данные документа и списки документов
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['documentDetails', id] }),
+        queryClient.invalidateQueries({ queryKey: ['documents'] }),
+      ]);
+    } catch (error) {
+      console.error('Error rejecting document:', error);
+      toast.error("Ошибка при отказе", {
+        description: "Не удалось отклонить документ. Попробуйте снова.",
+      });
+    }
   };
 
-  const handleReject = () => {
-    // TODO: Implement reject logic
-    console.log("Document rejected");
-  };
-
-  const handleTaskClick = () => {
-    // TODO: Navigate to task details
-    console.log("Navigate to task:", mockTask.taskId);
+  const handleAddMembers = async (members: { user_id: string; type_approval_id: string }[]) => {
+    if (!id) return;
+    
+    setIsAddingMembers(true);
+    try {
+      await documentsActionApi.addDocumentMembers(id, members);
+      
+      // Обновляем данные документа и списки документов
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['documentDetails', id] }),
+        queryClient.invalidateQueries({ queryKey: ['documents'] }),
+      ]);
+      
+      toast.success("Согласующие добавлены", {
+        description: `Успешно добавлено участников: ${members.length}`,
+      });
+      
+      setIsAddMembersOpen(false);
+    } catch (error) {
+      console.error('Error adding members:', error);
+      toast.error("Ошибка при добавлении согласующих", {
+        description: "Не удалось добавить участников. Попробуйте снова.",
+      });
+    } finally {
+      setIsAddingMembers(false);
+    }
   };
 
   const handleCreateTask = () => {
-    // Открываем диалог создания задачи с передачей данных документа
-    console.log("Opening create task dialog with data:", {
-      documentName: mockDocumentData.name,
-      doc_id: mockDocumentData.doc_id,
-      documentType: mockDocumentData.type
-    });
+    if (!document) return;
     
     openForm(FormQuery.CREATE_TASK, {
-      documentName: mockDocumentData.name,
-      doc_id: mockDocumentData.doc_id,
-      documentType: mockDocumentData.type
+      documentName: document.title || 'Без названия',
+      doc_id: document.id,
+      documentType: document.type,
     });
   };
 
-  useEffect(() => {
-    // Simulate API call
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   if (isLoading) {
     return <DocumentDetailsSkeleton />;
+  }
+
+  if (!document) {
+    return (
+      <div className="container mx-auto p-4 md:p-6">
+        <div className="text-center py-12">
+          <p className="text-lg text-muted-foreground">Документ не найден</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -147,77 +160,90 @@ const DocumentDetails = () => {
         title="Детали документа"
         description="Просмотр процесса согласования и подписания документа"
       >
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant={'outline'} onClick={handleCreateTask}>
-                <LucideCookie />
-                Сформировать задачу
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Сформировать задачу на основе этого документа</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex items-center gap-3">
+          
+          <TooltipProvider>
+        
+              <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant={'outline'} onClick={handleCreateTask}>
+                  <LucideCookie />
+                  Сформировать задачу
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Сформировать задачу на основе этого документа</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </PageHeader>
 
-
-
-      {/* Секция описания документа */}
+      {/* Информация о документе */}
       <div className="space-y-3">
-        <h2 className="text-lg  font-bold flex items-center gap-2">
-    
-          Описание документа
-        </h2>
-        <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
-          Заявление на отпуск с 01.11.2025 по 15.11.2025. В связи с необходимостью личного отдыха прошу предоставить 
-          ежегодный оплачиваемый отпуск продолжительностью 14 календарных дней. Все текущие проекты переданы коллегам 
-          на период отсутствия. Контактная информация на случай срочной необходимости будет предоставлена.
-        </p>
+        <h2 className="text-lg font-bold">Информация о документе</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-muted-foreground">ID:</span> {document.id}
+          </div>
+          <div>
+            <span className="text-muted-foreground">Отправитель:</span>{' '}
+            {document.sender_full_name}
+          </div>
+          <div>
+            <span className="text-muted-foreground">Дата создания:</span>{' '}
+            {new Date(document.created_at).toLocaleDateString('ru-RU')}
+          </div>
+          <div>
+            <span className="text-muted-foreground">Тип:</span> {document.type}
+          </div>
+        </div>
       </div>
+
+      {/* Описание документа */}
+      {document.title && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold">Описание документа</h2>
+          <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+            {document.title}
+          </p>
+        </div>
+      )}
 
       {/* Split layout: PDF слева, карточки справа */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-        {/* Left side - Task card + PDF Viewer (50% на десктопе) */}
+        {/* Left side - PDF Viewer */}
         <div className="w-full space-y-4">
-          {/* Карточка задачи выше PDF */}
-          {mockTask && (
-            <div 
-              onClick={handleTaskClick}
-              className="flex items-center gap-3 p-4 rounded-lg border border-border hover:border-primary/50 hover:shadow-sm transition-all duration-200 bg-background cursor-pointer group"
-            >
-              <ClipboardList className="h-5 w-5 text-primary shrink-0" />
-              <div className="space-y-1 min-w-0 flex-1">
-                <p className="font-medium text-base">{mockTask.name}</p>
-                <div className="flex items-center gap-3">
-                  <Badge variant="secondary" className="text-sm">
-                    {mockTask.status}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">ID: #{mockTask.taskId}</span>
-                </div>
-              </div>
-              <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary shrink-0" />
+          {document.file && <PdfViewer url={document.file} status={document.status} />}
+          {!document.file && (
+            <div className="border rounded-lg p-8 text-center text-muted-foreground">
+              Файл документа отсутствует
             </div>
           )}
-          
-          {/* PDF Viewer */}
-          <PdfViewer url="https://utask.kstu.kg/media/media/zayavki/order_iEWwAIU.pdf" />
         </div>
 
-        {/* Right side - Cards (50% на десктопе) */}
+        {/* Right side - Cards */}
         <div className="w-full space-y-4 md:space-y-6">
           <DocumentTabsCard 
-            participants={mockParticipants}
-            history={history}
-            isHistoryLoading={isHistoryLoading}
+            participants={participants}
+            currentUserId={currentUser?.id}
+            history={[]}
+            isHistoryLoading={false}
             onApprove={handleApprove}
             onReject={handleReject}
+            onAddMembers={() => setIsAddMembersOpen(true)}
           />
           <DocFileCard />
-     
         </div>
       </div>
+
+      {/* Диалог добавления согласующих */}
+      <AddMembersDialog
+        open={isAddMembersOpen}
+        onOpenChange={setIsAddMembersOpen}
+        onAddMembers={handleAddMembers}
+        isSubmitting={isAddingMembers}
+      />
     </div>
   );
 };

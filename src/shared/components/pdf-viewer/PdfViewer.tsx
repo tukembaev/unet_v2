@@ -1,4 +1,4 @@
-import { Card, CardContent } from "shared/ui";
+import { Badge, Card, CardContent } from "shared/ui";
 import { Button } from "shared/ui";
 import { Document, Page, pdfjs } from "react-pdf";
 import { useState, useRef, useEffect } from "react";
@@ -21,7 +21,7 @@ import "react-pdf/dist/Page/TextLayer.css";
 // Используем версию worker, соответствующую версии pdfjs-dist
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-const PdfViewer = ({ url }: { url: string }) => {
+const PdfViewer = ({ url ,status }: { url: string , status:string}) => {
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(0.8);
@@ -83,6 +83,11 @@ const PdfViewer = ({ url }: { url: string }) => {
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">Документ</h3>
+            {status && (
+            <Badge variant="outline" className="text-sm">
+              {status}
+            </Badge>
+          )}
           </div>
           
           <div className="flex items-center gap-2">

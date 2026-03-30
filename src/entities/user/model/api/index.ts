@@ -10,7 +10,7 @@ export const getUsersList = async (): Promise<UserListItem[]> => {
 
 export const syncUsers = async (users: UserListItem[]): Promise<void> => {
   // Используем абсолютный путь для users/sync (без v1)
-  await apiClientGo.post('http://localhost:8080/api/users/sync', users);
+  await apiClientGo.post('https://uadmin.kstu.kg/task/api/users/sync', users);
 };
 
 export const getCurrentUser = async (): Promise<CurrentUser> => {

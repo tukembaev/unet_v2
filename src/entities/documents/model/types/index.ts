@@ -1,109 +1,61 @@
-import { BaseHistory } from 'shared/components/history';
 
-export type DocumentType = 'Рапорт' | 'Письмо' | 'Заявление' | 'all';
+export type DocumentType = 'ORDER_STUD' | 'ORDER_EMPL' | 'APPLICATION' | 'MAIL' | 'REPORT';
 
-export type DocumentStatus = 'В режиме ожидания' | 'В работе' | 'Выполнено' | 'Отклонено' | 'all';
+export type DocumentTab = 'inbox' | 'outbox' | 'history';
 
-export type DocumentTab = 'incoming' | 'outgoing' | 'history';
+export type DocumentScope = 'inbox' | 'outbox' | 'history';
 
-export interface Employee {
-  id: number;
-  user: number;
-  first_name: string;
-  surname: string;
-  surname_name: string;
-  short_name: string;
-  number_phone: string;
-  imeag: string;
-  email: string;
-  division: string;
-  position: string;
-  is_online: boolean;
+
+
+// API Request Types
+export interface DocumentListParams {
+  offset?: number;
+  limit?: number;
+  scope: DocumentScope;
 }
 
-export interface ApplicationStatus {
-  id: number;
-  status: boolean;
-  application: number;
-  employee: number;
-}
-
+// API Response Types
 export interface Document {
-  id: number;
-  number: string;
-  employee: Employee;
-  type_doc: string;
-  type: string;
+  id: string;
+  sender_id: string;
+  sender_full_name: string;
+  type: DocumentType;
+  title: string | null;
+  status: string | null;
+  created_at: string;
+}
+
+export type DocumentListResponse = Document[];
+
+export interface DocumentMember {
+  id: string;
+  type_approval_id: string;
+  type_approval_name: string;
+  approve_name: string;
+  member_id: string;
+  member_full_name: string;
+  queue: number;
   status: string;
-  date_zayavki: string;
-  application_status: ApplicationStatus[];
-  is_watched: boolean;
+  signature: string | null;
+  reason_reject: string | null;
+  turn: boolean;
 }
-
-export interface DocumentsResponse {
-  documents: Document[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
-export interface DocumentFilters {
-  tab: DocumentTab;
-  types: string[];
-  statuses: string[];
-  search?: string;
-}
-
-// export interface ApplicationMember {
-//   // Define fields if applicationmember array has structure in other data
-//   // Currently empty in dataDoc, so left as empty interface
-// }
-
-// export interface Task {
-//   // Define fields if tasks array has structure in other data
-//   // Currently empty in dataDoc, so left as empty interface
-// }
 
 export interface DocumentDetailResponse {
-  id: number;
-  employee: Employee;
-  secretary: Employee | null;
-  user_id_prorector: number;
-  addressee: number;
-  number_addressee: string;
-  division: string;
-  position: string;
-  photo: string;
-  type_doc: DocumentType | string; // Allow string for flexibility if other types exist
-  prorector: string;
-  prorector_name: string;
-  number: string;
-  type: string;
-  podtypezayavki: string | null;
-  status: DocumentStatus | string; // Allow string for flexibility if other statuses exist
-  text: string;
-  date_zayavki: string;
-  prich_pr_otkaz: string | null;
-  prorectorcheck: string | null;
-  has_tasks: boolean;
-  prorector_date_check: string | null;
-  rukovpodcheck: string | null;
-  rukovpod_date_check: string | null;
-  ispolnpodcheck: string | null;
-  agreement: string;
-  agreement_comment: string | null;
-  file: string;
-  files: string[];
-  applicationmember: string[];
-  application_status: ApplicationStatus[];
-  tasks: string[];
-  very_urgent: boolean;
-  service: string | null;
-  is_watched: boolean;
+  id: string;
+  sender_id: string;
+  sender_full_name: string;
+  type: DocumentType;
+  title: string | null;
+  status: string;
+  created_at: string;
+  file: string | null;
+  members: DocumentMember[];
 }
 
-export interface DocumentHistoryItem extends BaseHistory {
-  application: number;
+// Type Approval Types
+export interface TypeApproval {
+  id: string;
+  title: string;
+  approve_name: string;
 }
-
-export type DocumentHistoryResponse = DocumentHistoryItem[];

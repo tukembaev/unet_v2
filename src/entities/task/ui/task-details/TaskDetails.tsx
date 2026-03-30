@@ -22,11 +22,12 @@ import TaskSubtasksTable from "./TaskSubtasksTable";
 import TaskDetailsSkeleton from "./TaskDetailsSkeleton";
 import { useTaskDetails, useUpdateTaskStatus } from "../../model/queries";
 import TaskDocumentsCard from "./TaskDocumentsCard";
-import { CreateTaskDialog } from "../CreateTaskDialog";
+
 import { AddTaskMembersDialog } from "../AddTaskMembersDialog";
 import { formatDate } from "shared/lib";
 import { TaskStatus } from "../../model/types";
 import { useCurrentUser } from "../../../user/model/queries";
+import { CreateTaskDialog } from "features/create-task";
 
 type UserRole = 'CREATOR' | 'RESPONSIBLE' | 'CO_EXECUTOR' | 'OBSERVER' | null;
 

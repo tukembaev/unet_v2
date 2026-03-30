@@ -16,6 +16,8 @@ import {
 import { Badge } from 'shared/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from 'shared/ui/avatar';
 import { Skeleton } from 'shared/ui/skeleton';
+import { Button } from 'shared/ui/button';
+import { Download } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import type { ReportTask, TaskRole, TaskStatus } from '../model/types';
@@ -27,6 +29,8 @@ interface TasksTableProps {
   onStatusChange: (status: TaskStatus | 'ALL') => void;
   selectedRole: TaskRole | 'ALL';
   selectedStatus: TaskStatus | 'ALL';
+  onDownloadPdf: () => void;
+  isDownloading?: boolean;
 }
 
 const ROLE_LABELS: Record<TaskRole | 'ALL', string> = {
@@ -71,6 +75,8 @@ export const TasksTable = ({
   onStatusChange,
   selectedRole,
   selectedStatus,
+  onDownloadPdf,
+  isDownloading = false,
 }: TasksTableProps) => {
   if (isLoading) {
     return <TasksTableSkeleton />;
@@ -108,6 +114,14 @@ export const TasksTable = ({
             </SelectContent>
           </Select>
         </div>
+        <Button 
+          onClick={onDownloadPdf} 
+          disabled={isDownloading}
+          className="gap-2"
+        >
+          <Download className="h-4 w-4" />
+          {isDownloading ? 'Загрузка...' : 'Скачать PDF'}
+        </Button>
       </div>
 
       {/* Таблица */}

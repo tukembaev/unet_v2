@@ -1,13 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle, Button, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Popover, PopoverTrigger, PopoverContent, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "shared/ui";
-import { FileText, Download, Upload, Link2 } from "lucide-react";
-import { useTaskDocuments } from "entities/task/model/queries";
-import { useDocuments } from "entities/documents/model/queries";
-import { useLocation } from "react-router-dom";
-import { TaskFile } from "entities/task/model/types";
-import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { TASK_DOCUMENTS_QUERY_KEY, useTaskDetails, useTaskDocuments } from "entities/task/model/queries";
+import { TaskFile } from "entities/task/model/types";
+import { Download, FileCheck, FileText, Trash2, Upload } from "lucide-react";
+import { useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { apiClientGo } from "shared/config";
-import { TASK_DOCUMENTS_QUERY_KEY } from "entities/task/model/queries";
+import { Button, Card, CardContent, CardHeader, CardTitle, Separator } from "shared/ui";
 
 interface TaskDocumentsCardProps {
   canAddDocuments: boolean;
@@ -15,14 +13,13 @@ interface TaskDocumentsCardProps {
 
 const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const taskId = location.state?.taskId as string | undefined;
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string>("");
 
+  const { data: task } = useTaskDetails(taskId);
   const { data: task_docs } = useTaskDocuments(taskId);
-  const { data: documentsData } = useDocuments({ tab: 'incoming', types: [], statuses: [], search: '' });
 
   // Mutation для загрузки файла
   const uploadFileMutation = useMutation({
@@ -41,18 +38,14 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
     },
   });
 
-  // Mutation для прикрепления существующего документа
-  const attachDocumentMutation = useMutation({
-    mutationFn: async (documentId: string) => {
-      const { data } = await apiClientGo.post(`tasks/${taskId}/attach-document`, {
-        document_id: documentId,
-      });
-      return data;
+
+  // Mutation для удаления файла
+  const deleteFileMutation = useMutation({
+    mutationFn: async (fileId: string) => {
+      await apiClientGo.delete(`tasks/${taskId}/files/${fileId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TASK_DOCUMENTS_QUERY_KEY, taskId] });
-      setIsPopoverOpen(false);
-      setSelectedDocumentId("");
     },
   });
 
@@ -63,17 +56,42 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
     }
   };
 
-  const handleAttachDocument = () => {
-    if (selectedDocumentId && taskId) {
-      attachDocumentMutation.mutate(selectedDocumentId);
+  const handleDownload = async (file: TaskFile) => {
+    if (file.id && taskId) {
+      try {
+        const response = await apiClientGo.get(`tasks/${taskId}/files/${file.id}/download`, {
+          responseType: 'blob',
+        });
+        
+        // Создаем URL для скачивания
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', file.name || 'document');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Error downloading file:', error);
+      }
     }
   };
 
-  const handleDownload = (file: TaskFile) => {
-    if (file.url) {
-      window.open(file.url, '_blank');
+  const handleDelete = (fileId: string) => {
+    if (window.confirm('Вы уверены, что хотите удалить этот файл?')) {
+      deleteFileMutation.mutate(fileId);
     }
   };
+
+  const handleDocumentClick = () => {
+    if (task?.doc_id) {
+      navigate(`/documents/applications/${task.doc_id}`);
+    }
+  };
+
+  // Проверяем, есть ли закрепленный документ
+  const hasAttachedDocument = task?.doc_id && task?.doc_title;
 
   return (
     <Card className="hover:shadow-md transition-all duration-200">
@@ -102,103 +120,119 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
               accept="*/*"
             />
 
-            {/* Кнопка прикрепления существующего документа */}
-            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                  <Link2 className="h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80" align="end">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Выберите документ</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Прикрепите существующий документ к задаче
-                    </p>
-                  </div>
-                  <Select value={selectedDocumentId} onValueChange={setSelectedDocumentId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Выберите документ" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {documentsData?.documents.map((doc) => (
-                        <SelectItem key={doc.id} value={String(doc.id)}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{doc.number}</span>
-                            <span className="text-xs text-muted-foreground">{doc.type}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    onClick={handleAttachDocument}
-                    disabled={!selectedDocumentId || attachDocumentMutation.isPending}
-                    className="w-full"
-                    size="sm"
-                  >
-                    {attachDocumentMutation.isPending ? 'Прикрепление...' : 'Прикрепить документ'}
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+       
           </div>
         )}
       </CardHeader>
-      <CardContent>
-        {task_docs?.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-            <FileText className="h-12 w-12 text-muted-foreground/50" />
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Нет документов
-              </p>
-              <p className="text-xs text-muted-foreground/70">
-                Добавьте документы, используя кнопки выше
-              </p>
+      <CardContent className="space-y-4">
+        {/* Закрепленный документ */}
+        {hasAttachedDocument && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <FileCheck className="h-4 w-4" />
+              <span>Связанный документ</span>
             </div>
+            <Card 
+              className="border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer"
+              onClick={handleDocumentClick}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <FileText className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-foreground truncate">
+                      {task?.doc_title}
+                    </h4>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground">
+                        ID: {task?.doc_id}
+                      </span>
+                      {task?.doc_type && (
+                        <>
+                          <span className="text-xs text-muted-foreground">•</span>
+                          <span className="text-xs text-muted-foreground capitalize">
+                            {task?.doc_type}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Separator />
           </div>
-        ) : (
-    
-  <div className="w-full overflow-x-auto rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Название</TableHead>
-                  <TableHead className="w-[100px]">Действия</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {task_docs?.map((file, index) => (
-                  <TableRow key={file.id || index}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">
+        )}
+
+        {/* Файлы задачи */}
+        <div className="space-y-3">
+          {hasAttachedDocument && (
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <FileText className="h-4 w-4" />
+              <span>Файлы задачи</span>
+            </div>
+          )}
+          
+          {task_docs?.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center space-y-3">
+              <FileText className="h-10 w-10 text-muted-foreground/50" />
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Нет файлов
+                </p>
+                <p className="text-xs text-muted-foreground/70">
+                  Добавьте файлы, используя кнопки выше
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {task_docs?.map((file, index) => (
+                <Card 
+                  key={file.id || index}
+                  className="border-muted hover:border-muted-foreground/30 transition-colors"
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="p-2 rounded-md bg-muted">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <span className="text-sm font-medium truncate">
                           {file.name || `Документ ${index + 1}`}
                         </span>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => handleDownload(file)}
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 p-0"
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              
-              </TableBody>
-            </Table>
-          </div>
-     
-       
-        )}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          onClick={() => handleDownload(file)}
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          disabled={!file.id}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        {canAddDocuments && (
+                          <Button
+                            onClick={() => file.id && handleDelete(file.id)}
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            disabled={deleteFileMutation.isPending || !file.id}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

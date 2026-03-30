@@ -1,57 +1,70 @@
+import { apiDocsClient } from "shared/config/docs_axios";
+import { AddMemberPayload, AddMemberResponse, CreateDocumentPayload, CreateTypeApprovalPayload, TypeApproval, UpdateDocumentStatusPayload, UpdateDocumentStatusResponse } from "../types";
 
-import { apiClient } from 'shared/config';
-import { Employee, CreateDocumentFormData } from '../types';
+export const documentsActionApi = {
 
-// Fetch employees from API
-export const fetchEmployees = async (query?: string): Promise<Employee[]> => {
-  try {
-    const params = new URLSearchParams({
-      user_type: 'E',
-    });
+  // 4. Создать документ
+  createDocument: async (payload: CreateDocumentPayload): Promise<Document> => {
+    const formData = new FormData();
     
-    if (query) {
-      params.append('search', query);
+    formData.append('sender_id', payload.sender_id);
+    formData.append('type', payload.type);
+    formData.append('status', 'В процессе выполнения');
+    formData.append('file', payload.file);
+    
+    if (payload.title) {
+      formData.append('title', payload.title);
     }
+    
+    // Очищаем members от user_name перед отправкой (это поле только для UI)
+    const membersForApi = (payload.members || []).map(({ user_id, type_approval_id }) => ({
+      user_id,
+      type_approval_id,
+    }));
+    
+    const membersJson = JSON.stringify(membersForApi);
+    formData.append('members', membersJson);
 
-    const response = await apiClient.get<Employee[]>(
-      `/employees/all-employees/?${params.toString()}`
-    );
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching employees:', error);
-    throw error;
-  }
-};
-
-// Create document/raport
-export const createDocument = async (formData: CreateDocumentFormData): Promise<void> => {
-  try {
-    const data = new FormData();
-    
-    // Append form fields
-    data.append('addressee', formData.addressee);
-    data.append('type', formData.type);
-    data.append('type_doc', formData.type_doc);
-    data.append('text', formData.text);
-    data.append('very_urgent', formData.very_urgent.toString());
-    
-    // Append main file
-    data.append('file', formData.file);
-    
-    // Append additional files
-    formData.files.forEach((file) => {
-      data.append('files', file);
+    // Логирование для отладки
+    console.log('Creating document with payload:', {
+      sender_id: payload.sender_id,
+      type: payload.type,
+      status: 'В процессе выполнения',
+      title: payload.title,
+      file: payload.file.name,
+      members: membersForApi,
+      membersJson,
     });
 
-    await apiClient.post('/conversion/raportsforpost/', data, {
+    const { data } = await apiDocsClient.post('create/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-  } catch (error) {
-    console.error('Error creating document:', error);
-    throw error;
-  }
-};
+    return data;
+  },
 
+  // 5. Обновить статус документа
+  updateDocumentStatus: async (
+    id: string,
+    payload: UpdateDocumentStatusPayload
+  ): Promise<UpdateDocumentStatusResponse> => {
+    const { data } = await apiDocsClient.patch(`${id}/`, payload);
+    return data;
+  },
+
+  // 6. Добавить участников документа
+  addDocumentMembers: async (
+    id: string,
+    members: AddMemberPayload[]
+  ): Promise<AddMemberResponse[]> => {
+    const { data } = await apiDocsClient.patch(`add-member/${id}/`, members);
+    return data;
+  },
+
+  // 7. Создать тип согласования
+  createTypeApproval: async (payload: CreateTypeApprovalPayload): Promise<TypeApproval> => {
+    const { data } = await apiDocsClient.post('type-approval/', payload);
+    return data;
+  },
+};

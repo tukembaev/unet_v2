@@ -6,26 +6,35 @@ import DocumentApprovalFlow, { ApprovalParticipant } from "../approval-chain/Doc
 
 interface DocumentTabsCardProps {
   participants: ApprovalParticipant[];
+  currentUserId?: string;
   history?: BaseHistory[];
   isHistoryLoading?: boolean;
   onApprove?: () => void;
   onReject?: () => void;
+  onAddMembers?: () => void;
 }
 
-const DocumentTabsCard = ({ participants, history, isHistoryLoading = false, onApprove, onReject }: DocumentTabsCardProps) => {
+const DocumentTabsCard = ({ 
+  participants, 
+  currentUserId,
+  history, 
+  isHistoryLoading = false, 
+  onApprove, 
+  onReject,
+  onAddMembers 
+}: DocumentTabsCardProps) => {
   const [activeTab, setActiveTab] = useState("approval");
 
   return (
     <Card className="hover:shadow-md transition-all duration-200">
       <CardContent className="p-4 md:p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 mb-4">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="approval" className="flex items-center gap-1.5 text-xs sm:text-sm">
               <GitBranch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Согласование</span>
               <span className="sm:hidden">Согл.</span>
             </TabsTrigger>
-      
             <TabsTrigger value="history" className="flex items-center gap-1.5 text-xs sm:text-sm">
               <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">История</span>
@@ -41,9 +50,11 @@ const DocumentTabsCard = ({ participants, history, isHistoryLoading = false, onA
           <TabsContent value="approval" className="mt-0">
             <div className="pt-2">
               <DocumentApprovalFlow 
-                participants={participants} 
+                participants={participants}
+                currentUserId={currentUserId}
                 onApprove={onApprove}
                 onReject={onReject}
+                onAddMembers={onAddMembers}
               />
             </div>
           </TabsContent>

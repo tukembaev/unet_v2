@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 export const apiClientGo = axios.create({
-  baseURL: 'http://localhost:8080/api/v1/',
+  baseURL: 'https://uadmin.kstu.kg/task/api/v1/',
+  // baseURL: 'http://localhost:8080/task/api/v1/',
+
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

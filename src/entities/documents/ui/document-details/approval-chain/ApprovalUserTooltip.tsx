@@ -101,8 +101,18 @@ const ApprovalUserTooltip = ({ userId, participant, index, allParticipants, chil
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <p className="font-semibold text-sm">{employee.full_name}</p>
-                  <p className="text-xs text-muted-foreground">{participant.role}</p>
+                  <p className="font-semibold text-sm pb-1">{employee.full_name}</p>
+                  <div className="flex items-center gap-1">
+                  {status.icon}
+                  {status.reason ? (
+                  <div className="flex-1">
+                    <p className={`text-xs font-medium ${status.className}`}>{status.text}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{status.reason}</p>
+                  </div>
+                ) : (
+                  <span className={`text-xs font-medium ${status.className}`}>{status.text}</span>
+                )}
+                </div>
                 </div>
               </div>
 
@@ -140,17 +150,7 @@ const ApprovalUserTooltip = ({ userId, participant, index, allParticipants, chil
                 </div>
               )}
 
-              <div className="flex items-center gap-2 pt-2 border-t">
-                {status.icon}
-                {status.reason ? (
-                  <div className="flex-1">
-                    <p className={`text-xs font-medium ${status.className}`}>{status.text}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{status.reason}</p>
-                  </div>
-                ) : (
-                  <span className={`text-xs font-medium ${status.className}`}>{status.text}</span>
-                )}
-              </div>
+        
             </div>
           ) : (
             <div className="text-xs text-muted-foreground py-2">
