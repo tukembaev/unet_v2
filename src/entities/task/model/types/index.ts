@@ -123,9 +123,10 @@ export interface User {
   }
 
   export interface TaskFile {
-    id?: number;
-    name?: string;
-    url?: string;
-    task_id?: string;
-    [key: string]: any;
+    task_id: string;
+    id: string;
+    name: string;
+    size?: number;
+    created_at?: string;
+    extra?: string;
   }

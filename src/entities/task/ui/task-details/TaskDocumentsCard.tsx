@@ -1,13 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle, Button, Popover, PopoverTrigger, PopoverContent, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Separator } from "shared/ui";
-import { FileText, Download, Upload, Link2, FileCheck } from "lucide-react";
-import { useTaskDocuments, useTaskDetails } from "entities/task/model/queries";
-import { useApplicationDocuments } from "entities/documents/model/queries";
-import { useLocation, useNavigate } from "react-router-dom";
-import { TaskFile } from "entities/task/model/types";
-import { useState, useRef, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { TASK_DOCUMENTS_QUERY_KEY, useTaskDetails, useTaskDocuments } from "entities/task/model/queries";
+import { TaskFile } from "entities/task/model/types";
+import { Download, FileCheck, FileText, Trash2, Upload } from "lucide-react";
+import { useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { apiClientGo } from "shared/config";
-import { TASK_DOCUMENTS_QUERY_KEY } from "entities/task/model/queries";
+import { Button, Card, CardContent, CardHeader, CardTitle, Separator } from "shared/ui";
 
 interface TaskDocumentsCardProps {
   canAddDocuments: boolean;
@@ -19,17 +17,9 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
   const taskId = location.state?.taskId as string | undefined;
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string>("");
 
   const { data: task } = useTaskDetails(taskId);
   const { data: task_docs } = useTaskDocuments(taskId);
-  const { data: documentsData } = useApplicationDocuments('inbox');
-
-  // Получаем список документов из inbox
-  const documents = useMemo(() => {
-    return documentsData || [];
-  }, [documentsData]);
 
   // Mutation для загрузки файла
   const uploadFileMutation = useMutation({
@@ -48,18 +38,14 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
     },
   });
 
-  // Mutation для прикрепления существующего документа
-  const attachDocumentMutation = useMutation({
-    mutationFn: async (documentId: string) => {
-      const { data } = await apiClientGo.post(`tasks/${taskId}/attach-document`, {
-        document_id: documentId,
-      });
-      return data;
+
+  // Mutation для удаления файла
+  const deleteFileMutation = useMutation({
+    mutationFn: async (fileId: string) => {
+      await apiClientGo.delete(`tasks/${taskId}/files/${fileId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TASK_DOCUMENTS_QUERY_KEY, taskId] });
-      setIsPopoverOpen(false);
-      setSelectedDocumentId("");
     },
   });
 
@@ -70,15 +56,31 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
     }
   };
 
-  const handleAttachDocument = () => {
-    if (selectedDocumentId && taskId) {
-      attachDocumentMutation.mutate(selectedDocumentId);
+  const handleDownload = async (file: TaskFile) => {
+    if (file.id && taskId) {
+      try {
+        const response = await apiClientGo.get(`tasks/${taskId}/files/${file.id}/download`, {
+          responseType: 'blob',
+        });
+        
+        // Создаем URL для скачивания
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', file.name || 'document');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Error downloading file:', error);
+      }
     }
   };
 
-  const handleDownload = (file: TaskFile) => {
-    if (file.url) {
-      window.open(file.url, '_blank');
+  const handleDelete = (fileId: string) => {
+    if (window.confirm('Вы уверены, что хотите удалить этот файл?')) {
+      deleteFileMutation.mutate(fileId);
     }
   };
 
@@ -202,14 +204,28 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
                           {file.name || `Документ ${index + 1}`}
                         </span>
                       </div>
-                      <Button
-                        onClick={() => handleDownload(file)}
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 p-0 shrink-0"
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          onClick={() => handleDownload(file)}
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          disabled={!file.id}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        {canAddDocuments && (
+                          <Button
+                            onClick={() => file.id && handleDelete(file.id)}
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            disabled={deleteFileMutation.isPending || !file.id}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
