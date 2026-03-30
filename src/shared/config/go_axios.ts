@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const apiClientGo = axios.create({
-  baseURL: 'https://uadmin.kstu.kg/task/api/v1/',
+  baseURL: 'https://utask.kstu.kg/task/api/v1/',
   // baseURL: 'http://localhost:8080/task/api/v1/',
 
   timeout: 10000,
@@ -11,7 +11,7 @@ export const apiClientGo = axios.create({
   withCredentials: true,
 });
 
-// TODO убрать через auth bearer и сделать после заливки на uadmin через куки
+// TODO убрать через auth bearer и сделать после заливки на utask через куки
 apiClientGo.interceptors.request.use((config) => {
   type AuthData = {
   access_token: string;

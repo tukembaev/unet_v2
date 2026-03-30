@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const apiUserClient = axios.create({
-  baseURL: 'https://uadmin.kstu.kg/users/api/v1/',
+  baseURL: 'https://utask.kstu.kg/users/api/v1/',
   timeout: 10000,
   withCredentials: true,
   headers: {
