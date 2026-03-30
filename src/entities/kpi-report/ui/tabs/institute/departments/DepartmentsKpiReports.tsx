@@ -7,7 +7,7 @@ interface DepartmentsProps {
 
 export const DepartmentsKpiReports = ({id}:DepartmentsProps) => {
     const {data: departmentsKpiReport} = useDepartmentsKpi(id);
-    const handleClick = (id: number) => {
+    const handleClick = (_id: number) => {
         // Handle click if needed
     }
   return (

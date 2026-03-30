@@ -33,11 +33,10 @@ const mapOrderMemberToParticipant = (member: OrderMember): ApprovalParticipant =
     id: member.id.toString(),
     name: member.name,
     photo: member.image,
-    role: mapTypeApprovalToRole(member.type_approval),
+    status: member.position,
     isSigned,
     rejectionReason: hasRejection ? member.member_refusal || undefined : undefined,
-    division: '', // OrderMember doesn't have division info
-    position: member.position,
+    type_approval: mapTypeApprovalToRole(member.type_approval),
   };
 };
 
@@ -49,15 +48,14 @@ const OrderApprovalFlow = ({ orderMembers, employeeName, employeePhoto }: OrderA
   const participants: ApprovalParticipant[] = sortedMembers.map(mapOrderMemberToParticipant);
 
   // If we have employee info and no sender in members, add it at the beginning
-  if (employeeName && !participants.some(p => p.role === 'Отправитель')) {
+  if (employeeName && !participants.some(p => p.type_approval === 'Отправитель')) {
     const senderParticipant: ApprovalParticipant = {
       id: 'sender',
       name: employeeName,
       photo: employeePhoto,
-      role: 'Отправитель',
+      status: '',
+      type_approval: 'Отправитель',
       isSigned: true, // Sender always signed
-      division: '',
-      position: '',
     };
     participants.unshift(senderParticipant);
   }
