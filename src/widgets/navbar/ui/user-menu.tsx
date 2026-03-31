@@ -27,6 +27,7 @@ import { AvatarImage } from "@radix-ui/react-avatar";
 import { useNavigate } from "react-router-dom";
 import { UserEditModal } from "features/user-menu";
 import { useCurrentUser } from "entities/user";
+import { ThemeSelector } from "./ThemeSelector";
 
 
 
@@ -174,7 +175,12 @@ export function UserMenu() {
               )}
             </div>
 
-            {/* Кнопка "Настройки" открывает модалку */}
+            {/* Theme Selector - удлиненная кнопка */}
+            <div className="mt-2">
+              <ThemeSelector />
+            </div>
+
+            {/* Кнопки "Настройки" и "Выйти" */}
             <div className="flex items-center justify-between gap-2 mt-2">
               <UserEditModal 
                 user={{
@@ -189,7 +195,7 @@ export function UserMenu() {
               <Button
                 onClick={onLogout}
                 variant="secondary"
-                className="flex items-center gap-2 w-full justify-center"
+                className="flex items-center gap-2 flex-1 justify-center"
               >
                 <LogOut className="w-4 h-4" />
                 Выйти
