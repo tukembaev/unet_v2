@@ -26,11 +26,11 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  ThemeToggle,
 } from 'shared/ui';
 import { ROUTES } from 'app/providers/routes';
 import { cn } from 'shared/lib/utils';
 import { UserMenu } from './user-menu';
+import { NotificationBell } from './NotificationBell';
 
 
 interface NavItem {
@@ -180,9 +180,9 @@ export function Navbar() {
             </NavigationMenu>
           </div>
 
-          {/* Right: Theme Toggle, User Menu & Mobile Toggle */}
+          {/* Right: Notifications & User Menu */}
           <div className="flex items-center gap-2">
-            <ThemeToggle />
+            <NotificationBell />
             <UserMenu />
 
             {/* Mobile Navigation Toggle */}
