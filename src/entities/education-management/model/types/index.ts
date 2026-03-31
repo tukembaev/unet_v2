@@ -129,6 +129,7 @@ export interface SyllabusCourse {
   lecture_hours: number;
   practice_hours: number;
   lab_hours: number;
+  group?: number | null;
 }
 
 export interface SyllabusSemester {

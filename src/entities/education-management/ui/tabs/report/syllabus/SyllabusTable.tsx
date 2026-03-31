@@ -18,15 +18,25 @@ import {
 interface Props {
   semester: SyllabusSemester;
   role?: "admin" | "user" | string;
-  onAddElective?: () => void;
+  onAddCourse?: () => void;
+  onAddElective?: (group: number | null) => void;
 }
 
-export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props) => {
+export const SyllabusTable = ({
+  semester,
+  role = "user",
+  onAddCourse,
+  onAddElective,
+}: Props) => {
   const openForm = useFormNavigation();
   const [selected, setSelected] = useState<SyllabusCourse | null>(null);
 
   const mainCourses = semester.courses ?? [];
   const electiveGroups = semester.elective_course ?? [];
+  const firstElectiveGroupKey =
+    electiveGroups
+      .flat()
+      .find((course) => typeof course?.group !== "undefined")?.group ?? null;
 
   let rowIndex = 1;
 
@@ -87,6 +97,25 @@ export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props)
             );
           })}
 
+          {role === "admin" && (
+            <TableRow className="border-b border-border">
+              <TableCell colSpan={12} className="py-2 px-3 border-r-0">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddCourse?.();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2 px-4 border-2 border-dashed border-border rounded-lg hover:border-primary hover:bg-accent/30 transition-colors group"
+                >
+                  <Plus size={16} className="text-muted-foreground group-hover:text-primary" />
+                  <span className="text-xs text-muted-foreground group-hover:text-primary font-medium">
+                    Добавить предмет
+                  </span>
+                </button>
+              </TableCell>
+            </TableRow>
+          )}
+
           {/* Elective section header - separator between main and elective courses */}
           {electiveGroups.length > 0 && (
             <TableRow className="border-b border-border">
@@ -133,7 +162,7 @@ export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props)
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onAddElective?.();
+                    onAddElective?.(firstElectiveGroupKey);
                   }}
                   className="w-full flex items-center justify-center gap-2 py-2 px-4 border-2 border-dashed border-border rounded-lg hover:border-primary hover:bg-accent/30 transition-colors group"
                 >

@@ -9,6 +9,7 @@ export enum FormQuery {
   CREATE_DOCUMENT = 'create-document',
   CREATE_RUP = 'create-rup',
   EDIT_COURSE = 'edit-course',
+  CREATE_COURSE = 'create-course',
   CREATE_ELECTIVE = 'create-elective',
   CREATE_SEMESTER = 'create-semester',
   SETTINGS = 'settings',

@@ -8,7 +8,7 @@ import {
 } from "shared/ui";
 import type { SyllabusRoot } from "entities/education-management/model/types";
 import { SyllabusTable } from "./SyllabusTable";
-import { CreateSemesterDialog, CreateElectiveDialog } from "features/syllabus/index";
+import { CreateSemesterDialog, CreateElectiveDialog, CreateCourseDialog } from "features/syllabus/index";
 import { BookDown } from "lucide-react";
 import { FormQuery, useFormNavigation } from "shared/lib";
 
@@ -86,7 +86,15 @@ export function SyllabusPlanContent({
                 <SyllabusTable
                   semester={s}
                   role={role}
-                  onAddElective={() => openForm(FormQuery.CREATE_ELECTIVE)}
+                  onAddCourse={() =>
+                    openForm(FormQuery.CREATE_COURSE, { semesterId: s.id.toString() })
+                  }
+                  onAddElective={(group) =>
+                    openForm(FormQuery.CREATE_ELECTIVE, {
+                      semesterId: s.id.toString(),
+                      group: group == null ? "null" : String(group),
+                    })
+                  }
                 />
               </div>
             ))}
@@ -117,6 +125,7 @@ export function SyllabusPlanContent({
           </Empty>
         )}
         <CreateSemesterDialog />
+        <CreateCourseDialog />
         <CreateElectiveDialog />
       </CardContent>
     </Card>

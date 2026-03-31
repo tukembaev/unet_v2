@@ -86,3 +86,54 @@ export const getReports = async (): Promise<Reports[]> => {
   const { data } = await apiClient.get('institutes-syllabuses/');
   return data;
 };
+
+export type CreateCoursePayload = {
+  semester: number;
+  discipline?: number;
+  department?: number;
+  cipher_direction?: string[];
+  discipline_type?: string;
+  code?: string | null;
+  name_subject: string;
+  dep: string;
+  cycle?: string | null;
+  course_type?: string;
+  control_form?: string;
+  credit?: number;
+  credit_part_time?: number;
+  amount_hours?: number;
+  lecture_hours?: number;
+  practice_hours?: number;
+  lab_hours?: number;
+  /** Обязательный предмет (не «Курс по выбору») — null; для электива — номер группы, когда есть */
+  group?: number | null;
+};
+
+export const createCourse = async (payload: CreateCoursePayload) => {
+  const { data } = await apiClient.post('new-create-course/', payload);
+  return data;
+};
+
+export type DisciplineOption = {
+  value: number;
+  label: string;
+  cipher_direction?: string[];
+  discipline_type?: string;
+  depart_id?: number;
+  dep?: string;
+  code?: string;
+  cycle?: string;
+  course_type?: string;
+  control_form?: string;
+  credit?: number;
+  credit_part_time?: number;
+  lecture_hours?: number;
+  practice_hours?: number;
+  lab_hours?: number;
+  group?: number | null;
+};
+
+export const getAllDiscipline = async (): Promise<DisciplineOption[]> => {
+  const { data } = await apiClient.get('all-discipline/');
+  return data;
+};
