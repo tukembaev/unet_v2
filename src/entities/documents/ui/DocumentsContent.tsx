@@ -17,9 +17,9 @@ import { FormQuery, useFormNavigation } from 'shared/lib';
 
 const statusIcons: Record<string, React.ReactNode> = {
   'В режиме ожидания': <Clock className="h-3 w-3 text-yellow-500" />,
-  'В работе': <CircleDot className="h-3 w-3" />,
+  'В процессе выполнения': <CircleDot className="h-3 w-3" />,
   'Выполнено': <CheckCircle2 className="h-3 w-3 text-green-500" />,
-  'Отклонено': <XCircle className="h-3 w-3 text-red-500" />,
+  'Доработать': <XCircle className="h-3 w-3 text-red-500" />,
 };
 
 const typeLabels: Record<DocumentType, string> = {
@@ -42,9 +42,9 @@ const typeOptions = [
 const statusOptions = [
   { label: 'Все', value: 'all' },
   { label: 'В режиме ожидания', value: 'В режиме ожидания' },
-  { label: 'В работе', value: 'В работе' },
+  { label: 'В процессе выполнения', value: 'В процессе выполнения' },
   { label: 'Выполнено', value: 'Выполнено' },
-  { label: 'Отклонено', value: 'Отклонено' },
+  { label: 'Доработать', value: 'Доработать' },
 ];
 
 const tabs: TabConfig[] = [
