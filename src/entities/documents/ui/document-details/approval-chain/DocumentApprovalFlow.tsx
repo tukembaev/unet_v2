@@ -199,13 +199,13 @@ const DocumentApprovalFlow = ({
                           participantRefs.current[index] = el;
                         }}
                         className={cn(
-                          "transition-all cursor-pointer hover:scale-110 w-10 h-10 sm:w-12 sm:h-12",
+                          "transition-all  p-0 cursor-pointer hover:scale-110 w-10 h-10 sm:w-12 sm:h-12",
                           getStatusColor(participant, index)
                         )}
                       >
-                        <Avatar className="size-full">
-                          <AvatarImage src={participant.photo} alt={participant.name} />
-                          <AvatarFallback className="text-xs">{getInitials(participant.name)}</AvatarFallback>
+                        <Avatar className="size-full ">
+                          <AvatarImage src={participant.photo} alt={participant.name} className="object-cover" />
+                          <AvatarFallback className="text-xs size-full flex items-center justify-center">{getInitials(participant.name)}</AvatarFallback>
                         </Avatar>
                       </Circle>
                     </div>
