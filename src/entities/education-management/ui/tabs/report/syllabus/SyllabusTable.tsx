@@ -4,7 +4,7 @@ import {
 } from "entities/education-management/model/types";
 import { CourseEditDialog } from "features/syllabus/index";
 import { Plus } from "lucide-react";
-import { useCallback, useState } from "react";
+import { Fragment, ReactNode, useCallback, useState } from "react";
 import { FormQuery, useFormNavigation } from "shared/lib";
 import {
   Table,
@@ -18,8 +18,8 @@ import {
 interface Props {
   semester: SyllabusSemester;
   role?: "admin" | "user" | string;
-  onAddCourse?: () => void;
-  onAddElective?: (group: number | null) => void;
+  onAddCourse?: (profileId?: number | null) => void;
+  onAddElective?: (group: string | null, profileId?: number | null) => void;
 }
 
 export const SyllabusTable = ({
@@ -33,17 +33,38 @@ export const SyllabusTable = ({
 
   const mainCourses = semester.courses ?? [];
   const electiveGroups = semester.elective_course ?? [];
-  const firstElectiveGroupKey =
-    electiveGroups
-      .flat()
-      .find((course) => typeof course?.group !== "undefined")?.group ?? null;
 
   let rowIndex = 1;
 
   const openEditor = useCallback((course: SyllabusCourse) => {
     setSelected(course);
-    openForm(FormQuery.EDIT_COURSE, { courseId: course.id.toString() });
+    openForm(
+      FormQuery.EDIT_COURSE,
+      { courseId: course.id.toString() },
+      { syncUrl: false }
+    );
   }, [openForm]);
+
+  const renderCourseRow = (course: SyllabusCourse, indexCell?: ReactNode) => (
+    <TableRow
+      key={course.id}
+      className="hover:bg-muted/30 cursor-pointer border-b border-border"
+      onClick={() => openEditor(course)}
+    >
+      {indexCell}
+      <TableCell className="py-2 px-3 border-r border-border">{course.code ?? "—"}</TableCell>
+      <TableCell className="py-2 px-3 border-r border-border">{course.name_subject}</TableCell>
+      <TableCell className="py-2 px-3 border-r border-border">{course.dep}</TableCell>
+      <TableCell className="py-2 px-3 border-r border-border">{course.cycle ?? ""}</TableCell>
+      <TableCell className="py-2 px-3 border-r border-border">{course.course_type}</TableCell>
+      <TableCell className="py-2 px-3 border-r border-border">{course.control_form}</TableCell>
+      <TableCell className="py-2 px-3 border-r border-border">{course.credit}</TableCell>
+      <TableCell className="py-2 px-3 border-r border-border">{course.amount_hours}</TableCell>
+      <TableCell className="py-2 px-3 border-r border-border">{course.lecture_hours}</TableCell>
+      <TableCell className="py-2 px-3 border-r border-border">{course.practice_hours}</TableCell>
+      <TableCell className="py-2 px-3">{course.lab_hours}</TableCell>
+    </TableRow>
+  );
 
   return (
     <>
@@ -72,28 +93,31 @@ export const SyllabusTable = ({
               {semester.name_semester} — семестр
             </TableCell>
           </TableRow>
+          <TableRow className="border-b border-border">
+            <TableCell colSpan={12} className="py-2 px-3 border-r-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted-foreground">Профили:</span>
+                {(semester.profiles_name ?? []).length > 0 ? (
+                  semester.profiles_name?.map((profile) => (
+                    <span
+                      key={`${semester.id}:${profile.id}`}
+                      className="inline-flex rounded-md bg-muted px-2 py-1 text-[11px]"
+                    >
+                      {profile.title}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-muted-foreground">не добавлены</span>
+                )}
+              </div>
+            </TableCell>
+          </TableRow>
 
           {mainCourses.map((c) => {
             const currentIndex = rowIndex++;
-            return (
-              <TableRow
-                key={c.id}
-                className="hover:bg-muted/30 cursor-pointer border-b border-border"
-                onClick={() => openEditor(c)}
-              >
-                <TableCell className="text-center py-2 px-3 border-r border-border">{currentIndex}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.code ?? "—"}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.name_subject}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.dep}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.cycle ?? ""}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.course_type}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.control_form}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.credit}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.amount_hours}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.lecture_hours}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.practice_hours}</TableCell>
-                <TableCell className="py-2 px-3">{c.lab_hours}</TableCell>
-              </TableRow>
+            return renderCourseRow(
+              c,
+              <TableCell className="text-center py-2 px-3 border-r border-border">{currentIndex}</TableCell>
             );
           })}
 
@@ -103,7 +127,7 @@ export const SyllabusTable = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onAddCourse?.();
+                    onAddCourse?.(null);
                   }}
                   className="w-full flex items-center justify-center gap-2 py-2 px-4 border-2 border-dashed border-border rounded-lg hover:border-primary hover:bg-accent/30 transition-colors group"
                 >
@@ -129,51 +153,156 @@ export const SyllabusTable = ({
           {electiveGroups.map((group) => {
             if (!group || group.length === 0) return null;
             const groupIndex = rowIndex++; // one number for the whole group
-            return group.map((c, idx) => (
-              <TableRow
-                key={c.id}
-                className="hover:bg-muted/30 cursor-pointer border-b border-border"
-                onClick={() => openEditor(c)}
-              >
-                {idx === 0 && (
-                  <TableCell rowSpan={group.length} className="text-center align-top py-2 px-3 border-r border-border">
-                    {groupIndex}
-                  </TableCell>
+            const groupId = group[0]?.group ?? null;
+            return (
+              <Fragment key={`group-${groupId ?? groupIndex}`}>
+                {group.map((c, idx) => (
+                  renderCourseRow(
+                    c,
+                    idx === 0 ? (
+                      <TableCell rowSpan={group.length} className="text-center align-top py-2 px-3 border-r border-border">
+                        {groupIndex}
+                      </TableCell>
+                    ) : undefined
+                  )
+                ))}
+
+                {role === "admin" && (
+                  <TableRow className="border-b border-border">
+                    <TableCell colSpan={12} className="py-2 px-3 border-r-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onAddElective?.(groupId, null);
+                        }}
+                        className="w-full flex items-center justify-center gap-2 py-2 px-4 border-2 border-dashed border-border rounded-lg hover:border-primary hover:bg-accent/30 transition-colors group"
+                      >
+                        <Plus size={16} className="text-muted-foreground group-hover:text-primary" />
+                        <span className="text-xs text-muted-foreground group-hover:text-primary font-medium">
+                          Добавить предмет по выбору в эту группу
+                        </span>
+                      </button>
+                    </TableCell>
+                  </TableRow>
                 )}
-                <TableCell className="py-2 px-3 border-r border-border">{c.code ?? "—"}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.name_subject}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.dep}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.cycle ?? ""}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.course_type}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.control_form}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.credit}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.amount_hours}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.lecture_hours}</TableCell>
-                <TableCell className="py-2 px-3 border-r border-border">{c.practice_hours}</TableCell>
-                <TableCell className="py-2 px-3">{c.lab_hours}</TableCell>
-              </TableRow>
-            ));
+              </Fragment>
+            );
           })}
 
-          {/* Mini Empty for adding new elective course */}
-          {electiveGroups.length > 0 && role === "admin" && (
+          {/* Add new elective group */}
+          {role === "admin" && (
             <TableRow className="border-b border-border">
               <TableCell colSpan={12} className="py-2 px-3 border-r-0">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onAddElective?.(firstElectiveGroupKey);
+                    onAddElective?.(null, null);
                   }}
                   className="w-full flex items-center justify-center gap-2 py-2 px-4 border-2 border-dashed border-border rounded-lg hover:border-primary hover:bg-accent/30 transition-colors group"
                 >
                   <Plus size={16} className="text-muted-foreground group-hover:text-primary" />
                   <span className="text-xs text-muted-foreground group-hover:text-primary font-medium">
-                    Добавить предмет по выбору
+                    Добавить новую группу предметов по выбору
                   </span>
                 </button>
               </TableCell>
             </TableRow>
           )}
+
+          {(semester.profiles_name ?? []).map((profileBlock) => {
+            const profileCourses = profileBlock.courses ?? [];
+            const profileElectives = profileBlock.elective_courses ?? [];
+            let profileRowIndex = 1;
+
+            return (
+              <Fragment key={`profile-${profileBlock.id}`}>
+                <TableRow className="border-b border-border">
+                  <TableCell colSpan={12} className="py-2 px-3 bg-muted/30 text-center font-medium border-r-0">
+                    {profileBlock.title}
+                  </TableCell>
+                </TableRow>
+
+                {profileCourses.map((course) => {
+                  const currentIndex = profileRowIndex++;
+                  return renderCourseRow(
+                    course,
+                    <TableCell className="text-center py-2 px-3 border-r border-border">{currentIndex}</TableCell>
+                  );
+                })}
+
+                {profileElectives.map((group) => {
+                  if (!group || group.length === 0) return null;
+                  const groupIndex = profileRowIndex++;
+                  const groupId = group[0]?.group ?? null;
+                  return (
+                    <Fragment key={`profile-group-${profileBlock.id}-${groupId ?? groupIndex}`}>
+                      {group.map((course, idx) =>
+                        renderCourseRow(
+                          course,
+                          idx === 0 ? (
+                            <TableCell rowSpan={group.length} className="text-center align-top py-2 px-3 border-r border-border">
+                              {groupIndex}
+                            </TableCell>
+                          ) : undefined
+                        )
+                      )}
+                      {role === "admin" && (
+                        <TableRow className="border-b border-border">
+                          <TableCell colSpan={12} className="py-2 px-3 border-r-0">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onAddElective?.(groupId, profileBlock.id);
+                              }}
+                              className="w-full flex items-center justify-center gap-2 py-2 px-4 border-2 border-dashed border-border rounded-lg hover:border-primary hover:bg-accent/30 transition-colors group"
+                            >
+                              <Plus size={16} className="text-muted-foreground group-hover:text-primary" />
+                              <span className="text-xs text-muted-foreground group-hover:text-primary font-medium">
+                                Добавить предмет по выбору в эту группу профиля
+                              </span>
+                            </button>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </Fragment>
+                  );
+                })}
+
+                {role === "admin" && (
+                  <TableRow className="border-b border-border">
+                    <TableCell colSpan={12} className="py-2 px-3 border-r-0">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onAddCourse?.(profileBlock.id);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 py-2 px-4 border-2 border-dashed border-border rounded-lg hover:border-primary hover:bg-accent/30 transition-colors group"
+                        >
+                          <Plus size={16} className="text-muted-foreground group-hover:text-primary" />
+                          <span className="text-xs text-muted-foreground group-hover:text-primary font-medium">
+                            Добавить предмет в профиль
+                          </span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onAddElective?.(null, profileBlock.id);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 py-2 px-4 border-2 border-dashed border-border rounded-lg hover:border-primary hover:bg-accent/30 transition-colors group"
+                        >
+                          <Plus size={16} className="text-muted-foreground group-hover:text-primary" />
+                          <span className="text-xs text-muted-foreground group-hover:text-primary font-medium">
+                            Добавить новую группу по выбору в профиль
+                          </span>
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </Fragment>
+            );
+          })}
 
           {/* Semester summary (report) */}
           <TableRow className="border-b border-border">

@@ -89,6 +89,7 @@ export const getReports = async (): Promise<Reports[]> => {
 
 export type CreateCoursePayload = {
   semester: number;
+  profile?: number | null;
   discipline?: number;
   department?: number;
   cipher_direction?: string[];
@@ -105,13 +106,38 @@ export type CreateCoursePayload = {
   lecture_hours?: number;
   practice_hours?: number;
   lab_hours?: number;
-  /** Обязательный предмет (не «Курс по выбору») — null; для электива — номер группы, когда есть */
-  group?: number | null;
+  /** Обязательный предмет (не «Курс по выбору») — null; для электива — строковый id группы */
+  group?: string | null;
 };
 
 export const createCourse = async (payload: CreateCoursePayload) => {
   const { data } = await apiClient.post('new-create-course/', payload);
   return data;
+};
+
+export type UpdateCoursePayload = Partial<CreateCoursePayload>;
+
+export const updateCourse = async (
+  courseId: number,
+  payload: UpdateCoursePayload
+) => {
+  const endpoints = [
+    `course/${courseId}/`,
+    `courses/${courseId}/`,
+    `new-create-course/${courseId}/`,
+  ];
+
+  let lastError: unknown = null;
+  for (const endpoint of endpoints) {
+    try {
+      const { data } = await apiClient.patch(endpoint, payload);
+      return data;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
 };
 
 export type DisciplineOption = {
@@ -130,10 +156,33 @@ export type DisciplineOption = {
   lecture_hours?: number;
   practice_hours?: number;
   lab_hours?: number;
-  group?: number | null;
+  group?: string | null;
 };
 
 export const getAllDiscipline = async (): Promise<DisciplineOption[]> => {
   const { data } = await apiClient.get('all-discipline/');
+  return data;
+};
+
+export const getProfilesInDirections = async (
+  directionId: number
+): Promise<SelectOptions[]> => {
+  const { data } = await apiClient.get(`profiles/${directionId}/`);
+  if (!Array.isArray(data)) return [];
+
+  return data
+    .map((row: Record<string, unknown>) => {
+      const value = Number(row.value ?? row.id ?? row.profile_id);
+      const label = String(row.label ?? row.title ?? row.profile ?? value);
+      return { value, label };
+    })
+    .filter((item) => Number.isFinite(item.value));
+};
+
+export const addProfiles = async (
+  semesterId: number,
+  payload: { profiles?: number[]; profile_to_remove?: number }
+) => {
+  const { data } = await apiClient.patch(`semester/${semesterId}/`, payload);
   return data;
 };

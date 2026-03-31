@@ -8,9 +8,11 @@ import {
 } from "shared/ui";
 import type { SyllabusRoot } from "entities/education-management/model/types";
 import { SyllabusTable } from "./SyllabusTable";
-import { CreateSemesterDialog, CreateElectiveDialog, CreateCourseDialog } from "features/syllabus/index";
+import { CreateSemesterDialog, CreateElectiveDialog, CreateCourseDialog, ManageProfilesDialog } from "features/syllabus/index";
 import { BookDown } from "lucide-react";
 import { FormQuery, useFormNavigation } from "shared/lib";
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export interface SyllabusPlanContentProps {
   data: SyllabusRoot;
@@ -30,7 +32,16 @@ export function SyllabusPlanContent({
   showAddSemesterEmpty = true,
 }: SyllabusPlanContentProps) {
   const openForm = useFormNavigation();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const semesters = data.semesters ?? [];
+
+  useEffect(() => {
+    if (!searchParams.has("courseId")) return;
+    const params = new URLSearchParams(searchParams);
+    params.delete("courseId");
+    navigate(`?${params.toString()}`, { replace: true });
+  }, [navigate, searchParams]);
 
   return (
     <Card className="max-w-full border-none shadow-none">
@@ -75,6 +86,17 @@ export function SyllabusPlanContent({
             </p>
           </div>
         </div>
+        {role === "admin" && (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => openForm(FormQuery.MANAGE_PROFILES)}
+              className="px-3 py-2 text-xs border border-border rounded-md hover:bg-accent"
+            >
+              Управление профилями семестров
+            </button>
+          </div>
+        )}
 
         {semesters.length > 0 ? (
           <div className="space-y-4">
@@ -86,13 +108,17 @@ export function SyllabusPlanContent({
                 <SyllabusTable
                   semester={s}
                   role={role}
-                  onAddCourse={() =>
-                    openForm(FormQuery.CREATE_COURSE, { semesterId: s.id.toString() })
+                  onAddCourse={(profileId) =>
+                    openForm(FormQuery.CREATE_COURSE, {
+                      semesterId: s.id.toString(),
+                      profile: profileId == null ? "null" : String(profileId),
+                    })
                   }
-                  onAddElective={(group) =>
+                  onAddElective={(group, profileId) =>
                     openForm(FormQuery.CREATE_ELECTIVE, {
                       semesterId: s.id.toString(),
                       group: group == null ? "null" : String(group),
+                      profile: profileId == null ? "null" : String(profileId),
                     })
                   }
                 />
@@ -127,6 +153,10 @@ export function SyllabusPlanContent({
         <CreateSemesterDialog />
         <CreateCourseDialog />
         <CreateElectiveDialog />
+        <ManageProfilesDialog
+          semesters={semesters}
+          directionId={data.id}
+        />
       </CardContent>
     </Card>
   );

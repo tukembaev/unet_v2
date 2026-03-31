@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "shared/ui";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,9 +31,9 @@ import {
 } from "shared/lib";
 import {
   createCourse,
-  getAllDiscipline,
   type DisciplineOption,
 } from "entities/education-management/model/api";
+import { useAllDiscipline } from "entities/education-management/model/queries";
 import { curriculumKeys } from "entities/curriculum/model/queries";
 
 const HOURS_PER_CREDIT = 30;
@@ -73,12 +73,17 @@ export const CreateCourseDialog = ({
   const closeForm = useFormClose();
   const semesterIdStr = useStoredFormParam(formType, "semesterId");
   const groupStr = useStoredFormParam(formType, "group");
+  const profileStr = useStoredFormParam(formType, "profile");
   const semesterId = Number(semesterIdStr ?? "");
-  const groupFromParams =
-    groupStr && groupStr !== "null" && !Number.isNaN(Number(groupStr))
-      ? Number(groupStr)
+  const groupFromParams = groupStr && groupStr !== "null" ? groupStr : null;
+  const profileFromParams =
+    profileStr && profileStr !== "null" && !Number.isNaN(Number(profileStr))
+      ? Number(profileStr)
       : null;
-  const [disciplineOptions, setDisciplineOptions] = useState<DisciplineOption[]>([]);
+  const { data: disciplineOptionsData } = useAllDiscipline();
+  const disciplineOptions: DisciplineOption[] = Array.isArray(disciplineOptionsData)
+    ? disciplineOptionsData
+    : [];
 
   const {
     register,
@@ -101,25 +106,6 @@ export const CreateCourseDialog = ({
       lab_hours: 0,
     },
   });
-
-  useEffect(() => {
-    let mounted = true;
-    getAllDiscipline()
-      .then((data) => {
-        if (mounted) {
-          setDisciplineOptions(Array.isArray(data) ? data : []);
-        }
-      })
-      .catch(() => {
-        if (mounted) {
-          setDisciplineOptions([]);
-        }
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   const creditValue = watch("credit");
 
@@ -176,6 +162,7 @@ export const CreateCourseDialog = ({
     try {
       await createCourse({
         semester: semesterId,
+        profile: profileFromParams,
         discipline: Number(values.disciplineId),
         department: selected?.depart_id,
         cipher_direction: selected?.cipher_direction,

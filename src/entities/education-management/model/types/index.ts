@@ -118,6 +118,10 @@ export interface Reports {
 
 export interface SyllabusCourse {
   id: number;
+  semester?: number;
+  discipline?: number;
+  department?: number;
+  profile?: number | null;
   code: string | null; // can be null in data.txt (e.g., diploma work)
   name_subject: string;
   dep: string;
@@ -129,7 +133,7 @@ export interface SyllabusCourse {
   lecture_hours: number;
   practice_hours: number;
   lab_hours: number;
-  group?: number | null;
+  group?: string | null;
 }
 
 export interface SyllabusSemester {
@@ -142,7 +146,12 @@ export interface SyllabusSemester {
   amount_hours: number;
   courses: SyllabusCourse[];
   elective_course: SyllabusCourse[][]; // array of groups of elective courses
-  profiles_name?: { id: number; title: string; courses: unknown[]; elective_courses: SyllabusCourse[][] }[];
+  profiles_name?: {
+    id: number;
+    title: string;
+    courses: SyllabusCourse[];
+    elective_courses: SyllabusCourse[][];
+  }[];
 }
 
 export interface SyllabusRoot {
