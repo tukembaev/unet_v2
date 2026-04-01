@@ -52,7 +52,7 @@ export const ActiveTasks = () => {
         <Card
           key={task.id}
           className="hover:shadow-md transition-all duration-200 cursor-pointer"
-          onClick={() => navigate('/task', { state: { taskId: task.id } })}
+          onClick={() => navigate('/task-details', { state: { taskId: task.id } })}
         >
           <CardContent className="p-4">
             <div className="flex items-start justify-between gap-4">
