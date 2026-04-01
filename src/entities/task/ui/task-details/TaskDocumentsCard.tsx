@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiClientGo } from "shared/config";
 import { Button, Card, CardContent, CardHeader, CardTitle, Separator } from "shared/ui";
+import { toast } from "sonner";
 
 interface TaskDocumentsCardProps {
   canAddDocuments: boolean;
@@ -35,6 +36,10 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TASK_DOCUMENTS_QUERY_KEY, taskId] });
+      toast.success('Файл успешно загружен');
+    },
+    onError: () => {
+      toast.error('Ошибка при загрузке файла');
     },
   });
 
@@ -46,6 +51,10 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TASK_DOCUMENTS_QUERY_KEY, taskId] });
+      toast.success('Файл успешно удален');
+    },
+    onError: () => {
+      toast.error('Ошибка при удалении файла');
     },
   });
 
@@ -72,8 +81,11 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
-      } catch (error) {
+        toast.success('Файл успешно скачан');
+      } catch (error: any) {
         console.error('Error downloading file:', error);
+        const status = error?.response?.status || 'неизвестная ошибка';
+        toast.error(`Ошибка при скачивании файла (${status})`);
       }
     }
   };

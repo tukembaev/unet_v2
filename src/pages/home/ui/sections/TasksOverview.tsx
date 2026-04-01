@@ -76,7 +76,7 @@ export const TasksOverview = () => {
             {tasks.slice(0, 3).map((task) => (
               <div
                 key={task.id}
-                onClick={() => navigate('/task', { state: { taskId: task.id } })}
+                onClick={() => navigate('/task-details', { state: { taskId: task.id } })}
                 className="group relative p-3 rounded-lg border bg-card hover:bg-accent/50 transition-all cursor-pointer"
               >
                 <div className="flex items-start gap-2">

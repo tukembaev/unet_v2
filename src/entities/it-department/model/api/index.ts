@@ -1,6 +1,7 @@
 
 import { apiClient } from "shared/config";
 import { EmployeeFilters, EmployeesResponse, EmployeeUpdatePayload, ID } from "../types";
+import { toast } from "sonner";
 
 /** Приводим фильтры к axios params */
 function toParams(filters: EmployeeFilters) {
@@ -40,28 +41,67 @@ export async function fetchEmployees(filters: EmployeeFilters): Promise<Employee
 
 /** Базовый patch сотрудника */
 export async function updateEmployee(id: ID, payload: EmployeeUpdatePayload) {
-  // старый путь: /employees/detail/${id}/  (обрати внимание на пробел в конце у старого кода — тут его нет)
-  return apiClient.patch(`/employees/detail/${id}/`, payload);
+  try {
+    const response = await apiClient.patch(`/employees/detail/${id}/`, payload);
+    toast.success('Данные сотрудника успешно обновлены');
+    return response;
+  } catch (error: any) {
+    const status = error?.response?.status || 'неизвестная ошибка';
+    toast.error(`Ошибка при обновлении данных сотрудника (${status})`);
+    throw error;
+  }
 }
 
 /** Деактивировать (is_active: false) */
 export async function deactivateEmployee(id: ID) {
-  return apiClient.patch(`/employees/detail/${id}/`, { is_active: false });
+  try {
+    const response = await apiClient.patch(`/employees/detail/${id}/`, { is_active: false });
+    toast.success('Сотрудник успешно деактивирован');
+    return response;
+  } catch (error: any) {
+    const status = error?.response?.status || 'неизвестная ошибка';
+    toast.error(`Ошибка при деактивации сотрудника (${status})`);
+    throw error;
+  }
 }
 
 /** Активировать (is_active: true) */
 export async function activateEmployee(id: ID) {
-  return apiClient.patch(`/employees/detail/${id}/`, { is_active: true });
+  try {
+    const response = await apiClient.patch(`/employees/detail/${id}/`, { is_active: true });
+    toast.success('Сотрудник успешно активирован');
+    return response;
+  } catch (error: any) {
+    const status = error?.response?.status || 'неизвестная ошибка';
+    toast.error(`Ошибка при активации сотрудника (${status})`);
+    throw error;
+  }
 }
 
 /** Сбросить пароль */
 export async function resetEmployeePassword(id: ID) {
-  return apiClient.patch(`/employees/detail/${id}/`, { reset_password: true });
+  try {
+    const response = await apiClient.patch(`/employees/detail/${id}/`, { reset_password: true });
+    toast.success('Пароль сотрудника успешно сброшен');
+    return response;
+  } catch (error: any) {
+    const status = error?.response?.status || 'неизвестная ошибка';
+    toast.error(`Ошибка при сбросе пароля (${status})`);
+    throw error;
+  }
 }
 
 /** Сбросить ПИН */
 export async function resetEmployeePin(id: ID) {
-  return apiClient.patch(`/employees/detail/${id}/`, { reset_pin: true });
+  try {
+    const response = await apiClient.patch(`/employees/detail/${id}/`, { reset_pin: true });
+    toast.success('ПИН сотрудника успешно сброшен');
+    return response;
+  } catch (error: any) {
+    const status = error?.response?.status || 'неизвестная ошибка';
+    toast.error(`Ошибка при сбросе ПИН (${status})`);
+    throw error;
+  }
 }
 
 /* --- При необходимости быстро расширишь API ниже: --- */

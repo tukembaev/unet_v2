@@ -28,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 import { UserEditModal } from "features/user-menu";
 import { useCurrentUser } from "entities/user";
 import { ThemeSelector } from "./ThemeSelector";
+import { performLogout } from "shared/lib/auth-utils";
 
 
 
@@ -39,10 +40,8 @@ export function UserMenu() {
   const { data: user, isLoading } = useCurrentUser();
   console.log(user)
   const onLogout = () => {
-    navigate("/");
-    localStorage.removeItem("token");
-    localStorage.removeItem("refresh");
-    localStorage.removeItem("pin");
+    performLogout();
+    navigate("/", { replace: true });
   };
 
   const getInitials = (firstName?: string, lastName?: string) => {
