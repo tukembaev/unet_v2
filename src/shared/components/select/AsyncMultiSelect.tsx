@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { Check, ChevronsUpDown, X, RefreshCw } from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useUsersList } from "entities/user/model/queries";
@@ -38,7 +38,7 @@ export function AsyncMultiSelect({
   const [search, setSearch] = useState("");
   const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
 
-  const { data: users = [], isLoading } = useUsersList();
+  const { data: users = [], isLoading, isError, refetch, isFetching } = useUsersList();
 
   const selectedIds = useMemo(
     () => new Set(value.map((v) => v.user_id)),
@@ -200,6 +200,22 @@ export function AsyncMultiSelect({
           {/* Virtualized list */}
           {isLoading ? (
             <SelectSkeleton />
+          ) : isError ? (
+            <div className="flex flex-col items-center gap-2 py-6">
+              <p className="text-sm text-destructive">
+                Ошибка загрузки пользователей
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="gap-1.5"
+              >
+                <RefreshCw className={cn("h-3.5 w-3.5", isFetching && "animate-spin")} />
+                Повторить
+              </Button>
+            </div>
           ) : filteredUsers.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
               Пользователи не найдены
