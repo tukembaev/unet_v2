@@ -2,19 +2,18 @@ import { useState } from 'react';
 import { Bell, FileText, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Button, Badge, Popover, PopoverContent, PopoverTrigger } from 'shared/ui';
 import { useNotifications } from 'pages/home/model/hooks/useNotifications';
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
-import { useNavigate } from 'react-router-dom';
+import type { Notification, NotificationIconType } from 'entities/notification';
+import { getNotificationIconType } from 'entities/notification';
 import { NotificationsModal } from './NotificationsModal';
 
-const notificationIcons = {
+const notificationIcons: Record<NotificationIconType, typeof Info> = {
   document: FileText,
   task: CheckCircle2,
   alert: AlertCircle,
   info: Info,
 };
 
-const notificationColors = {
+const notificationColors: Record<NotificationIconType, string> = {
   document: 'text-yellow-600 dark:text-yellow-400',
   task: 'text-blue-600 dark:text-blue-400',
   alert: 'text-red-600 dark:text-red-400',
@@ -24,17 +23,13 @@ const notificationColors = {
 export const NotificationBell = () => {
   const [open, setOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
-  const unreadNotifications = notifications.filter(n => !n.read).slice(0, 5);
+  const unreadNotifications = notifications.filter((n) => !n.is_read).slice(0, 5);
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
-    if (notification.link) {
-      navigate(notification.link);
-      setOpen(false);
-    }
+    setOpen(false);
   };
 
   return (
@@ -62,7 +57,6 @@ export const NotificationBell = () => {
         align="end"
         sideOffset={8}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <h3 className="font-semibold text-sm">Уведомления</h3>
           {unreadCount > 0 && (
@@ -77,7 +71,6 @@ export const NotificationBell = () => {
           )}
         </div>
 
-        {/* Notifications List */}
         <div className="max-h-[360px] overflow-y-auto">
           {unreadNotifications.length === 0 ? (
             <div className="py-8 text-center px-4">
@@ -89,8 +82,9 @@ export const NotificationBell = () => {
           ) : (
             <div>
               {unreadNotifications.map((notification) => {
-                const Icon = notificationIcons[notification.type];
-                const colorClass = notificationColors[notification.type];
+                const iconType = getNotificationIconType(notification.type);
+                const Icon = notificationIcons[iconType];
+                const colorClass = notificationColors[iconType];
 
                 return (
                   <div
@@ -105,13 +99,15 @@ export const NotificationBell = () => {
                           {notification.title}
                         </p>
                         <p className="text-xs text-muted-foreground leading-snug line-clamp-2">
-                          {notification.message}
+                          {notification.body}
                         </p>
+                        {notification.sender_name && (
+                          <p className="text-xs text-muted-foreground/70 mt-0.5">
+                            от {notification.sender_name}
+                          </p>
+                        )}
                         <span className="text-xs text-muted-foreground mt-1 inline-block">
-                          {formatDistanceToNow(new Date(notification.createdAt), {
-                            addSuffix: true,
-                            locale: ru,
-                          })}
+                          {notification.created_at}
                         </span>
                       </div>
                     </div>
@@ -122,7 +118,6 @@ export const NotificationBell = () => {
           )}
         </div>
 
-        {/* Footer */}
         {unreadNotifications.length > 0 && (
           <div className="p-2 border-t">
             <Button

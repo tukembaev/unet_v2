@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, CheckCircle2, AlertCircle, Info, Trash2, Check } from 'lucide-react';
+import { FileText, CheckCircle2, AlertCircle, Info, Check } from 'lucide-react';
 import {
   Button,
   Badge,
@@ -13,19 +13,17 @@ import {
   Card,
 } from 'shared/ui';
 import { useNotifications } from 'pages/home/model/hooks/useNotifications';
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
-import { useNavigate } from 'react-router-dom';
-import type { Notification } from 'pages/home/model/hooks/useNotifications';
+import type { Notification, NotificationIconType } from 'entities/notification';
+import { getNotificationIconType } from 'entities/notification';
 
-const notificationIcons = {
+const notificationIcons: Record<NotificationIconType, typeof Info> = {
   document: FileText,
   task: CheckCircle2,
   alert: AlertCircle,
   info: Info,
 };
 
-const notificationColors = {
+const notificationColors: Record<NotificationIconType, string> = {
   document: 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950/30',
   task: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30',
   alert: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30',
@@ -38,27 +36,17 @@ interface NotificationsModalProps {
 }
 
 export const NotificationsModal = ({ open, onOpenChange }: NotificationsModalProps) => {
-  const navigate = useNavigate();
-  const { notifications, unreadCount, markAsRead, markAllAsRead, clearNotification } =
+  const { notifications, unreadCount, markAsRead, markAllAsRead } =
     useNotifications();
   const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
 
   const filteredNotifications =
-    activeTab === 'unread' ? notifications.filter((n) => !n.read) : notifications;
+    activeTab === 'unread' ? notifications.filter((n) => !n.is_read) : notifications;
 
   const handleNotificationClick = (notification: Notification) => {
-    if (!notification.read) {
+    if (!notification.is_read) {
       markAsRead(notification.id);
     }
-    if (notification.link) {
-      navigate(notification.link);
-      onOpenChange(false);
-    }
-  };
-
-  const handleDelete = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    clearNotification(id);
   };
 
   const handleMarkAsRead = (e: React.MouseEvent, id: string) => {
@@ -93,7 +81,6 @@ export const NotificationsModal = ({ open, onOpenChange }: NotificationsModalPro
           </div>
         </DialogHeader>
 
-        {/* Tabs */}
         <div className="px-6 pt-4">
           <Tabs
             value={activeTab}
@@ -108,7 +95,6 @@ export const NotificationsModal = ({ open, onOpenChange }: NotificationsModalPro
           </Tabs>
         </div>
 
-        {/* Notifications List */}
         <div className="overflow-y-auto px-6 py-4 space-y-2" style={{ maxHeight: 'calc(85vh - 180px)' }}>
           {filteredNotifications.length === 0 ? (
             <div className="py-12 text-center">
@@ -121,36 +107,35 @@ export const NotificationsModal = ({ open, onOpenChange }: NotificationsModalPro
             </div>
           ) : (
             filteredNotifications.map((notification) => {
-              const Icon = notificationIcons[notification.type];
-              const colorClass = notificationColors[notification.type];
+              const iconType = getNotificationIconType(notification.type);
+              const Icon = notificationIcons[iconType];
+              const colorClass = notificationColors[iconType];
 
               return (
                 <Card
                   key={notification.id}
                   className={`p-4 transition-all cursor-pointer hover:shadow-md ${
-                    !notification.read ? 'border-l-4 border-l-primary' : ''
+                    !notification.is_read ? 'border-l-4 border-l-primary' : ''
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex gap-3">
-                    {/* Icon */}
                     <div
                       className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${colorClass}`}
                     >
                       <Icon className="h-5 w-5" />
                     </div>
 
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-1">
                         <h3
                           className={`text-sm font-medium ${
-                            !notification.read ? 'font-semibold' : ''
+                            !notification.is_read ? 'font-semibold' : ''
                           }`}
                         >
                           {notification.title}
                         </h3>
-                        {!notification.read && (
+                        {!notification.is_read && (
                           <Badge
                             variant="secondary"
                             className="h-5 px-1.5 text-xs shrink-0"
@@ -159,20 +144,21 @@ export const NotificationsModal = ({ open, onOpenChange }: NotificationsModalPro
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {notification.message}
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {notification.body}
                       </p>
+                      {notification.sender_name && (
+                        <p className="text-xs text-muted-foreground/70 mb-1">
+                          от {notification.sender_name}
+                        </p>
+                      )}
                       <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(notification.createdAt), {
-                          addSuffix: true,
-                          locale: ru,
-                        })}
+                        {notification.created_at}
                       </span>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex items-start gap-1 shrink-0">
-                      {!notification.read && (
+                      {!notification.is_read && (
                         <Button
                           variant="ghost"
                           size="icon"
@@ -183,15 +169,6 @@ export const NotificationsModal = ({ open, onOpenChange }: NotificationsModalPro
                           <Check className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                        onClick={(e) => handleDelete(e, notification.id)}
-                        title="Удалить"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                   </div>
                 </Card>
