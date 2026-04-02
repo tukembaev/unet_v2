@@ -9,8 +9,10 @@ export function useLogin() {
   return useMutation({
     mutationFn: ({ username, password }: { username: string; password: string }) =>
       loginRequest(username, password),
+
     onSuccess: (user) => {
       queryClient.setQueryData(USER_QUERY_KEY, user);
+      debugger
     },
 
     onError: (error: any) => {

@@ -58,36 +58,45 @@ export const ReportsTabContent = () => {
     <div className="space-y-4">
       <div className="flex items-center gap-4 flex-wrap">
         <AsyncSelect
+          // @ts-ignore
           fetcher={fetchFaculties}
           label="Институт"
+          // @ts-ignore
           value={institute}
+          // @ts-ignore
           onChange={setInstitute}
-          renderOption={(option) => <span>{option.label}</span>}
-          getOptionValue={(option) => option.value.toString()}
-          getDisplayValue={(option) => option.label}
+          renderOption={(option: any) => <span>{option.label}</span>}
+          getOptionValue={(option: any) => option.value.toString()}
+          getDisplayValue={(option: any) => option.label}
           placeholder="Выберите институт"
           disabled={isLoadingFaculties}
         />
 
         <AsyncSelect
+          // @ts-ignore
           fetcher={fetchFormOfStudy}
           label="Форма обучения"
+          // @ts-ignore
           value={formOfStudy}
+          // @ts-ignore
           onChange={setFormOfStudy}
-          renderOption={(option) => <span>{option.label}</span>}
-          getOptionValue={(option) => option.value}
-          getDisplayValue={(option) => option.label}
+          renderOption={(option: any) => <span>{option.label}</span>}
+          getOptionValue={(option: any) => option.value}
+          getDisplayValue={(option: any) => option.label}
           placeholder="Выберите форму обучения"
         />
 
         <AsyncSelect
+          // @ts-ignore
           fetcher={fetchAcademicYears}
           label="Уч год"
+          // @ts-ignore
           value={academicYear}
+          // @ts-ignore
           onChange={setAcademicYear}
-          renderOption={(option) => <span>{option.label}</span>}
-          getOptionValue={(option) => option.value}
-          getDisplayValue={(option) => option.label}
+          renderOption={(option: any) => <span>{option.label}</span>}
+          getOptionValue={(option: any) => option.value}
+          getDisplayValue={(option: any) => option.label}
           placeholder="Выберите учебный год"
         />
 

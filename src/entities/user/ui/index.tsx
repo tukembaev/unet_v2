@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardHeader, CardContent, CardFooter, Badge, Button } from "shared/ui";
-import { Mail, Phone, Briefcase, Building2, User2, GraduationCap, FileText, Settings } from "lucide-react";
+import { Mail, Phone, Briefcase, Building2, FileText, Settings } from "lucide-react";
 import type { IUser } from "../model/types";
 import { cn } from "shared/lib";
 
@@ -112,3 +112,5 @@ export const UserCard: React.FC<Props> = ({ user }) => {
     </Card>
   );
 };
+
+export { default as UserTooltip } from './UserTooltip';

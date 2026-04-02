@@ -26,11 +26,11 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  ThemeToggle,
 } from 'shared/ui';
 import { ROUTES } from 'app/providers/routes';
 import { cn } from 'shared/lib/utils';
 import { UserMenu } from './user-menu';
+import { NotificationBell } from './NotificationBell';
 
 
 interface NavItem {
@@ -115,6 +115,17 @@ const navigationSections: NavSection[] = [
       },
     ],
   },
+  {
+    title: 'Отчетность',
+    items: [
+      {
+        title: 'Задачи',
+        href: ROUTES.TASK_REPORTS,
+        description: 'Сформировать отчеты по задачам',
+        icon: BarChart3,
+      },
+    ],
+  },
 ];
 
 export function Navbar() {
@@ -129,7 +140,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/20">
+    <header className="sticky top-0 z-50 w-full">
       <div className="container mx-auto px-4">
         <div className="flex h-14 items-center justify-between gap-4">
           {/* Left: Logo */}
@@ -169,9 +180,9 @@ export function Navbar() {
             </NavigationMenu>
           </div>
 
-          {/* Right: Theme Toggle, User Menu & Mobile Toggle */}
+          {/* Right: Notifications & User Menu */}
           <div className="flex items-center gap-2">
-            <ThemeToggle />
+            <NotificationBell />
             <UserMenu />
 
             {/* Mobile Navigation Toggle */}

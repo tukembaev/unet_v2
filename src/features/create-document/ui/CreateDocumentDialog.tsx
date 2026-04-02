@@ -1,15 +1,19 @@
-import { Upload, X, FileText } from 'lucide-react';
+import { FileText, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useWatch } from 'react-hook-form';
+import { AsyncSelect } from 'shared/components/select/AsyncSelect';
+import { UserListItem } from 'entities/user/model/types';
+import { useCurrentUser } from 'entities/user/model/queries';
+import { FormQuery, useFormClose, useIsFormOpen } from 'shared/lib';
 import {
+  Button,
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
-  Button,
+  DialogHeader,
+  DialogTitle,
   Input,
-  Textarea,
-  Checkbox,
   Select,
   SelectContent,
   SelectItem,
@@ -18,32 +22,77 @@ import {
 } from 'shared/ui';
 import {
   Field,
-  FieldLabel,
   FieldError,
   FieldGroup,
+  FieldLabel,
 } from 'shared/ui/field';
-import { AsyncSelect } from 'shared/components/select/AsyncSelect';
-import { FormQuery, useIsFormOpen, useFormClose } from 'shared/lib';
+
+import { CreateDocumentMember } from '../model/types';
 import { useCreateDocumentForm } from '../model/hooks/useCreateDocumentForm';
-import { fetchEmployees } from '../model/api';
-import { Employee, DOCUMENT_TYPES } from '../model/types';
+import { useTypeApprovals } from 'entities/documents/model/queries';
+
+const DOCUMENT_TYPES = [
+  { value: 'ORDER_STUD', label: 'Приказ (студент)' },
+  { value: 'ORDER_EMPL', label: 'Приказ (сотрудник)' },
+  { value: 'APPLICATION', label: 'Заявление' },
+  { value: 'MAIL', label: 'Письмо' },
+  { value: 'REPORT', label: 'Отчет' },
+] as const;
 
 export function CreateDocumentDialog() {
   const open = useIsFormOpen(FormQuery.CREATE_DOCUMENT);
   const closeForm = useFormClose();
   const {
     form,
-    handleMainFileSelect,
-    handleAdditionalFilesSelect,
-    removeAdditionalFile,
-    removeMainFile,
+    handleFileSelect,
+    removeFile,
+    addMember,
+    removeMember,
     resetForm,
     submitForm,
     isSubmitting,
   } = useCreateDocumentForm();
 
+  const { data: typeApprovals = [], isLoading: isLoadingTypeApprovals } = useTypeApprovals();
+  const { data: currentUser } = useCurrentUser();
+
+  const [selectedMemberUser, setSelectedMemberUser] = useState<UserListItem | null>(null);
+  const [selectedTypeApproval, setSelectedTypeApproval] = useState<string>('');
+
+  // Watch form values
+  const documentType = useWatch({ control: form.control, name: 'type' });
+  const file = useWatch({ control: form.control, name: 'file' });
+  const members = useWatch({ control: form.control, name: 'members' });
+
+  // Устанавливаем sender_id текущего пользователя
+  useEffect(() => {
+    if (currentUser?.id) {
+      form.setValue('sender_id', currentUser.id);
+    }
+  }, [currentUser, form]);
+
+  // Автоматически добавляем участника при выборе типа согласования
+  useEffect(() => {
+    if (selectedMemberUser && selectedTypeApproval) {
+      const member: CreateDocumentMember = {
+        user_id: selectedMemberUser.user_id,
+        type_approval_id: selectedTypeApproval,
+        user_name: selectedMemberUser.full_name, // Сохраняем имя для отображения
+      };
+      
+      console.log('Auto-adding member:', member);
+      addMember(member);
+      
+      // Очищаем выбор
+      setSelectedMemberUser(null);
+      setSelectedTypeApproval('');
+    }
+  }, [selectedMemberUser, selectedTypeApproval, addMember]);
+
   const handleCancel = () => {
     resetForm();
+    setSelectedMemberUser(null);
+    setSelectedTypeApproval('');
     closeForm(FormQuery.CREATE_DOCUMENT);
   };
 
@@ -54,88 +103,57 @@ export function CreateDocumentDialog() {
     }
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      // Проверка на PDF формат
+      if (selectedFile.type !== 'application/pdf') {
+        form.setError('file', {
+          type: 'manual',
+          message: 'Можно загружать только PDF файлы',
+        });
+        return;
+      }
+      
+      // Очищаем ошибку если была
+      form.clearErrors('file');
+      handleFileSelect(event);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={() => closeForm(FormQuery.CREATE_DOCUMENT)}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Создать обращение</DialogTitle>
+          <DialogTitle>Создать документ</DialogTitle>
           <DialogDescription>
-            Заполните форму ниже для создания нового обращения
+            Заполните форму для создания нового документа
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(handleFormSubmit)}>
           <FieldGroup>
             {/* Document Type */}
-            {/* <Field>
+            <Field>
               <FieldLabel>
                 Тип документа
                 <span className="text-red-500 ml-1">*</span>
               </FieldLabel>
               <Select
-                value={form.watch('type_doc')}
-                onValueChange={(value) => form.setValue('type_doc', value as any)}
+                value={documentType}
+                onValueChange={(value) => form.setValue('type', value as any)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Выберите тип документа" />
                 </SelectTrigger>
                 <SelectContent>
                   {DOCUMENT_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {form.formState.errors.type_doc && (
-                <FieldError>
-                  {form.formState.errors.type_doc.message}
-                </FieldError>
-              )}
-            </Field> */}
-
-            {/* Addressee (Кому) */}
-            {/* <Field>
-              <FieldLabel>
-                Кому
-                <span className="text-red-500 ml-1">*</span>
-              </FieldLabel>
-              <AsyncSelect<Employee>
-                fetcher={fetchEmployees}
-                value={form.watch('addressee')}
-                onChange={(value) => form.setValue('addressee', value)}
-                label="Адресат"
-                placeholder="Выберите адресата"
-                renderOption={(employee) => (
-                  <div className="flex flex-col">
-                    <span className="font-medium">{employee.full_name}</span>
-                    <span className="text-sm text-muted-foreground">
-                      ID: {employee.employee_id}
-                    </span>
-                  </div>
-                )}
-                getOptionValue={(employee) => employee.id.toString()}
-                getDisplayValue={(employee) => employee.full_name}
-                width="100%"
-                autoSize={false}
-              />
-              {form.formState.errors.addressee && (
-                <FieldError>
-                  {form.formState.errors.addressee.message}
-                </FieldError>
-              )}
-            </Field> */}
-
-            {/* Theme/Subject */}
-            <Field>
-              <FieldLabel>
-                Тема
-                <span className="text-red-500 ml-1">*</span>
-              </FieldLabel>
-              <Input
-                placeholder="Введите тему обращения"
-                {...form.register('type')}
-              />
               {form.formState.errors.type && (
                 <FieldError>
                   {form.formState.errors.type.message}
@@ -143,44 +161,59 @@ export function CreateDocumentDialog() {
               )}
             </Field>
 
-            {/* Main Document File */}
+            {/* Title */}
+            <Field>
+              <FieldLabel>Заголовок</FieldLabel>
+              <Input
+                placeholder="Введите заголовок документа"
+                {...form.register('title')}
+              />
+              {form.formState.errors.title && (
+                <FieldError>
+                  {form.formState.errors.title.message}
+                </FieldError>
+              )}
+            </Field>
+
+            {/* File */}
             <Field>
               <FieldLabel>
-                Основной документ
+                Файл документа (только PDF)
                 <span className="text-red-500 ml-1">*</span>
               </FieldLabel>
               <div
                 className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
-                onClick={() => document.getElementById('mainFileInput')?.click()}
+                onClick={() => document.getElementById('fileInput')?.click()}
               >
                 <div className="flex flex-col items-center gap-2">
                   <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
                     <FileText className="h-6 w-6 text-primary" />
                   </div>
                   <p className="text-sm font-medium">
-                    {form.watch('file')?.name || 'Выберите основной файл документа'}
+                    {file?.name || 'Выберите PDF файл'}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Поддерживаются любые типы файлов
+                    Поддерживается только формат PDF
                   </p>
                 </div>
                 <Input
-                  id="mainFileInput"
+                  id="fileInput"
                   type="file"
-                  onChange={handleMainFileSelect}
+                  accept=".pdf,application/pdf"
+                  onChange={handleFileChange}
                   className="hidden"
                 />
               </div>
-              {form.watch('file') && (
+              {file && (
                 <div className="flex items-center justify-between p-3 border border-border rounded-md bg-card">
                   <div className="flex items-center gap-2">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
                       <FileText className="h-4 w-4 text-primary" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">{form.watch('file').name}</span>
+                      <span className="text-sm font-medium">{file.name}</span>
                       <span className="text-xs text-muted-foreground">
-                        {(form.watch('file').size / 1024).toFixed(1)} KB
+                        {(file.size / 1024).toFixed(1)} KB
                       </span>
                     </div>
                   </div>
@@ -188,7 +221,7 @@ export function CreateDocumentDialog() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={removeMainFile}
+                    onClick={removeFile}
                     className="text-muted-foreground hover:text-destructive"
                   >
                     <X className="h-4 w-4" />
@@ -202,112 +235,75 @@ export function CreateDocumentDialog() {
               )}
             </Field>
 
-            {/* Document Content/Text */}
+            {/* Members */}
             <Field>
               <FieldLabel>
-                Содержимое документа
-                <span className="text-red-500 ml-1">*</span>
+                Участники согласования
+                {members && members.length > 0 && (
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    ({members.length} участник{members.length > 1 ? 'ов' : ''})
+                  </span>
+                )}
               </FieldLabel>
-              <Textarea
-                placeholder="Введите содержимое документа"
-                {...form.register('text')}
-                rows={5}
-              />
-              {form.formState.errors.text && (
-                <FieldError>
-                  {form.formState.errors.text.message}
-                </FieldError>
-              )}
-            </Field>
-
-            {/* Additional Files */}
-            <Field>
-              <FieldLabel>Прикрепите дополнительные файлы</FieldLabel>
-              <div
-                className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
-                onClick={() => document.getElementById('additionalFilesInput')?.click()}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.add('border-primary', 'bg-primary/5');
-                }}
-                onDragLeave={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.remove('border-primary', 'bg-primary/5');
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.remove('border-primary', 'bg-primary/5');
-                  const files = Array.from(e.dataTransfer.files);
-                  const currentFiles = form.getValues('files');
-                  form.setValue('files', [...currentFiles, ...files]);
-                }}
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
-                    <Upload className="h-6 w-6 text-primary" />
-                  </div>
-                  <p className="text-sm font-medium">Выберите дополнительные файлы</p>
-                  <p className="text-xs text-muted-foreground">
-                    Поддерживаются любые типы файлов
-                  </p>
-                </div>
-                <Input
-                  id="additionalFilesInput"
-                  type="file"
-                  multiple
-                  onChange={handleAdditionalFilesSelect}
-                  className="hidden"
-                />
-              </div>
-              {form.watch('files').length > 0 && (
-                <div className="text-sm text-muted-foreground">
-                  Выбрано файлов: {form.watch('files').length}
-                </div>
-              )}
-              {form.watch('files').length > 0 && (
-                <div className="space-y-2">
-                  {form.watch('files').map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 border border-border rounded-md bg-card"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
-                          <Upload className="h-4 w-4 text-primary" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium">{file.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {(file.size / 1024).toFixed(1)} KB
+              <div className="space-y-3">
+                {/* Список добавленных участников */}
+                {members && members.length > 0 && (
+                  <div className="space-y-2">
+                    {members.map((member, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 border border-border rounded-md bg-card"
+                      >
+                        <div className="text-sm">
+                          <span className="font-medium">
+                            {member.user_name || `User ID: ${member.user_id}`}
+                          </span>
+                          <span className="text-muted-foreground ml-2">
+                            - {typeApprovals.find(t => t.id === member.type_approval_id)?.title || 'Тип согласования'}
                           </span>
                         </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeMember(index)}
+                          className="text-muted-foreground hover:text-destructive"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeAdditionalFile(index)}
-                        className="text-muted-foreground hover:text-destructive"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Field>
+                    ))}
+                  </div>
+                )}
 
-            {/* Very Urgent Checkbox */}
-            <Field>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="very_urgent"
-                  checked={form.watch('very_urgent')}
-                  onCheckedChange={(checked) => form.setValue('very_urgent', checked === true)}
-                />
-                <FieldLabel htmlFor="very_urgent" className="text-sm font-normal cursor-pointer">
-                  Очень срочно
-                </FieldLabel>
+                {/* Форма добавления нового участника */}
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <AsyncSelect
+                      value={selectedMemberUser}
+                      onChange={setSelectedMemberUser}
+                      placeholder="Выберите пользователя"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Select
+                      value={selectedTypeApproval}
+                      onValueChange={setSelectedTypeApproval}
+                      disabled={isLoadingTypeApprovals}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={isLoadingTypeApprovals ? "Загрузка..." : "Тип согласования"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {typeApprovals.map((type) => (
+                          <SelectItem key={type.id} value={type.id}>
+                            {type.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
             </Field>
           </FieldGroup>
@@ -325,4 +321,3 @@ export function CreateDocumentDialog() {
     </Dialog>
   );
 }
-

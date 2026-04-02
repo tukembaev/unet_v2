@@ -21,13 +21,16 @@ const FlowPage = () => {
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <h1 className="text-2xl font-bold">Потоки</h1>
           <AsyncSelect
+            // @ts-ignore
             fetcher={fetchWorkPlans}
             label="РУП"
+            // @ts-ignore
             value={selectedWorkPlan}
+            // @ts-ignore
             onChange={setSelectedWorkPlan}
-            renderOption={(option) => <span>{option.label}</span>}
-            getOptionValue={(option) => option.value.toString()}
-            getDisplayValue={(option) => option.label}
+            renderOption={(option: any) => <span>{option.label}</span>}
+            getOptionValue={(option: any) => option.value.toString()}
+            getDisplayValue={(option: any) => option.label}
             placeholder="Выберите РУП"
             disabled={isLoading}
           />

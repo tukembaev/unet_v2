@@ -59,6 +59,10 @@ export interface User {
     created_at: string;
     updated_at: string;
     deadline_at: string | null;
+    doc_type:string;
+    doc_title:string;
+    doc_id:string;
+    cancel_reason:string;
     allow_change_deadline: boolean;
     check_after_finish: boolean;
     auto_complete_parent: boolean;
@@ -119,9 +123,10 @@ export interface User {
   }
 
   export interface TaskFile {
-    id?: number;
-    name?: string;
-    url?: string;
-    task_id?: string;
-    [key: string]: any;
+    task_id: string;
+    id: string;
+    name: string;
+    size?: number;
+    created_at?: string;
+    extra?: string;
   }

@@ -48,20 +48,20 @@ const OrderDetails = () => {
         {/* Left side - PDF Viewer и Approval Flow */}
         <div className="w-full flex flex-col gap-4">
           {/* Main PDF File */}
-          {order.file && <PdfViewer url={order.file} />}
+          {order.file && <PdfViewer url={order.file} status="" />}
 
           {/* Additional Files */}
           {order.file_2 && (
             <div className="space-y-2">
               <h3 className="text-sm font-semibold">Дополнительный файл 2</h3>
-              <PdfViewer url={order.file_2} />
+              <PdfViewer url={order.file_2} status="" />
             </div>
           )}
 
           {order.file_sign && (
             <div className="space-y-2">
               <h3 className="text-sm font-semibold">Подписанный файл</h3>
-              <PdfViewer url={order.file_sign} />
+              <PdfViewer url={order.file_sign} status="" />
             </div>
           )}
 

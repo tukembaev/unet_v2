@@ -3,6 +3,7 @@ import { TaskStatus } from '../types';
 
 export interface UpdateTaskStatusRequest {
   status: TaskStatus;
+  cancel_reason?: string;
 }
 
 export interface UpdateTaskStatusResponse {

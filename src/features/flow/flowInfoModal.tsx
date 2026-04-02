@@ -76,15 +76,15 @@ export const FlowInfoModal = ({ open, onOpenChange, flow }: FlowInfoModalProps) 
             <span className="text-muted-foreground">Преподаватель:</span>
             <div>{flow.teacher_name || (
                 <AsyncSelect
+                      // @ts-ignore
                       fetcher={fetchEmployees}
                       label="Преподаватель"
                       value={selectedTeacher }
                       onChange={setSelectedTeacher}
-                      renderOption={(option) => <span>{option.label}</span>}
-                      getOptionValue={(option) => option.value.toString()}
-                      getDisplayValue={(option) => option.label}
+                      renderOption={(option: any) => <span>{option.label}</span>}
+                      getOptionValue={(option: any) => option.value.toString()}
+                      getDisplayValue={(option: any) => option.label}
                       placeholder="Выберите преподавателя"
-                    //   disabled={isLoading}
                     />
             )}</div>
           </div>

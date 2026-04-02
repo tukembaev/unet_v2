@@ -3,13 +3,15 @@ import { Plus, Users } from "lucide-react";
 import { TaskMember } from "../../model/types";
 import { EmptyState } from "shared/components/EmptyState";
 import { useFormNavigation, FormQuery } from "shared/lib";
+import { UserTooltip } from "entities/user";
 
 interface TaskMembersTableProps {
   members: TaskMember[];
   taskId: string;
+  canAddMembers: boolean;
 }
 
-const TaskMembersTable = ({ members, taskId }: TaskMembersTableProps) => {
+const TaskMembersTable = ({ members, taskId, canAddMembers }: TaskMembersTableProps) => {
   const openForm = useFormNavigation();
 
   const getMemberStatus = (isOnline: boolean) => {
@@ -31,10 +33,12 @@ const TaskMembersTable = ({ members, taskId }: TaskMembersTableProps) => {
           <Users className="h-5 w-5 text-primary" />
           Участники
         </CardTitle>
-        <Button size="sm" variant="outline" onClick={handleAddMember}>
-          <Plus className="h-4 w-4" />
-          Добавить участника
-        </Button>
+        {canAddMembers && (
+          <Button size="sm" variant="outline" onClick={handleAddMember}>
+            <Plus className="h-4 w-4" />
+            Добавить участника
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         {members.length === 0 ? (
@@ -59,21 +63,23 @@ const TaskMembersTable = ({ members, taskId }: TaskMembersTableProps) => {
                   return (
                     <TableRow key={member.user_id}>
                       <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={member.avatar_url} alt={member.user_name} />
-                            <AvatarFallback>
-                              {member.user_name
-                                .split(' ')
-                                .filter(Boolean)
-                                .map(n => n[0])
-                                .join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{member.user_name}</span>
+                        <UserTooltip userId={member.user_id}>
+                          <div className="flex items-center gap-3 cursor-pointer">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={member.avatar_url} alt={member.user_name} />
+                              <AvatarFallback>
+                                {member.user_name
+                                  .split(' ')
+                                  .filter(Boolean)
+                                  .map(n => n[0])
+                                  .join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <span className="font-medium hover:underline">{member.user_name}</span>
+                            </div>
                           </div>
-                        </div>
+                        </UserTooltip>
                       </TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(member.is_online)}>

@@ -1,41 +1,41 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { documentsApi, getDocumentDetails, getDocumentHistory } from '../api';
-import { DocumentFilters, Document } from '../types';
+import { useQuery } from '@tanstack/react-query';
+import { documentsApi } from '../api';
+import { DocumentScope } from '../types';
 
 export const DOCUMENTS_QUERY_KEY = 'documents';
-export const DOCUMENT_HISTORY_QUERY_KEY = 'document-history';
+export const DOCUMENT_DETAILS_QUERY_KEY = 'document-details';
+export const TYPE_APPROVALS_QUERY_KEY = 'type-approvals';
 
-export const useDocuments = (filters: DocumentFilters) => {
+// 1. Получить список документов (application)
+export const useApplicationDocuments = (scope: DocumentScope, offset = 0, limit = 20) => {
   return useQuery({
-    queryKey: [DOCUMENTS_QUERY_KEY, filters],
-    queryFn: () => documentsApi.getDocuments(filters),
+    queryKey: [DOCUMENTS_QUERY_KEY, 'application', scope, offset, limit],
+    queryFn: () => documentsApi.getApplicationDocuments({ scope, offset, limit }),
   });
 };
 
-export const useDocumentsDetails = (id: number) => {
+// 2. Получить список документов (order)
+export const useOrderDocuments = (scope: DocumentScope, offset = 0, limit = 20) => {
   return useQuery({
-    queryKey: ['conversion/raport/', id],
-    queryFn: () => getDocumentDetails(id),
+    queryKey: [DOCUMENTS_QUERY_KEY, 'order', scope, offset, limit],
+    queryFn: () => documentsApi.getOrderDocuments({ scope, offset, limit }),
+  });
+};
+
+// 3. Получить детали документа
+export const useDocumentDetails = (id: string) => {
+  return useQuery({
+    queryKey: [DOCUMENT_DETAILS_QUERY_KEY, id],
+    queryFn: () => documentsApi.getDocumentDetails(id),
     enabled: !!id,
   });
 };
 
-export const useDocumentHistory = (id: number) => {
+// 4. Получить список типов согласования
+export const useTypeApprovals = () => {
   return useQuery({
-    queryKey: [DOCUMENT_HISTORY_QUERY_KEY, id],
-    queryFn: () => getDocumentHistory(id),
-    enabled: !!id,
-  });
-};
-
-export const useCreateDocument = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: Partial<Document>) => documentsApi.createDocument(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [DOCUMENTS_QUERY_KEY] });
-    },
+    queryKey: [TYPE_APPROVALS_QUERY_KEY],
+    queryFn: () => documentsApi.getTypeApprovals(),
   });
 };
 

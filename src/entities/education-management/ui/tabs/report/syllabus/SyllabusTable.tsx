@@ -2,6 +2,10 @@ import {
   SyllabusCourse,
   SyllabusSemester,
 } from "entities/education-management/model/types";
+import { CourseEditDialog } from "features/syllabus/index";
+import { Plus } from "lucide-react";
+import { useCallback, useState } from "react";
+import { FormQuery, useFormNavigation } from "shared/lib";
 import {
   Table,
   TableBody,
@@ -10,10 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "shared/ui";
-import { CourseEditModal } from "features/syllabus/index";
-import { useState, useCallback } from "react";
-import { Plus } from "lucide-react";
-import { FormQuery, useFormNavigation } from "shared/lib";
 
 interface Props {
   semester: SyllabusSemester;
@@ -168,7 +168,7 @@ export const SyllabusTable = ({ semester, role = "user", onAddElective }: Props)
         </TableBody>
       </Table>
 
-      <CourseEditModal course={selected} />
+      <CourseEditDialog course={selected} />
     </>
   );
 };

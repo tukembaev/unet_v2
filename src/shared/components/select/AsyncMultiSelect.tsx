@@ -14,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "shared/ui";
+import { SelectSkeleton } from "./SelectSkeleton";
 
 interface AsyncMultiSelectProps {
   value: UserListItem[];
@@ -198,9 +199,7 @@ export function AsyncMultiSelect({
 
           {/* Virtualized list */}
           {isLoading ? (
-            <p className="py-6 text-center text-sm text-muted-foreground">
-              Загрузка...
-            </p>
+            <SelectSkeleton />
           ) : filteredUsers.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
               Пользователи не найдены

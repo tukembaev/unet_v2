@@ -1,42 +1,51 @@
 import { useForm } from 'shared/lib/form';
-import { createDocumentFormSchema, CreateDocumentFormData } from '../types';
-import { createDocument } from '../api';
+import { createDocumentFormSchema, CreateDocumentFormData, CreateDocumentMember } from '../types';
+import { useCreateDocument } from '../queries';
+import { toast } from 'sonner';
 
 export const useCreateDocumentForm = () => {
   const form = useForm<CreateDocumentFormData>({
     schema: createDocumentFormSchema,
     defaultValues: {
-      type_doc: undefined,
-      addressee: '',
-      type: '',
-      text: '',
-      very_urgent: false,
-      file: undefined,
-      files: [],
+      sender_id: '',
+      type: 'APPLICATION',
+      title: '',
+      file: undefined as any,
+      members: [],
     },
   });
 
-  const handleMainFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      form.setValue('file', file);
+  const { mutateAsync: createDocument } = useCreateDocument();
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      form.setValue('file', selectedFile);
     }
   };
 
-  const handleAdditionalFilesSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    const currentFiles = form.getValues('files');
-    form.setValue('files', [...currentFiles, ...files]);
+  const removeFile = () => {
+    form.setValue('file', null as any);
   };
 
-  const removeAdditionalFile = (index: number) => {
-    const currentFiles = form.getValues('files');
-    const newFiles = currentFiles.filter((_, i) => i !== index);
-    form.setValue('files', newFiles);
+  const addMember = (member: CreateDocumentMember) => {
+    const currentMembers = form.getValues('members') || [];
+    console.log('addMember - current members:', currentMembers);
+    console.log('addMember - adding member:', member);
+    
+    const newMembers = [...currentMembers, member];
+    console.log('addMember - new members array:', newMembers);
+    
+    form.setValue('members', newMembers);
+    
+    // Проверяем что установилось
+    const afterSet = form.getValues('members');
+    console.log('addMember - members after setValue:', afterSet);
   };
 
-  const removeMainFile = () => {
-    form.setValue('file', undefined as any);
+  const removeMember = (index: number) => {
+    const currentMembers = form.getValues('members') || [];
+    form.setValue('members', currentMembers.filter((_, i) => i !== index));
   };
 
   const resetForm = () => {
@@ -45,24 +54,57 @@ export const useCreateDocumentForm = () => {
 
   const submitForm = async (data: CreateDocumentFormData) => {
     try {
-      await createDocument(data);
+      // Validate required fields
+      if (!data.sender_id) {
+        toast.error('Ошибка: не удалось определить отправителя');
+        return false;
+      }
+
+      if (!data.type) {
+        toast.error('Выберите тип документа');
+        return false;
+      }
+
+      if (!data.file) {
+        toast.error('Загрузите PDF файл');
+        return false;
+      }
+
+      console.log('Submitting form with data:', {
+        sender_id: data.sender_id,
+        type: data.type,
+        title: data.title,
+        file: data.file?.name,
+        members: data.members,
+      });
+
+      // Create document
+      await createDocument({
+        sender_id: data.sender_id,
+        type: data.type,
+        title: data.title,
+        file: data.file,
+        members: data.members || [],
+      });
+
+      toast.success('Документ создан');
       resetForm();
       return true;
     } catch (error) {
       console.error('Error creating document:', error);
+      toast.error('Не удалось создать документ');
       return false;
     }
   };
 
   return {
     form,
-    handleMainFileSelect,
-    handleAdditionalFilesSelect,
-    removeAdditionalFile,
-    removeMainFile,
+    handleFileSelect,
+    removeFile,
+    addMember,
+    removeMember,
     resetForm,
     submitForm,
     isSubmitting: form.formState.isSubmitting,
   };
 };
-

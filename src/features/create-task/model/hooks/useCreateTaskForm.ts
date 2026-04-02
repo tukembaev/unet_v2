@@ -17,6 +17,9 @@ export const useCreateTaskForm = () => {
       observers: [],
       coExecutors: [],
       deadline: undefined,
+      doc_title: undefined,
+      doc_id: undefined,
+      doc_type: undefined,
     },
   });
 
@@ -52,6 +55,9 @@ export const useCreateTaskForm = () => {
         coExecutors: data.coExecutors.map(u => u.user_id),
         deadline: data.deadline.toISOString(),
         parent_task_id: data.parent_task_id ? data.parent_task_id : undefined,
+        doc_title: data.doc_title,
+        doc_id: data.doc_id,
+        doc_type: data.doc_type,
       });
 
       toast.success('Задача создана');

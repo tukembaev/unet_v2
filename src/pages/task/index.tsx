@@ -1,4 +1,5 @@
-import { CreateTaskDialog, TaskSearchFilter, TaskTabsContent } from 'entities/task'
+import { TaskSearchFilter, TaskTabsContent } from 'entities/task'
+import { CreateTaskDialog } from 'features/create-task'
 import { useCallback, useState } from 'react'
 import { PageHeader } from 'widgets/page-header'
 

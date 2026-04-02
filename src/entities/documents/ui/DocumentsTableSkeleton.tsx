@@ -6,12 +6,12 @@ export const DocumentsTableSkeleton = () => {
       <Table className="min-w-[900px]">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[180px] min-w-[180px]">Номер</TableHead>
-            <TableHead className="w-[200px] min-w-[200px]">Заявитель</TableHead>
+            <TableHead className="w-[180px] min-w-[180px]">ID</TableHead>
+            <TableHead className="w-[200px] min-w-[200px]">Отправитель</TableHead>
             <TableHead className="w-[150px] min-w-[150px]">Тип</TableHead>
             <TableHead className="min-w-[250px]">Тема</TableHead>
             <TableHead className="w-[180px] min-w-[180px]">Статус</TableHead>
-            <TableHead className="w-[150px] min-w-[150px]">Дата подачи</TableHead>
+            <TableHead className="w-[150px] min-w-[150px]">Дата создания</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

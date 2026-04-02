@@ -12,7 +12,7 @@ export const ROUTES = {
   EDUCATION_MANAGEMENT: '/education-management',
 
   IT_DEPARTMENT: '/structure/it-department',
-  KPI_REPORTS: '/structure/kpi-reports',
+  KPI_REPORTS: '/kpi-reports',
   
   REPORT_SYLLABUS: 'report-syllabus',
   // Документооборот
@@ -26,6 +26,9 @@ export const ROUTES = {
   STREAMS: '/education/streams',
   WORKLOAD: '/education/workload',
   STREAM_DETAILS: '/education/stream',
+  
+  // Отчетность
+  TASK_REPORTS: '/reports/tasks',
 } as const;
 
 // Type for route paths

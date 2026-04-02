@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "shared/ui";
 
 import { useFamilyDirection } from "entities/education-management/model/queries";
 import { DirectionCard } from "./DirectionCard";
-import { useKindDirections } from "entities/education-management/model/queries";
+
 
 export const FamiliesTab = () => {
   const [activeTab, setActiveTab] = useState("it");
@@ -27,7 +27,7 @@ export const FamiliesTab = () => {
   const getDirectionData = () => {
     if (!familyDirection?.direction) return [];
     return familyDirection.direction.map(item => ({
-      id: item.id.toString(),
+      id: item.id,
       code: item.cipher,
       name: item.direction_name
     }));

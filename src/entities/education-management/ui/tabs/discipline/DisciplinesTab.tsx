@@ -60,13 +60,16 @@ export const DisciplinesTab = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <AsyncSelect
+            // @ts-ignore
             fetcher={fetchStaticData}
             label="Специализация"
+            // @ts-ignore
             value={levelEducation}
+            // @ts-ignore
             onChange={setLevelEducation}
-            renderOption={(option) => <span>{option.name}</span>}
-            getOptionValue={(option) => option.id}
-            getDisplayValue={(option) => option.name}
+            renderOption={(option: any) => <span>{option.name}</span>}
+            getOptionValue={(option: any) => option.id}
+            getDisplayValue={(option: any) => option.name}
             placeholder="Выбери специализацию"
           />
           {levelEducation && (

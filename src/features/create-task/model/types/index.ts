@@ -14,6 +14,9 @@ export const createTaskFormSchema = z.object({
   observers: z.array(z.custom<UserListItem>()),
   coExecutors: z.array(z.custom<UserListItem>()),
   deadline: z.date({ required_error: 'Крайний срок обязателен' }),
+  doc_title: z.string().optional(),
+  doc_id: z.string().optional(),
+  doc_type: z.string().optional(),
 });
 
 // Infer TypeScript type from Zod schema
@@ -29,6 +32,9 @@ export interface CreateTaskRequest {
   coExecutors: string[];
   deadline: string;
   parent_task_id?: string;
+  doc_title?:string;
+  doc_id?:string;
+  doc_type?:string
 }
 
 export interface CreateTaskResponse {

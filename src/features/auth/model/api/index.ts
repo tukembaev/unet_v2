@@ -6,11 +6,12 @@ import { LoginResponse } from "../types";
 export async function loginRequest(
   username: string,
   password: string
-): Promise<void> {
-    await apiUserClient.post<LoginResponse>(
+): Promise<any> {
+    let data = await apiUserClient.post<LoginResponse>(
     `users/auth`,
     { username, password }
   );
- 
+    localStorage.setItem('user' , JSON.stringify(data.data))
+    return data
 }
 
