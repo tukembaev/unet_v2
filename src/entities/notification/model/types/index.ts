@@ -14,7 +14,7 @@ export interface Notification {
   type: NotificationType;
   title: string;
   body: string;
-  extra_data: NotificationExtraData | null;
+  extra_data: NotificationExtraData;
   is_read: boolean;
   sender_id: string;
   sender_name: string;
@@ -28,11 +28,11 @@ export interface WsNotification {
   title: string;
   body: string;
   type: NotificationType;
-  extra_data: NotificationExtraData | null;
+  extra_data: NotificationExtraData;
   sender_id: string;
   sender_name: string;
-  source_service: string | null;
-  event_type: string | null;
+  source_service: string;
+  event_type: string;
   created_at: string;
 }
 
