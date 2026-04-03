@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { performLogout } from 'shared/lib/auth-utils';
 
 export const apiNotificationClient = axios.create({
   baseURL: 'https://uadmin.kstu.kg/notifications/',
