@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const apiDocsClient = axios.create({
-  baseURL: 'https://utask.kstu.kg/document-flow/api/document/',
+  baseURL: 'https://uadmin.kstu.kg/document-flow/api/document/',
   timeout: 10000,
   withCredentials: true,
   headers: {
