@@ -1,9 +1,8 @@
 import {
-  WelcomeSection,
-  TasksOverview,
   DocumentsOverview,
-  ActivityFeed,
   NotificationsPanel,
+  TasksOverview,
+  WelcomeSection
 } from './sections';
 
 export const HomePage = () => {
@@ -25,7 +24,7 @@ export const HomePage = () => {
         {/* Right Column - Sidebar */}
         <div className="lg:col-span-4 space-y-6">
           <NotificationsPanel />
-          <ActivityFeed />
+       
         </div>
       </div>
     </div>

@@ -63,8 +63,7 @@ const DocumentTabsCard = ({
               <GenericHistory
                 history={history}
                 isLoading={isHistoryLoading}
-                title="История документа"
-                emptyMessage="История отсутствует"
+                
               />
             </div>
           </TabsContent>

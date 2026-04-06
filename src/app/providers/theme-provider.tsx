@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'standard' | 'lastchat' | 'claude' | 'purple-rain' | 'supabase';
+type Theme = 'standard' | 'lastchat' | 'claude' | 'purple-rain' ;
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -33,7 +33,7 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement;
 
-    root.classList.remove('standard', 'lastchat', 'claude', 'purple-rain', 'supabase');
+    root.classList.remove('standard', 'lastchat', 'claude', 'purple-rain',);
     root.classList.add(theme);
   }, [theme]);
 

@@ -1,4 +1,4 @@
-import { History, CheckCircle2, Send, FilePlus, Clock, XCircle, UserPlus } from "lucide-react";
+import { History, CheckCircle2, Send, FilePlus, Clock, XCircle, UserPlus, MessageSquare, HistoryIcon } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
 // Общий тип истории
@@ -16,8 +16,7 @@ export type BaseHistory = {
 interface GenericHistoryProps {
   history: BaseHistory[] | undefined;
   isLoading: boolean;
-  title: string;
-  emptyMessage?: string;
+
 }
 
 // Функция для определения иконки и цвета на основе статуса и текста
@@ -55,16 +54,12 @@ const getHistoryStyle = (text: string, status: string | null): { icon: LucideIco
 const GenericHistory = ({ 
   history, 
   isLoading, 
-  title,
-  emptyMessage = "История отсутствует"
+
 }: GenericHistoryProps) => {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
-          <History className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold">{title}</h3>
-        </div>
+    
         <div className="flex items-center justify-center py-8">
           <div className="animate-pulse text-muted-foreground">Загрузка истории...</div>
         </div>
@@ -75,13 +70,18 @@ const GenericHistory = ({
   if (!history || history.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
-          <History className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold">{title}</h3>
-        </div>
-        <div className="flex items-center justify-center py-8 text-muted-foreground">
-          {emptyMessage}
-        </div>
+     
+        <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
+              <HistoryIcon className="h-12 w-12 text-muted-foreground/50" />
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">
+                  История документа в разработке
+                </p>
+                <p className="text-xs text-muted-foreground/70">
+                  Функционал истории будет доступен в ближайшее время
+                </p>
+              </div>
+            </div>
       </div>
     );
   }
@@ -90,7 +90,7 @@ const GenericHistory = ({
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-4">
         <History className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-semibold">{title}</h3>
+  
       </div>
       
       <div className="space-y-1">
