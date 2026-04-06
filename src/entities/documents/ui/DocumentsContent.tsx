@@ -149,7 +149,11 @@ export const DocumentsContent = () => {
       width: '150px',
       minWidth: '150px',
       className: 'whitespace-nowrap',
-      render: (doc) => new Date(doc.created_at).toLocaleDateString('ru-RU'),
+      render: (doc) => new Intl.DateTimeFormat('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(new Date(doc.created_at)),
     },
   ];
 

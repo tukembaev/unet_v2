@@ -12,7 +12,13 @@ export const documentsActionApi = {
       formData.append('sender_id', payload.sender_id);
       formData.append('type', payload.type);
       formData.append('status', 'В процессе выполнения');
-      formData.append('file', payload.file);
+      
+      // Добавляем либо файл либо текст
+      if (payload.file) {
+        formData.append('file', payload.file);
+      } else if (payload.text) {
+        formData.append('text', payload.text);
+      }
       
       if (payload.title) {
         formData.append('title', payload.title);
@@ -27,15 +33,24 @@ export const documentsActionApi = {
       const membersJson = JSON.stringify(membersForApi);
       formData.append('members', membersJson);
 
+      // Добавляем дополнительные файлы (опционально)
+      if (payload.files && payload.files.length > 0) {
+        payload.files.forEach((file) => {
+          formData.append('files', file);
+        });
+      }
+
       // Логирование для отладки
       console.log('Creating document with payload:', {
         sender_id: payload.sender_id,
         type: payload.type,
         status: 'В процессе выполнения',
         title: payload.title,
-        file: payload.file.name,
+        file: payload.file?.name,
+        text: payload.text ? `${payload.text.substring(0, 50)}...` : undefined,
         members: membersForApi,
         membersJson,
+        additionalFiles: payload.files?.map(f => f.name) || [],
       });
 
       const { data } = await apiDocsClient.post('create/', formData, {

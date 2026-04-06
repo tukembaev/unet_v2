@@ -192,7 +192,11 @@ const DocumentDetails = () => {
           </div>
           <div>
             <span className="text-muted-foreground">Дата создания:</span>{' '}
-            {new Date(document.created_at).toLocaleDateString('ru-RU')}
+            {new Intl.DateTimeFormat('ru-RU', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric'
+            }).format(new Date(document.created_at))}
           </div>
           <div>
             <span className="text-muted-foreground">Тип:</span> {document.type}
