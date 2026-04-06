@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FileText, CheckCircle2, AlertCircle, Info, Check } from 'lucide-react';
+import { FileText, CheckCircle2, AlertCircle, Info, Check, ListTodo } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Badge,
@@ -30,12 +31,40 @@ const notificationColors: Record<NotificationIconType, string> = {
   info: 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-950/30',
 };
 
+const getNotificationIcon = (notification: Notification) => {
+  const isTask = notification.source_service === 'tasks';
+  const isDocument = notification.source_service === 'documentflow';
+  
+  if (isTask) return ListTodo;
+  if (isDocument) return FileText;
+  return Info;
+};
+
+const getIconColor = (notification: Notification): string => {
+  const isTask = notification.source_service === 'tasks';
+  const isDocument = notification.source_service === 'documentflow';
+  
+  if (isTask) return 'text-blue-500 bg-blue-50 dark:bg-blue-950/30';
+  if (isDocument) return 'text-purple-500 bg-purple-50 dark:bg-purple-950/30';
+  return 'text-gray-500 bg-gray-50 dark:bg-gray-950/30';
+};
+
+const getBorderColor = (notification: Notification): string => {
+  const isTask = notification.source_service === 'tasks';
+  const isDocument = notification.source_service === 'documentflow';
+  
+  if (isTask) return 'border-l-blue-500';
+  if (isDocument) return 'border-l-purple-500';
+  return 'border-l-gray-500';
+};
+
 interface NotificationsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export const NotificationsModal = ({ open, onOpenChange }: NotificationsModalProps) => {
+  const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } =
     useNotifications();
   const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
@@ -46,6 +75,17 @@ export const NotificationsModal = ({ open, onOpenChange }: NotificationsModalPro
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.is_read) {
       markAsRead(notification.id);
+    }
+
+    const isTask = notification.source_service === 'tasks';
+    const isDocument = notification.source_service === 'documentflow';
+
+    if (isTask && notification.extra_data?.task_id) {
+      onOpenChange(false);
+      navigate('/task-details', { state: { taskId: notification.extra_data.task_id } });
+    } else if (isDocument && notification.extra_data?.link) {
+      onOpenChange(false);
+      navigate(notification.extra_data.link);
     }
   };
 
@@ -107,21 +147,26 @@ export const NotificationsModal = ({ open, onOpenChange }: NotificationsModalPro
             </div>
           ) : (
             filteredNotifications.map((notification) => {
-              const iconType = getNotificationIconType(notification.type);
-              const Icon = notificationIcons[iconType];
-              const colorClass = notificationColors[iconType];
+              const Icon = getNotificationIcon(notification);
+              const iconColor = getIconColor(notification);
+              const borderColor = getBorderColor(notification);
+              
+              const isTask = notification.source_service === 'tasks';
+              const isDocument = notification.source_service === 'documentflow';
+              const isClickable = (isTask && notification.extra_data?.task_id) || 
+                                 (isDocument && notification.extra_data?.link);
 
               return (
                 <Card
                   key={notification.id}
-                  className={`p-4 transition-all cursor-pointer hover:shadow-md ${
-                    !notification.is_read ? 'border-l-4 border-l-primary' : ''
+                  className={`p-4 transition-all border-l-4 ${borderColor} ${
+                    isClickable ? 'cursor-pointer hover:shadow-md' : ''
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex gap-3">
                     <div
-                      className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${colorClass}`}
+                      className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${iconColor}`}
                     >
                       <Icon className="h-5 w-5" />
                     </div>

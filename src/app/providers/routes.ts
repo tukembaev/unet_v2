@@ -17,9 +17,9 @@ export const ROUTES = {
   REPORT_SYLLABUS: 'report-syllabus',
   // Документооборот
   APPLICATIONS: '/documents/applications',
-  ORDERS: '/documents/orders',
+
   DOCUMENT_DETAILS: '/documents/applications/:id',
-  ORDER_DETAILS: '/documents/orders/:id',
+
   
   // Учебный процесс
   CURRICULUM: '/education/curriculum',
