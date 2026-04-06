@@ -1,4 +1,5 @@
 import { LoginForm } from "features/auth";
+import kstuLogo from "shared/assets/img/kstu.png";
 import { AppLogo, Card, CardContent } from "shared/ui";
 import { cn } from "shared/lib/utils";
 
@@ -40,7 +41,23 @@ export const LoginPage = () => {
         <aside className="max-[900px]:hidden">
           <div className="py-2 text-[rgba(255,255,255,0.92)]">
             <div className="mb-6">
-              <AppLogo size="xl" className="max-h-20 drop-shadow-md" />
+              <div className="flex flex-wrap items-center gap-4 sm:gap-5">
+                <AppLogo size="xl" className="max-h-20 drop-shadow-md" />
+                <div className="h-12 w-px shrink-0 bg-white/25" aria-hidden />
+                <div className="flex flex-col gap-1">
+                  <img
+                    src={kstuLogo}
+                    alt="Кыргызский государственный технический университет им. И. Раззакова"
+                    className={cn(
+                      "h-14 max-h-[4.5rem] w-auto object-contain object-left",
+                      "brightness-0 invert drop-shadow-md"
+                    )}
+                    width={140}
+                    height={72}
+                    decoding="async"
+                  />
+                </div>
+              </div>
             </div>
             <span
               className={cn(
