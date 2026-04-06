@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-export const apiDocsClient = axios.create({
-  baseURL: 'https://utask.kstu.kg/document-flow/api/document/',
+export const apiNotificationClient = axios.create({
+  baseURL: 'https://uadmin.kstu.kg/notifications/',
   timeout: 10000,
   withCredentials: true,
   headers: {
@@ -10,7 +10,7 @@ export const apiDocsClient = axios.create({
 });
 
 // Request interceptor
-apiDocsClient.interceptors.request.use(
+apiNotificationClient.interceptors.request.use(
   (config) => {
     // Add auth token if available
       type AuthData = {
@@ -36,15 +36,15 @@ apiDocsClient.interceptors.request.use(
 );
 
 // Response interceptor
-apiDocsClient.interceptors.response.use(
+apiNotificationClient.interceptors.response.use(
   (response) => response,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (error: any) => {
     // Handle common errors
     if (error.response?.status === 401) {
       // Handle unauthorized - очищаем все данные и кэш
-      // performLogout();
-      // window.location.href = '/';
+    //   performLogout();
+    //   window.location.href = '/';
     }
     return Promise.reject(error);
   }

@@ -3,6 +3,7 @@ export { getHttpErrorMessage } from './http-error';
 export { useForm, FormField, type InferFormValues } from './form';
 export { usePrintArea } from './print-area';
 export { formatDate, formatDateTime } from './format-date';
+export { performLogout } from './auth-utils';
 export { 
   FormQuery, 
   useFormNavigation, 

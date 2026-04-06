@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { performLogout } from 'shared/lib/auth-utils';
 
 export const apiUserClient = axios.create({
   baseURL: 'https://utask.kstu.kg/users/api/v1/',
@@ -42,9 +43,9 @@ apiUserClient.interceptors.response.use(
   (error: any) => {
     // Handle common errors
     if (error.response?.status === 401) {
-      // Handle unauthorized
-      localStorage.removeItem('token');
-      // window.location.href = '/login';
+      // Handle unauthorized - очищаем все данные и кэш
+      performLogout();
+      window.location.href = '/';
     }
     return Promise.reject(error);
   }

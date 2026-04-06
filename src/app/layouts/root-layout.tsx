@@ -3,9 +3,14 @@ import { Outlet } from "react-router-dom";
 import { cn } from "shared/lib/utils";
 import { Card } from "shared/ui";
 import { Navbar } from "widgets/navbar";
+import { useNotificationWebSocket } from "entities/notification";
+import { useCurrentUser } from "entities/user/model/queries";
 
 
 export function RootLayout() {
+  const { data: currentUser } = useCurrentUser();
+  useNotificationWebSocket(currentUser?.id);
+
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
       <div

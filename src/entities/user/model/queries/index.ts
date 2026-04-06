@@ -4,7 +4,12 @@ import { getUsersList, syncUsers, getCurrentUser, getEmployeeDetails } from "../
 export function useUsersList() {
   return useQuery({
     queryKey: ['users'],
-    queryFn: getUsersList, 
+    queryFn: getUsersList,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
   });
 }
 
@@ -13,6 +18,7 @@ export function useSyncUsers() {
     mutationFn: syncUsers,
   });
 }
+
 
 export function useCurrentUser() {
   return useQuery({

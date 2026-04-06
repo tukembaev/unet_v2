@@ -6,25 +6,11 @@ export const useActiveTasks = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['employee-tasks'],
     queryFn: async () => {
-      const { data } = await apiClientGo.get('tasks/employee');
+      const { data } = await apiClientGo.get('tasks');
       return data;
     },
   });
-
-  const tasks: EmployeeTask[] = [];
-
-  if (data?.DOING) {
-    // Собираем задачи в работе и на проверке
-    if (data.DOING.IN_PROGRESS) {
-      tasks.push(...data.DOING.IN_PROGRESS);
-    }
-    if (data.DOING.REVIEW) {
-      tasks.push(...data.DOING.REVIEW);
-    }
-    if (data.DOING.PENDING) {
-      tasks.push(...data.DOING.PENDING);
-    }
-  }
+  const tasks: EmployeeTask[] = data || [];
 
   // Сортируем по дедлайну
   tasks.sort((a, b) => {
