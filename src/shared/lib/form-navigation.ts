@@ -11,7 +11,6 @@ export enum FormQuery {
   EDIT_COURSE = 'edit-course',
   CREATE_COURSE = 'create-course',
   CREATE_ELECTIVE = 'create-elective',
-  CREATE_SEMESTER = 'create-semester',
   MANAGE_PROFILES = 'manage-profiles',
   SETTINGS = 'settings',
   ADD_TASK_MEMBERS = 'add-task-members',

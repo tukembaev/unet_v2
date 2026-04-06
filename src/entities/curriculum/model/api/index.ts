@@ -4,4 +4,5 @@ export {
   fetchSyllabusTemplatesByDirection,
   fetchSyllabusCourse,
   createSyllabus,
+  appendSemesterToSyllabus,
 } from './syllabus.api';

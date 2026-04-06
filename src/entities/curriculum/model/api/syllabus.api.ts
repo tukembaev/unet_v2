@@ -96,3 +96,14 @@ export async function createSyllabus(
   const { data } = await apiClient.post('new-syllabus/', payload);
   return data;
 }
+
+/**
+ * PATCH /courses/{syllabusId}/ — обновить список семестров (как в legacy: добавить `{ syllabus }`).
+ */
+export async function appendSemesterToSyllabus(
+  syllabusId: number,
+  payload: { semesters: unknown[] }
+): Promise<unknown> {
+  const { data } = await apiClient.patch(`courses/${syllabusId}/`, payload);
+  return data;
+}

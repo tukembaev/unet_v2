@@ -100,6 +100,7 @@ export type CreateCoursePayload = {
   cycle?: string | null;
   course_type?: string;
   control_form?: string;
+  control_type?: string;
   credit?: number;
   credit_part_time?: number;
   amount_hours?: number;
@@ -157,6 +158,7 @@ export type DisciplineOption = {
   practice_hours?: number;
   lab_hours?: number;
   group?: string | null;
+  control_type?: string;
 };
 
 export const getAllDiscipline = async (): Promise<DisciplineOption[]> => {

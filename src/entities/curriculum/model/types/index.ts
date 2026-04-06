@@ -9,19 +9,22 @@ export interface DirectionItem {
   level_education: string | null;
   start_year: string | null;
   end_year: string | null;
+  form_education: string | null;
 }
 
 export type Directions = DirectionItem[];
 
 /**
- * POST /new-syllabus/ — как в legacy StudyPlanForm
- * (name_direction, template, года строками).
+ * POST /new-syllabus/
  */
 export interface CreateSyllabusPayload {
   name_direction: number;
-  template: number;
   start_year: string;
   end_year: string;
+  /** Форма обучения: full_time | part_time | distance */
+  form_education: string;
+  /** Уровень: bachelor | master | phd | specialist */
+  level_education: string;
 }
 
 /** Опция направления (GET select-directions/) */

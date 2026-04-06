@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "tsc -b && vite build",
+    "build:icons": "node scripts/build-brand-icons.mjs",
+    "build": "tsc -b && npm run build:icons && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -61,6 +62,7 @@
     "eslint-plugin-react-refresh": "^0.4.11",
     "globals": "^15.9.0",
     "postcss": "^8.4.47",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.11",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.6.2",

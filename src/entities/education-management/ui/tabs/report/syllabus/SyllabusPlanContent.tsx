@@ -8,9 +8,12 @@ import {
 } from "shared/ui";
 import type { SyllabusRoot } from "entities/education-management/model/types";
 import { SyllabusTable } from "./SyllabusTable";
-import { CreateSemesterDialog, CreateElectiveDialog, CreateCourseDialog, ManageProfilesDialog } from "features/syllabus/index";
+import { SyllabusGrandTotalTable } from "./SyllabusGrandTotalTable";
+import { CreateElectiveDialog, CreateCourseDialog, ManageProfilesDialog } from "features/syllabus/index";
 import { BookDown } from "lucide-react";
-import { FormQuery, useFormNavigation } from "shared/lib";
+import { FormQuery, getHttpErrorMessage, useFormNavigation } from "shared/lib";
+import { useAppendSemester } from "entities/curriculum/model/queries";
+import { toast } from "sonner";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -32,9 +35,22 @@ export function SyllabusPlanContent({
   showAddSemesterEmpty = true,
 }: SyllabusPlanContentProps) {
   const openForm = useFormNavigation();
+  const appendSemester = useAppendSemester();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const semesters = data.semesters ?? [];
+
+  const handleAddSemester = async () => {
+    try {
+      await appendSemester.mutateAsync({
+        syllabusId: data.id,
+        semesters: [...semesters, { syllabus: data.id }],
+      });
+      toast.success("Семестр добавлен");
+    } catch (e) {
+      toast.error(getHttpErrorMessage(e, "Не удалось добавить семестр"));
+    }
+  };
 
   useEffect(() => {
     if (!searchParams.has("courseId")) return;
@@ -124,6 +140,10 @@ export function SyllabusPlanContent({
                 />
               </div>
             ))}
+
+            <div className="rounded-lg overflow-hidden border border-border bg-card">
+              <SyllabusGrandTotalTable semesters={semesters} />
+            </div>
           </div>
         ) : (
           <p>Нет данных по семестрам</p>
@@ -142,15 +162,15 @@ export function SyllabusPlanContent({
               </EmptyDescription>
               <button
                 type="button"
-                onClick={() => openForm(FormQuery.CREATE_SEMESTER)}
-                className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+                onClick={() => void handleAddSemester()}
+                disabled={appendSemester.isPending}
+                className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50"
               >
                 Создать семестр
               </button>
             </EmptyContent>
           </Empty>
         )}
-        <CreateSemesterDialog />
         <CreateCourseDialog />
         <CreateElectiveDialog />
         <ManageProfilesDialog

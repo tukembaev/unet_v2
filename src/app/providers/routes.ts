@@ -26,6 +26,7 @@ export const ROUTES = {
   /** Карточка РУП (GET /courses/:syllabusId/) */
   CURRICULUM_DETAIL: '/education/curriculum/:syllabusId',
   STREAMS: '/education/streams',
+  DEPARTMENTDISCIPLINES: '/education/department-disciplines',
   WORKLOAD: '/education/workload',
   STREAM_DETAILS: '/education/stream',
   

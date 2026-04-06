@@ -1,20 +1,64 @@
 <!doctype html>
-<html lang="en" class="standard">
+<html lang="ru" class="standard">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="University Network (UNET) — единая академическая цифровая среда: учебные планы (РУП), расписание, нагрузка, задачи и сервисы кампуса КГТУ им. И. Раззакова."
+    />
+    <meta name="theme-color" content="#1d70d8" />
+    <meta name="application-name" content="UNET" />
+    <meta name="apple-mobile-web-app-title" content="UNET" />
+
+    <title>UNET — University Network</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="UNET — University Network" />
+    <meta property="og:title" content="UNET — University Network" />
+    <meta
+      property="og:description"
+      content="University Network (UNET) — единая академическая цифровая среда: учебные планы (РУП), расписание, нагрузка, задачи и сервисы кампуса КГТУ им. И. Раззакова."
+    />
+    <!-- og:image: после деплоя укажите абсолютный URL, например https://ваш-домен.kg/og-image.png -->
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="ru_KG" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="UNET — University Network" />
+    <meta
+      name="twitter:description"
+      content="University Network (UNET) — единая академическая цифровая среда: учебные планы, расписание, задачи и сервисы кампуса."
+    />
+    <meta name="twitter:image" content="/og-image.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Unet V2</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "UNET — University Network",
+        "alternateName": ["UNET", "University Network"],
+        "description": "Единая академическая цифровая среда КГТУ: учебные планы, расписание, нагрузка, задачи и сервисы кампуса.",
+        "inLanguage": "ru-KG",
+        "image": "/og-image.png"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

@@ -29,12 +29,7 @@ export function RootLayout() {
           </Card>
         </div>
       </main>
-      <footer className="mt-auto shrink-0">
-        <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Unet V2. Built with React 19, Vite, and
-          FSD architecture.
-        </div>
-      </footer>
+
 
       {/* Global Dialogs */}
       <CreateTaskDialog />

@@ -128,6 +128,8 @@ export interface SyllabusCourse {
   cycle: string | null;
   course_type: string; // e.g., "Базовая часть" | "Вузовский компонент" | "Курс по выбору"
   control_form: string; // e.g., "Экзамен" | "Зачет" | "Курс/пр"
+  /** ргр / ргз / Контр и т.п. */
+  control_type?: string | null;
   credit: number;
   amount_hours: number;
   lecture_hours: number;

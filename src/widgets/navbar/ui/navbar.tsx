@@ -11,9 +11,11 @@ import {
   BookOpen,
   Users,
   Clock,
-  type LucideIcon
+  type LucideIcon,
+  List
 } from 'lucide-react';
 import {
+  AppLogo,
   Button,
   Sheet,
   SheetContent,
@@ -102,6 +104,12 @@ const navigationSections: NavSection[] = [
         icon: BookOpen,
       },
       {
+        title: 'Дисциплины кафедры',
+        href: ROUTES.DEPARTMENTDISCIPLINES,
+        description: 'Дисциплины кафедры',
+        icon: List,
+      },
+      {
         title: 'Потоки',
         href: ROUTES.STREAMS,
         description: 'Учебные потоки',
@@ -145,11 +153,11 @@ export function Navbar() {
         <div className="flex h-14 items-center justify-between gap-4">
           {/* Left: Logo */}
           <div className="flex items-center gap-6">
-            <Link 
-              to={ROUTES.HOME} 
-              className="flex items-center space-x-2 transition-colors hover:text-primary"
+            <Link
+              to={ROUTES.HOME}
+              className="flex items-center transition-opacity hover:opacity-90"
             >
-              <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">Unet V2 CRM</span>
+              <AppLogo size="md" />
             </Link>
 
             {/* Desktop Navigation Menu */}
@@ -161,7 +169,7 @@ export function Navbar() {
                       {section.title}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4 rounded-[20px] bg-popover shadow-lg border">
+                      <ul className="grid w-[400px] gap-3 p-4 shadow-lg border">
                         {section.items.map((item) => (
                           <ListItem
                             key={item.href}

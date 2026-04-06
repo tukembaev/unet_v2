@@ -24,15 +24,26 @@ import { z } from "zod";
 import {
   useCreateSyllabus,
   useSyllabusDirectionOptions,
-  useSyllabusTemplatesByDirection,
 } from "entities/curriculum/model/queries";
 import { toast } from "sonner";
 
-/** Как в legacy StudyPlanForm: name_direction, template, start_year, end_year */
+const FORM_EDUCATION_OPTIONS = [
+  { value: "full_time", label: "Очная" },
+  { value: "part_time", label: "Заочная" },
+] as const;
+
+const LEVEL_EDUCATION_OPTIONS = [
+  { value: "bachelor", label: "Бакалавр" },
+  { value: "master", label: "Магистр" },
+  { value: "phd", label: "PhD" },
+  { value: "specialist", label: "Специалист" },
+] as const;
+
 const createRupFormSchema = z
   .object({
     name_direction: z.string().min(1, "Выберите направление"),
-    template: z.string().min(1, "Выберите шаблон"),
+    form_education: z.string().min(1, "Выберите форму обучения"),
+    level_education: z.string().min(1, "Выберите уровень образования"),
     startYear: z
       .string()
       .min(4, "Год должен содержать 4 цифры")
@@ -76,20 +87,12 @@ export function CreateRupDialog() {
     schema: createRupFormSchema,
     defaultValues: {
       name_direction: "",
-      template: "",
+      form_education: "",
+      level_education: "",
       startYear: "",
       endYear: "",
     },
   });
-
-  const directionStr = form.watch("name_direction");
-  const directionId =
-    directionStr && !Number.isNaN(Number(directionStr))
-      ? Number(directionStr)
-      : undefined;
-
-  const { data: templates = [], isLoading: isLoadingTemplates } =
-    useSyllabusTemplatesByDirection(directionId);
 
   const { mutateAsync: submitSyllabus, isPending: isCreating } =
     useCreateSyllabus();
@@ -101,18 +104,18 @@ export function CreateRupDialog() {
 
   const handleSubmit = async (data: CreateRupFormData) => {
     const name_direction = Number(data.name_direction);
-    const template = Number(data.template);
-    if (Number.isNaN(name_direction) || Number.isNaN(template)) {
-      toast.error("Некорректные направление или шаблон");
+    if (Number.isNaN(name_direction)) {
+      toast.error("Некорректное направление");
       return;
     }
 
     try {
       await submitSyllabus({
         name_direction,
-        template,
         start_year: data.startYear,
         end_year: data.endYear,
+        form_education: data.form_education,
+        level_education: data.level_education,
       });
       toast.success("Учебный план создан");
       form.reset();
@@ -130,8 +133,7 @@ export function CreateRupDialog() {
         <DialogHeader>
           <DialogTitle>Создать РУП</DialogTitle>
           <DialogDescription>
-            Направление, шаблон и период обучения — как в прежней форме
-            создания плана
+            Направление, форма и уровень обучения, период обучения
           </DialogDescription>
         </DialogHeader>
 
@@ -146,7 +148,6 @@ export function CreateRupDialog() {
                 value={form.watch("name_direction") || undefined}
                 onValueChange={(v) => {
                   form.setValue("name_direction", v);
-                  form.setValue("template", "");
                 }}
                 disabled={isLoadingDirections}
               >
@@ -168,45 +169,61 @@ export function CreateRupDialog() {
               )}
             </Field>
 
-            <Field className="flex flex-col">
-              <FieldLabel>
-                Шаблон
-                <span className="text-red-500 ml-1">*</span>
-              </FieldLabel>
-              <Select
-                value={form.watch("template") || undefined}
-                onValueChange={(v) => form.setValue("template", v)}
-                disabled={
-                  !directionId || isLoadingTemplates || templates.length === 0
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      !directionId
-                        ? "Сначала выберите направление"
-                        : isLoadingTemplates
-                          ? "Загрузка шаблонов…"
-                          : templates.length === 0
-                            ? "Нет шаблонов для направления"
-                            : "Выберите шаблон"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {templates.map((t) => (
-                    <SelectItem key={t.id} value={String(t.id)}>
-                      {t.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form.formState.errors.template && (
-                <FieldError>
-                  {form.formState.errors.template.message}
-                </FieldError>
-              )}
-            </Field>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field className="flex flex-col">
+                <FieldLabel>
+                  Форма обучения
+                  <span className="text-red-500 ml-1">*</span>
+                </FieldLabel>
+                <Select
+                  value={form.watch("form_education") || undefined}
+                  onValueChange={(v) => form.setValue("form_education", v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите форму обучения" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FORM_EDUCATION_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.form_education && (
+                  <FieldError>
+                    {form.formState.errors.form_education.message}
+                  </FieldError>
+                )}
+              </Field>
+
+              <Field className="flex flex-col">
+                <FieldLabel>
+                  Уровень образования
+                  <span className="text-red-500 ml-1">*</span>
+                </FieldLabel>
+                <Select
+                  value={form.watch("level_education") || undefined}
+                  onValueChange={(v) => form.setValue("level_education", v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите уровень" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEVEL_EDUCATION_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.level_education && (
+                  <FieldError>
+                    {form.formState.errors.level_education.message}
+                  </FieldError>
+                )}
+              </Field>
+            </div>
 
             <p className="text-sm text-muted-foreground pb-1">Год обучения</p>
             <div className="grid grid-cols-2 gap-4">

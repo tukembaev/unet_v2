@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { FormField } from "shared/lib/form";
-import { Button, Label } from "shared/ui";
+import { AppLogo, Button, Label } from "shared/ui";
 
 interface ForgotPasswordFormProps {
   setForgotPassword: (value: boolean) => void;
@@ -44,6 +44,9 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
   return (
     <section className="mx-auto w-full max-w-[400px] font-['Nunito',sans-serif]">
+        <div className="mb-6 flex justify-center">
+          <AppLogo size="lg" className="max-h-14" />
+        </div>
         <h2 className="mb-5 text-[22px] font-bold leading-[1.25] tracking-[-0.02em] text-foreground">
           Восстановление пароля
         </h2>

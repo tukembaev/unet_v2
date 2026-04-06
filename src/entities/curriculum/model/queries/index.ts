@@ -4,3 +4,4 @@ export { useSyllabusCourse } from './use-syllabus-course';
 export { useSyllabusDirectionOptions } from './use-syllabus-direction-options';
 export { useSyllabusTemplatesByDirection } from './use-syllabus-templates';
 export { useCreateSyllabus } from './use-create-syllabus';
+export { useAppendSemester } from './use-append-semester';

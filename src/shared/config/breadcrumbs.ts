@@ -22,6 +22,7 @@ export const BREADCRUMB_MAPPING: Record<string, string> = {
   'curriculum': 'РУП',
   'streams': 'Потоки',
   'workload': 'Нагрузка',
+  'department-disciplines': 'Дисциплины кафедры',
 };
 
 // Helper function to get breadcrumb label

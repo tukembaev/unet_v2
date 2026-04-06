@@ -36,17 +36,21 @@ import {
   type DisciplineOption,
 } from "entities/education-management/model/api";
 import { SyllabusCourse } from "entities/education-management/model/types";
+import { DisciplineCombobox } from "./ui/DisciplineCombobox";
 
 const HOURS_PER_CREDIT = 30;
 const CYCLE_OPTIONS = ["ОГЦ", "МЕН", "Проф", "ОН"];
 const COURSE_TYPE_OPTIONS = ["Базовая часть", "Вузовский компонент", "Курс по выбору"];
 const CONTROL_FORM_OPTIONS = ["Экзамен", "Зачет", "Курс/пр", "Курс/р"];
+const CONTROL_TYPE_OPTIONS = ["ргр", "ргз", "Контр"] as const;
+const CONTROL_TYPE_EMPTY = "__empty__";
 
 const schema = z.object({
   disciplineId: z.string().min(1, "Обязательное поле"),
   cycle: z.string().optional(),
   course_type: z.string().min(1, "Обязательное поле"),
   control_form: z.string().optional(),
+  control_type: z.string().optional(),
   credit: z.coerce.number().min(0, "Минимум 0"),
   amount_hours: z.coerce.number().min(0, "Минимум 0"),
   lecture_hours: z.coerce.number().min(0, "Минимум 0"),
@@ -66,7 +70,8 @@ export const CourseEditDialog = ({ course }: Props) => {
   const closeForm = useFormClose();
   const courseId = useStoredFormParam(FormQuery.EDIT_COURSE, "courseId");
   const queryClient = useQueryClient();
-  const { data: disciplineOptionsData } = useAllDiscipline();
+  const { data: disciplineOptionsData, isLoading: isLoadingDisciplines } =
+    useAllDiscipline();
   const disciplineOptions: DisciplineOption[] = Array.isArray(disciplineOptionsData)
     ? disciplineOptionsData
     : [];
@@ -86,6 +91,7 @@ export const CourseEditDialog = ({ course }: Props) => {
         cycle: course.cycle ?? undefined,
         course_type: course.course_type,
         control_form: course.control_form,
+        control_type: course.control_type ?? undefined,
         credit: course.credit,
         lecture_hours: course.lecture_hours,
         practice_hours: course.practice_hours,
@@ -117,6 +123,7 @@ export const CourseEditDialog = ({ course }: Props) => {
       cycle: "",
       course_type: "Базовая часть",
       control_form: "Экзамен",
+      control_type: CONTROL_TYPE_EMPTY,
       credit: 0,
       amount_hours: 0,
       lecture_hours: 0,
@@ -132,6 +139,9 @@ export const CourseEditDialog = ({ course }: Props) => {
       cycle: course.cycle ?? "",
       course_type: course.course_type ?? "",
       control_form: course.control_form ?? "",
+      control_type: course.control_type?.trim()
+        ? course.control_type
+        : CONTROL_TYPE_EMPTY,
       credit: course.credit ?? 0,
       amount_hours: course.amount_hours ?? 0,
       lecture_hours: course.lecture_hours ?? 0,
@@ -157,6 +167,11 @@ export const CourseEditDialog = ({ course }: Props) => {
       setValue("course_type", selected.course_type, { shouldValidate: true });
     }
     if (selected.control_form) setValue("control_form", selected.control_form);
+    if (selected.control_type) {
+      setValue("control_type", selected.control_type);
+    } else {
+      setValue("control_type", CONTROL_TYPE_EMPTY);
+    }
     if (typeof selected.credit === "number") setValue("credit", selected.credit);
     if (typeof selected.lecture_hours === "number") setValue("lecture_hours", selected.lecture_hours);
     if (typeof selected.practice_hours === "number") setValue("practice_hours", selected.practice_hours);
@@ -187,6 +202,10 @@ export const CourseEditDialog = ({ course }: Props) => {
         cycle: selected?.cycle ?? (values.cycle || null),
         course_type: selected?.course_type ?? values.course_type,
         control_form: selected?.control_form ?? (values.control_form || ""),
+        control_type:
+          !values.control_type || values.control_type === CONTROL_TYPE_EMPTY
+            ? ""
+            : values.control_type,
         credit: values.credit,
         credit_part_time: selected?.credit_part_time,
         amount_hours: values.amount_hours,
@@ -221,27 +240,19 @@ export const CourseEditDialog = ({ course }: Props) => {
           <input type="hidden" {...register("cycle")} />
           <input type="hidden" {...register("course_type")} />
           <input type="hidden" {...register("control_form")} />
+          <input type="hidden" {...register("control_type")} />
 
           <div className="grid grid-cols-2 gap-4">
             <Field>
               <FieldLabel>
                 Дисциплина <span className="text-destructive">*</span>
               </FieldLabel>
-              <Select
-                value={watch("disciplineId") || undefined}
+              <DisciplineCombobox
+                options={availableOptions}
+                value={watch("disciplineId") ?? ""}
                 onValueChange={handleDisciplineChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите дисциплину" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableOptions.map((option) => (
-                    <SelectItem key={option.value} value={String(option.value)}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                disabled={isLoadingDisciplines}
+              />
               {errors.disciplineId && (
                 <FieldError>{errors.disciplineId.message}</FieldError>
               )}
@@ -303,6 +314,26 @@ export const CourseEditDialog = ({ course }: Props) => {
                 </SelectTrigger>
                 <SelectContent>
                   {CONTROL_FORM_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field className="sm:col-span-2">
+              <FieldLabel>Тип контроля</FieldLabel>
+              <Select
+                value={watch("control_type") || CONTROL_TYPE_EMPTY}
+                onValueChange={(value) => setValue("control_type", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="ргр / ргз / Контр" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={CONTROL_TYPE_EMPTY}>— не выбрано</SelectItem>
+                  {CONTROL_TYPE_OPTIONS.map((option) => (
                     <SelectItem key={option} value={option}>
                       {option}
                     </SelectItem>

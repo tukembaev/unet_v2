@@ -115,6 +115,7 @@ export const CreatedByMeTab = ({ searchQuery }: CreatedByMeTabProps) => {
               <TableHead className="text-center font-bold">Количество Предметов</TableHead>
               <TableHead className="text-center font-bold">Количество семестров</TableHead>
               <TableHead className="text-center font-bold">Год</TableHead>
+              <TableHead className="text-center font-bold">Форма обучения</TableHead>
               <TableHead className="text-center font-bold">
                 Уровень образования
               </TableHead>
@@ -148,6 +149,9 @@ export const CreatedByMeTab = ({ searchQuery }: CreatedByMeTabProps) => {
                     {item.start_year && item.end_year
                       ? `${item.start_year}-${item.end_year}`
                       : '-'}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {item.form_education?.trim() ? item.form_education : '—'}
                   </TableCell>
                   <TableCell className="text-center">
                     {item.level_education?.trim() ? item.level_education : '—'}
