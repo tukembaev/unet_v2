@@ -18,7 +18,13 @@ export function AppProviders({ children }: AppProvidersProps) {
       <ThemeProvider defaultTheme="standard" storageKey="unet-ui-theme">
         <QueryClientProvider client={queryClient}>
           {children || <RouterProvider router={router} />}
-          <Toaster position="top-right" richColors />
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            className="!z-[200]"
+            toastOptions={{ duration: 5000 }}
+          />
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </ThemeProvider>

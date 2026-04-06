@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from 'shared/ui';
+import { AppLogo, Card, CardContent, CardDescription, CardHeader, CardTitle } from 'shared/ui';
 import { Info, Layers, Code2 } from 'lucide-react';
 
 export function AboutPage() {
@@ -6,9 +6,12 @@ export function AboutPage() {
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-3xl mx-auto space-y-8">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight">About Unet V2</h1>
+          <div className="flex justify-center">
+            <AppLogo size="lg" className="mx-auto" />
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight">UNET — University Network</h1>
           <p className="text-xl text-muted-foreground">
-            Learn more about this project and its architecture
+            О проекте и архитектуре приложения
           </p>
         </div>
 
@@ -22,9 +25,8 @@ export function AboutPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              Unet V2 is a comprehensive React project template built with the latest
-              web technologies and best practices. It provides a solid foundation for
-              building scalable, maintainable applications.
+              UNET (University Network) — веб-приложение на React с TypeScript, построенное
+              по принципам Feature-Sliced Design и современным практикам разработки.
             </p>
           </CardContent>
         </Card>

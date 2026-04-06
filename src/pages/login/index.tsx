@@ -1,5 +1,5 @@
 import { LoginForm } from "features/auth";
-import { Card, CardContent } from "shared/ui";
+import { AppLogo, Card, CardContent } from "shared/ui";
 import { cn } from "shared/lib/utils";
 
 /** Shell страницы входа + карточка shadcn; токены — в `.login-scope` (globals.css). */
@@ -39,6 +39,9 @@ export const LoginPage = () => {
       >
         <aside className="max-[900px]:hidden">
           <div className="py-2 text-[rgba(255,255,255,0.92)]">
+            <div className="mb-6">
+              <AppLogo size="xl" className="max-h-20 drop-shadow-md" />
+            </div>
             <span
               className={cn(
                 "mb-5 inline-flex items-center gap-2 rounded-full border border-white/20",

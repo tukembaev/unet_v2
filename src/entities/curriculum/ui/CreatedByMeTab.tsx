@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTES, getRoute } from 'app/providers/routes';
 import {
   Table,
   TableBody,
@@ -8,7 +10,7 @@ import {
   TableRow,
   Skeleton,
 } from 'shared/ui';
-import { useAllSyllabus } from '../model';
+import { useSyllabusList } from '../model';
 import { DirectionItem } from '../model';
 import { GenericFilter, FilterGroup } from 'shared/components/data-table';
 
@@ -28,7 +30,7 @@ interface CreatedByMeTabProps {
 }
 
 export const CreatedByMeTab = ({ searchQuery }: CreatedByMeTabProps) => {
-  const { data: directions, isLoading } = useAllSyllabus();
+  const { data: directions, isLoading } = useSyllabusList();
   const [selectedYear, setSelectedYear] = useState<string>('all');
 
   const filteredData = useMemo(() => {
@@ -113,7 +115,10 @@ export const CreatedByMeTab = ({ searchQuery }: CreatedByMeTabProps) => {
               <TableHead className="text-center font-bold">Количество Предметов</TableHead>
               <TableHead className="text-center font-bold">Количество семестров</TableHead>
               <TableHead className="text-center font-bold">Год</TableHead>
-              <TableHead className="text-center font-bold">Создал</TableHead>
+              <TableHead className="text-center font-bold">Форма обучения</TableHead>
+              <TableHead className="text-center font-bold">
+                Уровень образования
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -128,7 +133,16 @@ export const CreatedByMeTab = ({ searchQuery }: CreatedByMeTabProps) => {
             ) : (
               filteredData.map((item: DirectionItem) => (
                 <TableRow key={item.id} className="hover:bg-muted/50">
-                  <TableCell className="font-medium">{item.direction}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link
+                      to={getRoute(ROUTES.CURRICULUM_DETAIL, {
+                        syllabusId: String(item.id),
+                      })}
+                      className="text-primary hover:underline"
+                    >
+                      {item.direction}
+                    </Link>
+                  </TableCell>
                   <TableCell className="text-center">{item.subjects_count}</TableCell>
                   <TableCell className="text-center">{item.semester_count}</TableCell>
                   <TableCell className="text-center">
@@ -137,7 +151,10 @@ export const CreatedByMeTab = ({ searchQuery }: CreatedByMeTabProps) => {
                       : '-'}
                   </TableCell>
                   <TableCell className="text-center">
-                    {item.employee_name || '-'}
+                    {item.form_education?.trim() ? item.form_education : '—'}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {item.level_education?.trim() ? item.level_education : '—'}
                   </TableCell>
                 </TableRow>
               ))

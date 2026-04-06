@@ -18,8 +18,9 @@ import { StreamsInfo } from "entities/streams";
 import ProfilePage from "pages/profile";
 import { TaskDetails } from "entities/task/ui/task-details";
 import { KpiReportPage } from "pages/kpi-report";
-import { CurriculumPage } from "pages/curriculum";
+import { CurriculumPage, CurriculumDetailPage } from "pages/curriculum";
 import { TaskReportsPage } from "pages/task-reports";
+import DepartmentDisciplinesPage from "pages/departmen-disciplines";
 
 
 
@@ -92,8 +93,16 @@ const routes: RouteObject[] = [
         element: <StreamsInfo />,
       },
       {
+        path: ROUTES.CURRICULUM_DETAIL,
+        element: <CurriculumDetailPage />,
+      },
+      {
         path: ROUTES.CURRICULUM,
         element: <CurriculumPage />,
+      },
+      {
+        path: ROUTES.DEPARTMENTDISCIPLINES,
+        element: <DepartmentDisciplinesPage />,
       },
       {
         path: ROUTES.PERSONAL_CARD,

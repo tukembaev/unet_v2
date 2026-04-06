@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const apiClient = axios.create({
-  baseURL: 'https://uadmin.kstu.kg/api/',
+  baseURL: 'https://utask.kstu.kg/api/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -12,11 +12,20 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     // Add auth token if available
-    const token = localStorage.getItem('token');
-    console.log(token);
+      type AuthData = {
+  access_token: string;
+  refresh_token: string;
+  csrf_token: string;
+};
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+
+    const userStr = localStorage.getItem('user');
+
+    const user: AuthData | null = userStr ? JSON.parse(userStr) : null;
+
+
+    if (user) {
+      config.headers.Authorization = `Bearer ${user.access_token}`;
   }
     return config;
   },

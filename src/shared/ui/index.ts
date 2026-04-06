@@ -86,6 +86,7 @@ export {
   EmptyMedia,
 } from './empty'
 export { ThemeToggle } from './theme-toggle'
+export { AppLogo, type AppLogoProps, type AppLogoSize } from './app-logo'
 export {
   Dialog,
   DialogPortal,

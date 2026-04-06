@@ -1,9 +1,8 @@
-
-
-import { apiClient } from 'shared/config';
-import { Directions } from '../types';
-
-export const getAllSyllabus = async (): Promise<Directions> => {
-  const { data } = await apiClient.get('all-syllabus/');
-  return data;
-};
+export {
+  fetchSyllabusList,
+  fetchSyllabusDirectionOptions,
+  fetchSyllabusTemplatesByDirection,
+  fetchSyllabusCourse,
+  createSyllabus,
+  appendSemesterToSyllabus,
+} from './syllabus.api';

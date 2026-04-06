@@ -12,7 +12,7 @@ export function RootLayout() {
   useNotificationWebSocket(currentUser?.id);
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div className="relative flex h-screen flex-col overflow-hidden">
       <div
         className={cn(
           "pointer-events-none fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat",
@@ -20,21 +20,22 @@ export function RootLayout() {
         )}
         aria-hidden
       />
-      <Navbar />
-      <main className="flex-1">
-        <div className="px-8 pb-12 pt-6">
-          <Card className={cn("rounded-2xl p-6 shadow-md")}>
+      <div className="shrink-0">
+        <Navbar />
+      </div>
+      <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-8 pb-12 ">
+          <Card
+            className={cn(
+              "thin-scrollbar h-[90vh] max-h-[90vh] min-h-0 shrink-0 overflow-y-auto rounded-2xl border-none p-6"
+            )}
+          >
             <Outlet />
           </Card>
         </div>
       </main>
-      <footer className="mt-auto">
-        <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Unet V2. Built with React 19, Vite, and
-          FSD architecture.
-        </div>
-      </footer>
-      
+
+
       {/* Global Dialogs */}
       <CreateTaskDialog />
     </div>

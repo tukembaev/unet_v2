@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 import {
+  AppLogo,
   Button,
   Card,
   CardContent,
@@ -202,7 +203,7 @@ export const LoginForm = () => {
                 asChild
               >
                 <a
-                  href="http://uadmin.kstu.kg/media/media/task_docs/UNET_user_guide.pdf"
+                  href="http://utask.kstu.kg/media/media/task_docs/UNET_user_guide.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -232,7 +233,7 @@ export const LoginForm = () => {
                   asChild
                 >
                   <a
-                    href="http://uadmin.kstu.kg/media/media/task_docs/UNET_user_guide.pdf"
+                    href="http://utask.kstu.kg/media/media/task_docs/UNET_user_guide.pdf"
                     download
                   >
                     <span>Скачать</span>

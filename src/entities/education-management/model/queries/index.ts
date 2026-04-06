@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getUsers, getDisciplineTemplates, getFaculties, getReports, getWorkPlanBySemester, getWorkLoadBySemester, getFamilyDirection, getDirections, getSyllabusReport } from '../api';
+import { getUsers, getDisciplineTemplates, getFaculties, getReports, getWorkPlanBySemester, getWorkLoadBySemester, getFamilyDirection, getDirections, getSyllabusReport, getAllDiscipline, getProfilesInDirections } from '../api';
 
 export function useUsers() {
   return useQuery({
@@ -65,5 +65,20 @@ export function useSyllabusReport(syllabusId: number | undefined, profileId: num
     queryKey: ['syllabus-report', syllabusId, profileId],
     queryFn: () => getSyllabusReport(syllabusId!, profileId!),
     enabled: !!syllabusId && !!profileId,
+  });
+}
+
+export function useAllDiscipline() {
+  return useQuery({
+    queryKey: ['all-discipline'],
+    queryFn: getAllDiscipline,
+  });
+}
+
+export function useProfilesInDirections(directionId: number | undefined) {
+  return useQuery({
+    queryKey: ['profiles-in-directions', directionId],
+    queryFn: () => getProfilesInDirections(directionId!),
+    enabled: !!directionId,
   });
 }

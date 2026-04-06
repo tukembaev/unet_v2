@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="40%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#172554"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="85%" cy="15%" r="55%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#2563eb" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#1e3a8a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="10%" cy="90%" r="45%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="word" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0e7ff"/>
+    </linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#sky)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- ?????: ?????? -->
+  <circle cx="1020" cy="120" r="180" fill="none" stroke="#60a5fa" stroke-opacity="0.12" stroke-width="1"/>
+  <circle cx="1020" cy="120" r="120" fill="none" stroke="#93c5fd" stroke-opacity="0.1" stroke-width="1"/>
+  <circle cx="1050" cy="520" r="90" fill="#3b82f6" fill-opacity="0.08"/>
+
+  <!-- ????????? ?????? -->
+  <rect x="72" y="168" width="4" height="220" rx="2" fill="#60a5fa" fill-opacity="0.85"/>
+
+  <!-- ??????? ????? -->
+  <text
+    x="100"
+    y="132"
+    font-family="system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
+    font-size="13"
+    font-weight="600"
+    letter-spacing="0.28em"
+    fill="#94a3b8"
+  >UNIVERSITY NETWORK</text>
+
+  <!-- ??????? ??????? -->
+  <text
+    x="100"
+    y="310"
+    font-family="system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
+    font-size="118"
+    font-weight="800"
+    letter-spacing="-0.04em"
+    fill="url(#word)"
+  >UNET</text>
+
+  <text
+    x="100"
+    y="388"
+    font-family="system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
+    font-size="36"
+    font-weight="500"
+    letter-spacing="-0.01em"
+    fill="#cbd5e1"
+  >University Network</text>
+
+  <text
+    x="100"
+    y="468"
+    font-family="system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
+    font-size="22"
+    font-weight="400"
+    fill="#64748b"
+  >?????? ????????????? ???????? ?????</text>
+
+  <text
+    x="100"
+    y="548"
+    font-family="system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
+    font-size="17"
+    font-weight="500"
+    fill="#475569"
+  >???? ??. ?. ?????????</text>
+
+  <!-- ?????? ????? -->
+  <line x1="100" y1="582" x2="560" y2="582" stroke="#334155" stroke-opacity="0.6" stroke-width="1"/>
+</svg>

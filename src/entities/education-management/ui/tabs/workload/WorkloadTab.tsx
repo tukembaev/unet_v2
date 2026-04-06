@@ -187,7 +187,7 @@ const { ref: printRef, print } = usePrintArea<HTMLDivElement>({
             variant="outline"
             onClick={() =>
               print({
-                pageTitle: "UNET V2 — A4 Landscape 90%",
+                pageTitle: "UNET — University Network — A4 Landscape 90%",
                 page: { size: "A3", orientation: "landscape", marginMm: 12 },
                 fit: "none",
                 scale: 0.6,         // ручной масштаб
