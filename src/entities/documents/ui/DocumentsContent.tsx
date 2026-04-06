@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, FileText, Clock, CircleDot, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, FileText, Clock, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Badge } from 'shared/ui';
 import { DocumentsTableSkeleton } from './DocumentsTableSkeleton';
 import {
@@ -15,11 +15,24 @@ import { Document, DocumentTab, DocumentType } from '../model/types';
 import { CreateDocumentDialog } from 'features/create-document';
 import { FormQuery, useFormNavigation } from 'shared/lib';
 
-const statusIcons: Record<string, React.ReactNode> = {
-  'В режиме ожидания': <Clock className="h-3 w-3 text-yellow-500" />,
-  'В процессе выполнения': <CircleDot className="h-3 w-3" />,
-  'Выполнено': <CheckCircle2 className="h-3 w-3 text-green-500" />,
-  'Доработать': <XCircle className="h-3 w-3 text-red-500" />,
+const statusConfig: Record<string, { icon: React.ReactNode; className: string }> = {
+  'В режиме ожидания': {
+    icon: <Clock className="h-3 w-3" />,
+    className: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+  },
+  'В процессе выполнения': {
+    icon: <Loader2 className="h-3 w-3 animate-spin" />,
+    className: 'bg-blue-100 text-blue-800 border-blue-300',
+  },
+  'Завершено': {
+    icon: <CheckCircle2 className="h-3 w-3" />,
+    className: 'bg-green-100 text-green-800 border-green-300',
+  },
+  'Доработать': {
+    icon: <XCircle className="h-3 w-3" />,
+    className: 'bg-red-100 text-red-800 border-red-300',
+  },
+
 };
 
 const typeLabels: Record<DocumentType, string> = {
@@ -117,12 +130,18 @@ export const DocumentsContent = () => {
       label: 'Статус',
       width: '180px',
       minWidth: '180px',
-      render: (doc) => (
-        <Badge variant="outline" className="gap-1.5 whitespace-nowrap">
-          {doc.status && statusIcons[doc.status]}
-          {doc.status || 'Без статуса'}
-        </Badge>
-      ),
+      render: (doc) => {
+        const config = doc.status ? statusConfig[doc.status] : null;
+        return (
+          <Badge 
+            variant="outline" 
+            className={`gap-1.5 whitespace-nowrap ${config?.className || 'bg-gray-100 text-gray-800 border-gray-300'}`}
+          >
+            {config?.icon}
+            {doc.status || 'Без статуса'}
+          </Badge>
+        );
+      },
     },
     {
       key: 'created_at',

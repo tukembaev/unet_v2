@@ -5,7 +5,7 @@ export const DocumentsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Обращения"
+        title="Документы"
         description="Управление входящими и исходящими документами, заявлениями и отчетами"
       />
       

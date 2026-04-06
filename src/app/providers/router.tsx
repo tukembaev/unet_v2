@@ -1,26 +1,24 @@
 import { RootLayout } from "app/layouts/root-layout";
 import { DocumentDetails } from "entities/documents";
-import { OrderDetails } from "entities/orders";
 import { SyllabusReport } from "entities/education-management";
+import { StreamsInfo } from "entities/streams";
+import { TaskDetails } from "entities/task/ui/task-details";
 import { AboutPage } from "pages/about";
+import { CurriculumDetailPage, CurriculumPage } from "pages/curriculum";
+import DepartmentDisciplinesPage from "pages/departmen-disciplines";
 import { DocumentsPage } from "pages/documents";
-import { OrdersPage } from "pages/orders";
 import EducationManagementPage from "pages/edu-management";
-import ItDepartmentPage from "pages/it-department";
 import { HomePage } from "pages/home";
+import ItDepartmentPage from "pages/it-department";
+import { KpiReportPage } from "pages/kpi-report";
 import { LoginPage } from "pages/login";
 import { NotFoundPage } from "pages/not-found";
+import ProfilePage from "pages/profile";
+import StreamsPage from "pages/streams";
 import { TaskPage } from "pages/task";
+import { TaskReportsPage } from "pages/task-reports";
 import { createBrowserRouter, RouteObject } from "react-router-dom";
 import { ROUTES } from "./routes";
-import StreamsPage from "pages/streams";
-import { StreamsInfo } from "entities/streams";
-import ProfilePage from "pages/profile";
-import { TaskDetails } from "entities/task/ui/task-details";
-import { KpiReportPage } from "pages/kpi-report";
-import { CurriculumPage, CurriculumDetailPage } from "pages/curriculum";
-import { TaskReportsPage } from "pages/task-reports";
-import DepartmentDisciplinesPage from "pages/departmen-disciplines";
 
 
 
@@ -76,14 +74,7 @@ const routes: RouteObject[] = [
         path: ROUTES.DOCUMENT_DETAILS,
         element: <DocumentDetails />,
       },
-      {
-        path: ROUTES.ORDERS,
-        element: <OrdersPage />,
-      },
-      {
-        path: ROUTES.ORDER_DETAILS,
-        element: <OrderDetails />,
-      },
+ 
       {
         path: ROUTES.STREAMS,
         element: <StreamsPage />,

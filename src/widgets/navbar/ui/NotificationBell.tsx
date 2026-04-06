@@ -59,16 +59,17 @@ export const NotificationBell = () => {
       >
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <h3 className="font-semibold text-sm">Уведомления</h3>
-          {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={markAllAsRead}
-              className="text-xs h-6 px-2"
-            >
-              Прочитать все
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setOpen(false);
+              setModalOpen(true);
+            }}
+            className="text-xs h-6 px-2"
+          >
+            Показать все
+          </Button>
         </div>
 
         <div className="max-h-[360px] overflow-y-auto">
@@ -118,18 +119,15 @@ export const NotificationBell = () => {
           )}
         </div>
 
-        {unreadNotifications.length > 0 && (
+        {unreadCount > 0 && (
           <div className="p-2 border-t">
             <Button
               variant="ghost"
               size="sm"
               className="w-full text-xs h-8"
-              onClick={() => {
-                setOpen(false);
-                setModalOpen(true);
-              }}
+              onClick={markAllAsRead}
             >
-              Показать все
+              Прочитать все
             </Button>
           </div>
         )}
