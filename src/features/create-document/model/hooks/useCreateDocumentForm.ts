@@ -10,8 +10,10 @@ export const useCreateDocumentForm = () => {
       sender_id: '',
       type: 'APPLICATION',
       title: '',
-      file: undefined as any,
+      file: undefined,
+      text: '',
       members: [],
+      files: [],
     },
   });
 
@@ -21,11 +23,27 @@ export const useCreateDocumentForm = () => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       form.setValue('file', selectedFile);
+      // Очищаем текст если выбран файл
+      form.setValue('text', '');
     }
   };
 
   const removeFile = () => {
-    form.setValue('file', null as any);
+    form.setValue('file', undefined);
+  };
+
+  const addAdditionalFile = (file: File) => {
+    const currentFiles = form.getValues('files') || [];
+    if (currentFiles.length >= 10) {
+      toast.error('Максимум 10 дополнительных файлов');
+      return;
+    }
+    form.setValue('files', [...currentFiles, file]);
+  };
+
+  const removeAdditionalFile = (index: number) => {
+    const currentFiles = form.getValues('files') || [];
+    form.setValue('files', currentFiles.filter((_, i) => i !== index));
   };
 
   const addMember = (member: CreateDocumentMember) => {
@@ -65,8 +83,9 @@ export const useCreateDocumentForm = () => {
         return false;
       }
 
-      if (!data.file) {
-        toast.error('Загрузите PDF файл');
+      // Проверяем что есть либо файл либо текст
+      if (!data.file && !data.text) {
+        toast.error('Загрузите файл или введите текст документа');
         return false;
       }
 
@@ -75,7 +94,9 @@ export const useCreateDocumentForm = () => {
         type: data.type,
         title: data.title,
         file: data.file?.name,
+        text: data.text ? `${data.text.substring(0, 50)}...` : undefined,
         members: data.members,
+        files: data.files?.map(f => f.name),
       });
 
       // Create document
@@ -84,7 +105,9 @@ export const useCreateDocumentForm = () => {
         type: data.type,
         title: data.title,
         file: data.file,
+        text: data.text,
         members: data.members || [],
+        files: data.files || [],
       });
 
       toast.success('Документ создан');
@@ -101,6 +124,8 @@ export const useCreateDocumentForm = () => {
     form,
     handleFileSelect,
     removeFile,
+    addAdditionalFile,
+    removeAdditionalFile,
     addMember,
     removeMember,
     resetForm,

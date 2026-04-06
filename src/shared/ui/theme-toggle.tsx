@@ -33,12 +33,7 @@ const themes = [
     description: 'Фиолетовая тема',
     colors: ['#a855f7', '#6d28d9', '#e9d5ff']
   },
-  { 
-    value: 'supabase', 
-    label: 'SupaBase', 
-    description: 'Зеленая тема',
-    colors: ['#10b981', '#047857', '#d1fae5']
-  },
+ 
 ] as const;
 
 export function ThemeToggle() {

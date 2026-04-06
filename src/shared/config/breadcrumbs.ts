@@ -13,7 +13,7 @@ export const BREADCRUMB_MAPPING: Record<string, string> = {
   
   // Documents section
   'documents': 'Документооборот',
-  'applications': 'Обращения',
+  'applications': 'Документы',
   'orders': 'Приказы',
   'tasks': 'Задачи',
   

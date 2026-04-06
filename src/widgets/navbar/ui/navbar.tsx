@@ -1,38 +1,37 @@
+import { ROUTES } from 'app/providers/routes';
+import {
+  BarChart3,
+  BookOpen,
+  CheckSquare,
+  Clock,
+  GraduationCap,
+  Laptop,
+  List,
+  Menu,
+  MessageSquare,
+  Users,
+  type LucideIcon
+} from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  Menu, 
-  GraduationCap, 
-  Laptop, 
-  BarChart3, 
-  MessageSquare, 
-  FileText, 
-  CheckSquare,
-  BookOpen,
-  Users,
-  Clock,
-  type LucideIcon,
-  List
-} from 'lucide-react';
+import { cn } from 'shared/lib/utils';
 import {
   AppLogo,
   Button,
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetHeader,
-  SheetTitle,
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from 'shared/ui';
-import { ROUTES } from 'app/providers/routes';
-import { cn } from 'shared/lib/utils';
-import { UserMenu } from './user-menu';
 import { NotificationBell } from './NotificationBell';
+import { UserMenu } from './user-menu';
 
 
 interface NavItem {
@@ -75,17 +74,12 @@ const navigationSections: NavSection[] = [
     title: 'Документооборот',
     items: [
       {
-        title: 'Обращения',
+        title: 'Документы',
         href: ROUTES.APPLICATIONS,
-        description: 'Входящие обращения',
+        description: 'Входящие документы',
         icon: MessageSquare,
       },
-      {
-        title: 'Приказы',
-        href: ROUTES.ORDERS,
-        description: 'Приказы и распоряжения',
-        icon: FileText,
-      },
+     
       {
         title: 'Задачи',
         href: ROUTES.TASK,
