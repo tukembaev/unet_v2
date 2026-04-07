@@ -2,9 +2,11 @@ import React, { useMemo } from 'react';
 import { useEmployeeTasks } from '../model/queries';
 import { EmployeeTask, TaskCategory } from '../model/types';
 import { KanbanBoard } from './KanbanBoard';
+import { TaskFilters } from './TaskFilter';
 
 interface TaskTabsContentProps {
-  selectedFilters?: string[];
+  selectedFilters?: TaskFilters;
+  searchQuery?: string;
 }
 
 const emptyTaskCategory = (): TaskCategory => {
@@ -48,7 +50,8 @@ const distributeTasksByStatus = (tasks: EmployeeTask[]): TaskCategory => {
 };
 
 const TaskTabsContentComponent: React.FC<TaskTabsContentProps> = ({ 
-  selectedFilters = ['all'] 
+  selectedFilters,
+  searchQuery = '',
 }) => {
 
   const { data: tasksData, isLoading } = useEmployeeTasks();
@@ -58,15 +61,16 @@ const TaskTabsContentComponent: React.FC<TaskTabsContentProps> = ({
       return emptyTaskCategory();
     }
 
-    void selectedFilters;
     return distributeTasksByStatus(tasksData);
-  }, [tasksData, selectedFilters]);
+  }, [tasksData]);
 
   return (
     <div className="space-y-6">
       <KanbanBoard 
         tasks={filteredTasks} 
         isLoading={isLoading}
+        filters={selectedFilters}
+        searchQuery={searchQuery}
       />
     </div>
   );
