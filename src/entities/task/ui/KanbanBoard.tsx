@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { TaskCard } from "./TaskCard";
-import { TaskCategory, EmployeeTask } from "../model/types";
+import { TaskCategory, EmployeeTask, TaskStatus } from "../model/types";
+import { TaskRole, TaskFilters } from "./TaskFilter";
+import { useCurrentUser } from "entities/user";
 import {
   Badge,
   Card,
@@ -20,6 +22,8 @@ import { ListCheck, Clock, Calendar, Clock as ClockIcon, Play, Eye, CheckCircle,
 interface KanbanBoardProps {
   tasks: TaskCategory;
   isLoading?: boolean;
+  filters?: TaskFilters;
+  searchQuery?: string;
 }
 
 type SortMode = "newest" | "deadline";
@@ -78,10 +82,68 @@ const sortTasks = (tasks: EmployeeTask[], mode: SortMode): EmployeeTask[] => {
   }
 };
 
+// Определяем роль пользователя в задаче
+const getUserRoleInTask = (task: EmployeeTask, userId?: string): TaskRole | null => {
+  if (!userId) return null;
+
+  // Проверяем, является ли пользователь ответственным
+  if (task.responsible_user_id === userId) {
+    return 'RESPONSIBLE';
+  }
+
+  // Проверяем роль в members
+  const member = task.members?.find(m => m.user_id === userId);
+  if (member) {
+    if (member.role === 'CO_EXECUTOR') return 'EXECUTOR';
+    if (member.role === 'OBSERVER') return 'OBSERVER';
+    if (member.role === 'RESPONSIBLE') return 'RESPONSIBLE';
+  }
+
+  // Если пользователь не найден ни как ответственный, ни в members - он создатель
+  return 'CREATOR';
+};
+
+// Фильтруем задачи по роли пользователя
+const filterTasksByRole = (tasks: EmployeeTask[], roles: TaskRole[], userId?: string): EmployeeTask[] => {
+  if (!roles || roles.length === 0 || !userId) return tasks;
+  
+  return tasks.filter(task => {
+    const userRole = getUserRoleInTask(task, userId);
+    return userRole && roles.includes(userRole);
+  });
+};
+
+// Фильтруем задачи по поисковому запросу
+const filterTasksBySearch = (tasks: EmployeeTask[], searchQuery: string): EmployeeTask[] => {
+  if (!searchQuery || searchQuery.trim() === '') return tasks;
+  
+  const query = searchQuery.toLowerCase().trim();
+  
+  return tasks.filter(task => {
+    // Поиск по названию задачи
+    const titleMatch = task.title.toLowerCase().includes(query);
+    
+    // Поиск по имени ответственного
+    const responsibleMatch = task.responsible_username?.toLowerCase().includes(query);
+    
+    // Поиск по именам участников
+    const membersMatch = task.members?.some(member => 
+      member.user_name.toLowerCase().includes(query)
+    );
+    
+    return titleMatch || responsibleMatch || membersMatch;
+  });
+};
+
 const KanbanBoardComponent: React.FC<KanbanBoardProps> = ({
   tasks,
   isLoading = false,
+  filters,
+  searchQuery = '',
 }) => {
+  const { data: currentUser } = useCurrentUser();
+  const currentUserId = currentUser?.id;
+
   const [sortModes, setSortModes] = useState<Record<keyof TaskCategory, SortMode>>({
     PENDING: "newest",
     IN_PROGRESS: "newest",
@@ -97,16 +159,38 @@ const KanbanBoardComponent: React.FC<KanbanBoardProps> = ({
     }));
   };
 
-  // Сортируем все задачи заранее, вне цикла map
-  const sortedTasksBySection = useMemo(() => {
-    return {
-      PENDING: sortTasks(tasks?.PENDING || [], sortModes.PENDING),
-      IN_PROGRESS: sortTasks(tasks?.IN_PROGRESS || [], sortModes.IN_PROGRESS),
-      REVIEW: sortTasks(tasks?.REVIEW || [], sortModes.REVIEW),
-      COMPLETED: sortTasks(tasks?.COMPLETED || [], sortModes.COMPLETED),
-      CANCELED: sortTasks(tasks?.CANCELED || [], sortModes.CANCELED),
+  // Фильтруем и сортируем задачи
+  const filteredAndSortedTasks = useMemo(() => {
+    const result: TaskCategory = {
+      PENDING: [],
+      IN_PROGRESS: [],
+      REVIEW: [],
+      COMPLETED: [],
+      CANCELED: [],
     };
-  }, [tasks, sortModes]);
+
+    // Показываем все статусы
+    const statusesToShow: TaskStatus[] = ['PENDING', 'IN_PROGRESS', 'REVIEW', 'COMPLETED', 'CANCELED'];
+
+    statusesToShow.forEach(status => {
+      let statusTasks = tasks?.[status] || [];
+      
+      // Фильтруем по поисковому запросу
+      if (searchQuery) {
+        statusTasks = filterTasksBySearch(statusTasks, searchQuery);
+      }
+      
+      // Фильтруем по роли
+      if (filters?.roles && filters.roles.length > 0) {
+        statusTasks = filterTasksByRole(statusTasks, filters.roles, currentUserId);
+      }
+      
+      // Сортируем
+      result[status] = sortTasks(statusTasks, sortModes[status]);
+    });
+
+    return result;
+  }, [tasks, filters, sortModes, currentUserId, searchQuery]);
 
   if (isLoading) {
     return <KanbanSkeleton />;
@@ -116,7 +200,7 @@ const KanbanBoardComponent: React.FC<KanbanBoardProps> = ({
     <div className="overflow-x-auto pb-4">
       <div className="container mx-auto flex gap-6 min-w-max">
         {sectionConfig.map((section) => {
-          const sortedTasks = sortedTasksBySection[section.key];
+          const sortedTasks = filteredAndSortedTasks[section.key];
           const taskCount = sortedTasks.length;
           const currentSortMode = sortModes[section.key];
 
@@ -163,7 +247,7 @@ const KanbanBoardComponent: React.FC<KanbanBoardProps> = ({
                 <div className="space-y-3">
                   {sortedTasks.length > 0 ? (
                     sortedTasks.map((task) => (
-                      <TaskCard key={task.id} task={task} />
+                      <TaskCard key={task.id} task={task} currentUserId={currentUserId} />
                     ))
                   ) : (
                     <Empty className="border border-dashed max-h-[159px]">

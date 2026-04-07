@@ -51,6 +51,7 @@ export interface DocumentDetailResponse {
   created_at: string;
   file: string | null;
   members: DocumentMember[];
+  
 }
 
 // Type Approval Types

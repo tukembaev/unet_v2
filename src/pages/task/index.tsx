@@ -1,18 +1,19 @@
-import { TaskSearchFilter, TaskTabsContent } from 'entities/task'
+import { TaskSearchFilter, TaskTabsContent, TaskFilters } from 'entities/task'
 import { CreateTaskDialog } from 'features/create-task'
 import { useCallback, useState } from 'react'
 import { PageHeader } from 'widgets/page-header'
 
 export const TaskPage = () => {
-  const [selectedFilters, setSelectedFilters] = useState<string[]>(['all'])
-
+  const [selectedFilters, setSelectedFilters] = useState<TaskFilters>({
+    roles: [],
+  })
+  const [searchQuery, setSearchQuery] = useState('')
 
   const handleSearch = useCallback((value: string) => {
-    // TODO: Implement search functionality
-    console.log('Search:', value)
+    setSearchQuery(value)
   }, [])
 
-  const handleFiltersChange = useCallback((filters: string[]) => {
+  const handleFiltersChange = useCallback((filters: TaskFilters) => {
     setSelectedFilters(filters)
   }, [])
 
@@ -30,7 +31,10 @@ export const TaskPage = () => {
           />
         </PageHeader>
         
-        <TaskTabsContent selectedFilters={selectedFilters} />
+        <TaskTabsContent 
+          selectedFilters={selectedFilters}
+          searchQuery={searchQuery}
+        />
         
         <CreateTaskDialog />
     </div>
