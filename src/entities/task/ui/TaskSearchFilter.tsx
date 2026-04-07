@@ -1,58 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from 'shared/ui';
 import { Button } from 'shared/ui';
-import { Badge } from 'shared/ui';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from 'shared/ui';
-import { Popover, PopoverContent, PopoverTrigger } from 'shared/ui';
-import { Search, Filter, Plus, Check, ChevronDown, X } from 'lucide-react';
-import { cn, FormQuery, useFormNavigation } from 'shared/lib';
-
-const filterOptions = [
-  { key: 'ALL', label: 'Все', value: 'all' },
-  { key: 'ATTACHED', label: 'Прикрепленные', value: 'attached' },
-  { key: 'COMPLETED', label: 'Завершенные', value: 'completed' },
-  { key: 'DOING', label: 'Выполняю', value: 'doing' },
-  { key: 'HELPING', label: 'Помогаю', value: 'helping' },
-  { key: 'INSTRUCTED', label: 'Поручил', value: 'instructed' },
-  { key: 'WATCHING', label: 'Наблюдаю', value: 'watching' },
-];
+import { Search, Plus } from 'lucide-react';
+import { FormQuery, useFormNavigation } from 'shared/lib';
+import { TaskFilter, TaskFilters } from './TaskFilter';
 
 interface TaskSearchFilterProps {
   onSearch?: (value: string) => void;
-  selectedFilters?: string[];
-  onFiltersChange?: (filters: string[]) => void;
-
+  selectedFilters?: TaskFilters;
+  onFiltersChange?: (filters: TaskFilters) => void;
 }
 
 const TaskSearchFilterComponent: React.FC<TaskSearchFilterProps> = ({
   onSearch,
-  selectedFilters = ['all'],
+  selectedFilters = { roles: [] },
   onFiltersChange,
 }) => {
+  const openForm = useFormNavigation();
+  const [searchValue, setSearchValue] = useState('');
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const openForm = useFormNavigation()
-  const [isOpen, setIsOpen] = useState(false);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
 
-  const handleFilterToggle = (value: string) => {
-    if (value === 'all') {
-      onFiltersChange?.(['all']);
-    } else {
-      const newFilters = selectedFilters.filter(f => f !== 'all');
-      if (newFilters.includes(value)) {
-        const updatedFilters = newFilters.filter(f => f !== value);
-        onFiltersChange?.(updatedFilters.length === 0 ? ['all'] : updatedFilters);
-      } else {
-        // When adding a new filter, remove 'all' if it exists
-        onFiltersChange?.([...newFilters, value]);
-      }
+    // Очищаем предыдущий таймер
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
+
+    // Устанавливаем новый таймер для debounce (300ms)
+    debounceTimerRef.current = setTimeout(() => {
+      onSearch?.(value);
+    }, 300);
   };
 
-  const clearAllFilters = () => {
-    onFiltersChange?.(['all']);
-  };
-
-  const hasActiveFilters = selectedFilters.length > 0 && !selectedFilters.includes('all');
+  // Очистка таймера при размонтировании
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -62,64 +52,16 @@ const TaskSearchFilterComponent: React.FC<TaskSearchFilterProps> = ({
         <Input
           placeholder="Поиск задач..."
           className="pl-10 w-full sm:w-64"
-          onChange={(e) => onSearch?.(e.target.value)}
+          value={searchValue}
+          onChange={handleSearchChange}
         />
       </div>
 
-      {/* Filter Multiselect */}
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="justify-between min-w-[120px] sm:min-w-[140px] w-full sm:w-auto">
-            <div className="flex items-center gap-1 sm:gap-2">
-              <Filter className="h-4 w-4" />
-              <span className="text-sm">Фильтр</span>
-              {hasActiveFilters && (
-                <Badge variant="secondary" className="px-1.5 py-0.5 text-xs">
-                  {selectedFilters.length}
-                </Badge>
-              )}
-            </div>
-            <ChevronDown className="h-4 w-4 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[200px] sm:w-[200px] p-0" align="start">
-          <Command>
-            <CommandInput placeholder="Поиск фильтров..." />
-            <CommandList>
-              <CommandEmpty>Фильтры не найдены.</CommandEmpty>
-              <CommandGroup>
-                {hasActiveFilters && (
-                  <CommandItem onSelect={clearAllFilters}>
-                    <X className="mr-2 h-4 w-4" />
-                    Очистить все
-                  </CommandItem>
-                )}
-                {filterOptions.map((option) => (
-                  <CommandItem
-                    key={option.value}
-                    onSelect={() => handleFilterToggle(option.value)}
-                    className="flex items-center"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <div className={cn(
-                        "flex items-center justify-center w-4 h-4 border rounded mr-2",
-                        selectedFilters.includes(option.value) 
-                          ? "bg-blue-600 border-blue-600" 
-                          : "border-gray-300"
-                      )}>
-                        {selectedFilters.includes(option.value) && (
-                          <Check className="h-3 w-3 text-white" />
-                        )}
-                      </div>
-                      <span>{option.label}</span>
-                    </div>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+      {/* Filter Component */}
+      <TaskFilter 
+        selectedFilters={selectedFilters}
+        onFiltersChange={(filters) => onFiltersChange?.(filters)}
+      />
 
       {/* Add Task Button */}
       <Button onClick={() =>  openForm(FormQuery.CREATE_TASK)} className="w-full sm:w-auto">

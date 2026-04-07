@@ -6,16 +6,61 @@ import { EmployeeTask } from '../model/types';
 import { Calendar, MoreHorizontal } from 'lucide-react';
 import { AvatarGroup } from 'shared/components/avatar/avatar-group';
 
+export type TaskRole = 'RESPONSIBLE' | 'EXECUTOR' | 'OBSERVER' | 'CREATOR';
+
 interface TaskCardProps {
   task: EmployeeTask;
+  currentUserId?: string;
 }
 
-const TaskCardComponent: React.FC<TaskCardProps> = ({ task }) => {
+const TaskCardComponent: React.FC<TaskCardProps> = ({ task, currentUserId }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
     navigate('/task-details', { state: { taskId: task.id } });
   };
+
+  // Определяем роль текущего пользователя в задаче
+  const getUserRole = (): TaskRole | null => {
+    if (!currentUserId) return null;
+
+    // Проверяем, является ли пользователь ответственным
+    if (task.responsible_user_id === currentUserId) {
+      return 'RESPONSIBLE';
+    }
+
+    // Проверяем роль в members
+    const member = task.members?.find(m => m.user_id === currentUserId);
+    if (member) {
+      if (member.role === 'CO_EXECUTOR') return 'EXECUTOR';
+      if (member.role === 'OBSERVER') return 'OBSERVER';
+      if (member.role === 'RESPONSIBLE') return 'RESPONSIBLE';
+    }
+
+    // Если пользователь не найден ни как ответственный, ни в members - он создатель
+    return 'CREATOR';
+  };
+
+  const userRole = getUserRole();
+
+  // Определяем цвет обводки в зависимости от роли
+  const getBorderColor = (): string => {
+    if (!userRole) return '';
+    
+    switch (userRole) {
+      case 'CREATOR':
+        return 'border-l-2 border-l-purple-500 dark:border-l-purple-400';
+      case 'RESPONSIBLE':
+        return 'border-l-2 border-l-blue-500 dark:border-l-blue-400';
+      case 'EXECUTOR':
+        return 'border-l-2 border-l-green-500 dark:border-l-green-400';
+      case 'OBSERVER':
+        return 'border-l-2 border-l-yellow-500 dark:border-l-yellow-400';
+      default:
+        return '';
+    }
+  };
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Без срока';
     
@@ -42,10 +87,12 @@ const TaskCardComponent: React.FC<TaskCardProps> = ({ task }) => {
       return dateString;
     }
   };
-  console.log(task)
+
+  const borderColor = getBorderColor();
+
   return (
     <Card 
-      className="p-4 hover:shadow-md transition-all duration-200 cursor-pointer group"
+      className={`p-4 hover:shadow-md transition-all duration-200 cursor-pointer group ${borderColor}`}
       onClick={handleCardClick}
     >
       <div className="space-y-3">

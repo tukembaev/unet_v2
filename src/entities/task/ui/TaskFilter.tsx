@@ -2,25 +2,28 @@ import React, { useState } from 'react';
 import { Button, Badge, Checkbox } from 'shared/ui';
 import { Filter, X } from 'lucide-react';
 
+export type TaskRole = 'RESPONSIBLE' | 'EXECUTOR' | 'OBSERVER' | 'CREATOR';
+
 interface FilterOption {
   key: string;
   label: string;
   value: string;
 }
 
-const filterOptions: FilterOption[] = [
-  { key: 'ALL', label: 'Все', value: 'all' },
-  { key: 'ATTACHED', label: 'Прикрепленные', value: 'attached' },
-  { key: 'COMPLETED', label: 'Завершенные', value: 'completed' },
-  { key: 'DOING', label: 'Выполняю', value: 'doing' },
-  { key: 'HELPING', label: 'Помогаю', value: 'helping' },
-  { key: 'INSTRUCTED', label: 'Поручил', value: 'instructed' },
-  { key: 'WATCHING', label: 'Наблюдаю', value: 'watching' },
+const roleFilterOptions: FilterOption[] = [
+  { key: 'CREATOR', label: 'Поручил', value: 'CREATOR' },
+  { key: 'RESPONSIBLE', label: 'Ответственный', value: 'RESPONSIBLE' },
+  { key: 'EXECUTOR', label: 'Соисполнитель', value: 'EXECUTOR' },
+  { key: 'OBSERVER', label: 'Наблюдатель', value: 'OBSERVER' },
 ];
 
+export interface TaskFilters {
+  roles: TaskRole[];
+}
+
 interface TaskFilterProps {
-  selectedFilters: string[];
-  onFiltersChange: (filters: string[]) => void;
+  selectedFilters: TaskFilters;
+  onFiltersChange: (filters: TaskFilters) => void;
 }
 
 export const TaskFilter: React.FC<TaskFilterProps> = ({
@@ -29,30 +32,24 @@ export const TaskFilter: React.FC<TaskFilterProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleFilterToggle = (value: string) => {
-    if (value === 'all') {
-      // If "Все" is selected, clear all other filters
-      onFiltersChange(['all']);
-    } else {
-      // Remove "all" if it exists and toggle the specific filter
-      const newFilters = selectedFilters.filter(f => f !== 'all');
-      if (newFilters.includes(value)) {
-        // Remove filter
-        const updatedFilters = newFilters.filter(f => f !== value);
-        // If no filters left, add "all"
-        onFiltersChange(updatedFilters.length === 0 ? ['all'] : updatedFilters);
-      } else {
-        // Add filter
-        onFiltersChange([...newFilters, value]);
-      }
-    }
+  const handleRoleToggle = (value: TaskRole) => {
+    const newRoles = selectedFilters.roles.includes(value)
+      ? selectedFilters.roles.filter(r => r !== value)
+      : [...selectedFilters.roles, value];
+    
+    onFiltersChange({
+      roles: newRoles,
+    });
   };
 
   const clearAllFilters = () => {
-    onFiltersChange(['all']);
+    onFiltersChange({
+      roles: [],
+    });
   };
 
-  const hasActiveFilters = selectedFilters.length > 0 && !selectedFilters.includes('all');
+  const hasActiveFilters = selectedFilters.roles.length > 0;
+  const activeFiltersCount = selectedFilters.roles.length;
 
   return (
     <div className="relative">
@@ -65,22 +62,22 @@ export const TaskFilter: React.FC<TaskFilterProps> = ({
         Фильтр
         {hasActiveFilters && (
           <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-xs">
-            {selectedFilters.length}
+            {activeFiltersCount}
           </Badge>
         )}
       </Button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+        <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium text-sm">Фильтры</h3>
+              <h3 className="font-medium text-sm">Фильтр по роли</h3>
               {hasActiveFilters && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={clearAllFilters}
-                  className="text-xs text-gray-500 hover:text-gray-700"
+                  className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 >
                   <X className="h-3 w-3 mr-1" />
                   Очистить
@@ -88,18 +85,19 @@ export const TaskFilter: React.FC<TaskFilterProps> = ({
               )}
             </div>
             
+            {/* Role Filters */}
             <div className="space-y-2">
-              {filterOptions.map((option) => (
+              {roleFilterOptions.map((option) => (
                 <div
                   key={option.value}
                   className="flex items-center space-x-2 cursor-pointer hover:bg-accent p-2 rounded"
-                  onClick={() => handleFilterToggle(option.value)}
+                  onClick={() => handleRoleToggle(option.value as TaskRole)}
                 >
                   <Checkbox
-                    checked={selectedFilters.includes(option.value)}
-                    onCheckedChange={() => handleFilterToggle(option.value)}
+                    checked={selectedFilters.roles.includes(option.value as TaskRole)}
+                    onCheckedChange={() => handleRoleToggle(option.value as TaskRole)}
                   />
-                  <span className="text-sm text-gray-700">{option.label}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
                 </div>
               ))}
             </div>
