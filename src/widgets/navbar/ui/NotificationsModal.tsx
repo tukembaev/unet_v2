@@ -1,9 +1,12 @@
+import type { Notification } from 'entities/notification';
+import { AlertCircle, Check, FileText, Info, ListTodo } from 'lucide-react';
+import { useNotifications } from 'pages/home/model/hooks/useNotifications';
 import { useState } from 'react';
-import { FileText, CheckCircle2, AlertCircle, Info, Check, ListTodo } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Button,
   Badge,
+  Button,
+  Card,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -11,25 +14,8 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
-  Card,
 } from 'shared/ui';
-import { useNotifications } from 'pages/home/model/hooks/useNotifications';
-import type { Notification, NotificationIconType } from 'entities/notification';
-import { getNotificationIconType } from 'entities/notification';
 
-const notificationIcons: Record<NotificationIconType, typeof Info> = {
-  document: FileText,
-  task: CheckCircle2,
-  alert: AlertCircle,
-  info: Info,
-};
-
-const notificationColors: Record<NotificationIconType, string> = {
-  document: 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950/30',
-  task: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30',
-  alert: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30',
-  info: 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-950/30',
-};
 
 const getNotificationIcon = (notification: Notification) => {
   const isTask = notification.source_service === 'tasks';
