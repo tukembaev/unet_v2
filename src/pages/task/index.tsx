@@ -1,6 +1,7 @@
 import { TaskSearchFilter, TaskTabsContent, TaskFilters } from 'entities/task'
 import { CreateTaskDialog } from 'features/create-task'
 import { useCallback, useState } from 'react'
+import { motion } from 'motion/react'
 import { PageHeader } from 'widgets/page-header'
 
 export const TaskPage = () => {
@@ -18,7 +19,12 @@ export const TaskPage = () => {
   }, [])
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+    >
         <PageHeader
           title="Задачи"
           description="Кыргызский Государственный Технический Университет имени И.Раззакова"
@@ -37,6 +43,6 @@ export const TaskPage = () => {
         />
         
         <CreateTaskDialog />
-    </div>
+    </motion.div>
   )
 }

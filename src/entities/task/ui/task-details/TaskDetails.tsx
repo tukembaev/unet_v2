@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { motion } from "motion/react";
 import PageHeader from "widgets/page-header/page-header";
 import { 
   Button, 
@@ -157,7 +158,12 @@ const TaskDetails = () => {
 
   return (
     <>
-      <div className="container mx-auto p-4 md:p-6 space-y-6">
+      <motion.div 
+        className="container mx-auto p-4 md:p-6 space-y-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+      >
         <PageHeader
           title={task.title}
           
@@ -230,7 +236,12 @@ const TaskDetails = () => {
         {/* Main Layout: Content on left, Documents on right */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left side - Main content (2/3) */}
-          <div className="lg:col-span-2 space-y-6">
+          <motion.div 
+            className="lg:col-span-2 space-y-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2, delay: 0.05 }}
+          >
             {/* Members Table */}
             <TaskMembersTable members={task.members} taskId={task.id} canAddMembers={canAddMembers} />
 
@@ -241,14 +252,19 @@ const TaskDetails = () => {
               onSubtaskClick={(subtaskId) => navigate('/task-details', { state: { taskId: subtaskId } })}
               canAddSubtasks={canAddSubtasks}
             />
-          </div>
+          </motion.div>
 
           {/* Right side - Documents (1/3) */}
-          <div className="lg:col-span-1"> 
+          <motion.div 
+            className="lg:col-span-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
+          > 
             <TaskDocumentsCard canAddDocuments={canAddDocuments} />
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       <CreateTaskDialog />
       <AddTaskMembersDialog />

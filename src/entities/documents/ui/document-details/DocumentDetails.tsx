@@ -2,6 +2,7 @@ import { useUpdateDocumentStatus } from "features/create-document/model/queries"
 import { LucideCookie } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
+import { motion } from "motion/react";
 import PdfViewer from "shared/components/pdf-viewer/PdfViewer";
 import { FormQuery, useFormNavigation } from "shared/lib";
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "shared/ui";
@@ -28,8 +29,7 @@ const DocumentDetails = () => {
   
   const [isAddMembersOpen, setIsAddMembersOpen] = useState(false);
   const [isAddingMembers, setIsAddingMembers] = useState(false);
-  
-  console.log(document);
+
   // Преобразуем members в формат ApprovalParticipant
   const participants: ApprovalParticipant[] = useMemo(() => {
     if (!document?.members) return [];
@@ -155,7 +155,12 @@ const DocumentDetails = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-6 space-y-6">
+    <motion.div 
+      className="container mx-auto p-4 md:p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
       <PageHeader
         title="Детали документа"
         description="Просмотр процесса согласования и подписания документа"
@@ -179,30 +184,6 @@ const DocumentDetails = () => {
         </div>
       </PageHeader>
 
-      {/* Информация о документе */}
-      <div className="space-y-3">
-        <h2 className="text-lg font-bold">Информация о документе</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-muted-foreground">ID:</span> {document.id}
-          </div>
-          <div>
-            <span className="text-muted-foreground">Отправитель:</span>{' '}
-            {document.sender_full_name}
-          </div>
-          <div>
-            <span className="text-muted-foreground">Дата создания:</span>{' '}
-            {new Intl.DateTimeFormat('ru-RU', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric'
-            }).format(new Date(document.created_at))}
-          </div>
-          <div>
-            <span className="text-muted-foreground">Тип:</span> {document.type}
-          </div>
-        </div>
-      </div>
 
       {/* Описание документа */}
       {document.title && (
@@ -217,28 +198,40 @@ const DocumentDetails = () => {
       {/* Split layout: PDF слева, карточки справа */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Left side - PDF Viewer */}
-        <div className="w-full space-y-4">
+        <motion.div 
+          className="w-full space-y-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2, delay: 0.05 }}
+        >
           {document.file && <PdfViewer url={document.file} status={document.status} />}
           {!document.file && (
             <div className="border rounded-lg p-8 text-center text-muted-foreground">
               Файл документа отсутствует
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Right side - Cards */}
-        <div className="w-full space-y-4 md:space-y-6">
+        <motion.div 
+          className="w-full space-y-4 md:space-y-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2, delay: 0.1 }}
+        >
+          <DocFileCard />
           <DocumentTabsCard 
             participants={participants}
             currentUserId={currentUser?.id}
             history={[]}
             isHistoryLoading={false}
+            files={document.files || []}
             onApprove={handleApprove}
             onReject={handleReject}
             onAddMembers={() => setIsAddMembersOpen(true)}
           />
-          <DocFileCard />
-        </div>
+       
+        </motion.div>
       </div>
 
       {/* Диалог добавления согласующих */}
@@ -248,7 +241,7 @@ const DocumentDetails = () => {
         onAddMembers={handleAddMembers}
         isSubmitting={isAddingMembers}
       />
-    </div>
+    </motion.div>
   );
 };
 

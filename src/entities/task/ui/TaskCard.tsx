@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'motion/react';
 import { Card } from 'shared/ui';
 
 import { EmployeeTask } from '../model/types';
@@ -91,48 +92,53 @@ const TaskCardComponent: React.FC<TaskCardProps> = ({ task, currentUserId }) => 
   const borderColor = getBorderColor();
 
   return (
-    <Card 
-      className={`p-4 hover:shadow-md transition-all duration-200 cursor-pointer group ${borderColor}`}
-      onClick={handleCardClick}
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
     >
-      <div className="space-y-3">
-        {/* Header with title and menu */}
-        <div className="flex items-start justify-between">
-          <h3 className="font-semibold text-sm text-foreground line-clamp-2 flex-1 pr-2">
-            {task.title}
-          </h3>
-          <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded">
-            <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-          </button>
-        </div>
-
-        {/* Description */}
-        <p className="text-xs text-muted-foreground line-clamp-2">
-          Compile competitor landing page designs for inspiration. G..
-        </p>
-
-        {/* Separator */}
-        <div className="border-t border-border"></div>
-
-        {/* Bottom section */}
+      <Card 
+        className={`p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer group ${borderColor}`}
+        onClick={handleCardClick}
+      >
         <div className="space-y-3">
-          {/* Members */}
-       
-            {/* Creation and Deadline */}
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <AvatarGroup members={task.members} max={2} />
+          {/* Header with title and menu */}
+          <div className="flex items-start justify-between">
+            <h3 className="font-semibold text-sm text-foreground line-clamp-2 flex-1 pr-2">
+              {task.title}
+            </h3>
+            <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded">
+              <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
 
-              <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                <span>
-                  {formatDate(task.created_at)}
-                  {task.deadline_at && ` - ${formatDate(task.deadline_at)}`}
-                </span>
+          {/* Description */}
+          <p className="text-xs text-muted-foreground line-clamp-2">
+            Compile competitor landing page designs for inspiration. G..
+          </p>
+
+          {/* Separator */}
+          <div className="border-t border-border"></div>
+
+          {/* Bottom section */}
+          <div className="space-y-3">
+            {/* Members */}
+       
+              {/* Creation and Deadline */}
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <AvatarGroup members={task.members} max={2} />
+
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  <span>
+                    {formatDate(task.created_at)}
+                    {task.deadline_at && ` - ${formatDate(task.deadline_at)}`}
+                  </span>
+                </div>
               </div>
-            </div>
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </motion.div>
   );
 };
 

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, FileText, Clock, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, FileText, Clock, Loader2, CheckCircle2, XCircle, Inbox, Send, History } from 'lucide-react';
 import { Badge } from 'shared/ui';
 import { DocumentsTableSkeleton } from './DocumentsTableSkeleton';
 import {
@@ -61,9 +61,9 @@ const statusOptions = [
 ];
 
 const tabs: TabConfig[] = [
-  { value: 'inbox', label: 'Входящие' },
-  { value: 'outbox', label: 'Исходящие' },
-  { value: 'history', label: 'История' },
+  { value: 'inbox', label: 'Входящие', icon: Inbox },
+  { value: 'outbox', label: 'Исходящие', icon: Send },
+  { value: 'history', label: 'История', icon: History },
 ];
 
 export const DocumentsContent = () => {
