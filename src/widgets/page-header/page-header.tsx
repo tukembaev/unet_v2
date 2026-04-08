@@ -1,6 +1,5 @@
 import React from "react";
 import { cn } from "shared/lib";
-import { SmartBreadcrumbs } from "shared/ui";
 
 interface PageHeaderProps {
   title: string;
@@ -17,9 +16,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      {/* Breadcrumbs */}
-      <SmartBreadcrumbs />
-
       <div className={cn("w-full", className)}>
         <div className="flex flex-col items-start justify-between lg:flex-row items-start">
           <div className="space-y-1 flex-1 min-w-0">

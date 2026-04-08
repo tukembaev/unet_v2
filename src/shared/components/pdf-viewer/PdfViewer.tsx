@@ -1,18 +1,17 @@
-import { Badge, Card, CardContent } from "shared/ui";
-import { Button } from "shared/ui";
-import { Document, Page, pdfjs } from "react-pdf";
-import { useState, useRef, useEffect } from "react";
-import { 
-  FileText, 
-  Download, 
-  ZoomIn, 
-  ZoomOut, 
-  ChevronLeft, 
+import {
+  ChevronLeft,
   ChevronRight,
+  Download,
+  ExternalLink,
+  FileText,
   Maximize2,
   Minimize2,
-  ExternalLink
+  ZoomIn,
+  ZoomOut
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
+import { Button, Card, CardContent } from "shared/ui";
 
 // Импортируем стили для react-pdf (правильные пути для версии 10.x)
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -21,7 +20,7 @@ import "react-pdf/dist/Page/TextLayer.css";
 // Используем версию worker, соответствующую версии pdfjs-dist
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-const PdfViewer = ({ url ,status }: { url: string , status:string}) => {
+const PdfViewer = ({ url  }: { url: string , status:string}) => {
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(0.8);

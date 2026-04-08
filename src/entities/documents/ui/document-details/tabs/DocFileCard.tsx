@@ -80,7 +80,7 @@ const DocFileCard = () => {
             <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/50">
               <Calendar className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground mb-0.5">Дата</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Дата отправки</p>
                 <p className="text-sm font-medium truncate">{formatDate(document.created_at)}</p>
               </div>
             </div>
@@ -95,11 +95,24 @@ const DocFileCard = () => {
             </div>
 
             {/* Sender */}
-            <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/50 col-span-2">
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/50">
               <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground mb-0.5">Отправитель</p>
                 <p className="text-sm font-medium truncate">{document.sender_full_name || '-'}</p>
+              </div>
+            </div>
+
+            {/* Receiver */}
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/50">
+              <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground mb-0.5">Получатель</p>
+                <p className="text-sm font-medium truncate">
+                  {document.members && document.members.length > 0 
+                    ? document.members[document.members.length - 1].member_full_name 
+                    : '-'}
+                </p>
               </div>
             </div>
           </div>

@@ -27,3 +27,8 @@ export const getEmployeeDetails = async (userId: string): Promise<EmployeeDetail
   const { data } = await apiUserClient.get(`employees/${userId}`);
   return data;
 };
+
+export const getEmployeeByUserId = async (userId: string): Promise<EmployeeDetails> => {
+  const { data } = await apiUserClient.get(`employees/${userId}`);
+  return data;
+};
