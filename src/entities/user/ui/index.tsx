@@ -44,9 +44,7 @@ export const UserCard: React.FC<Props> = ({ user }) => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Settings size={16} /> Редактировать
-          </Button>
+          
           <Button variant="default" className="flex items-center gap-2">
             <FileText size={16} /> Скачать профиль
           </Button>

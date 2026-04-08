@@ -302,7 +302,7 @@ export function CreateDocumentDialog() {
                     placeholder="Введите текст документа..."
                     value={text || ''}
                     onChange={handleTextChange}
-                    className="min-h-[200px] resize-y"
+                    className="min-h-[100px] resize-y"
                   />
                   {text && (
                     <p className="text-xs text-muted-foreground mt-2">
