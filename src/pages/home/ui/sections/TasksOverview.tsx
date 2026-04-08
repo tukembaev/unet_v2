@@ -1,8 +1,7 @@
-import { Card, CardContent, Skeleton, Button } from 'shared/ui';
-import { ListTodo, ArrowRight, Calendar, Circle, Plus } from 'lucide-react';
+import { ArrowRight, Calendar, Circle, ListTodo } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Card, CardContent, Skeleton } from 'shared/ui';
 import { useActiveTasks } from '../../model/hooks/useActiveTasks';
-import { useFormNavigation, FormQuery } from 'shared/lib';
 
 const statusConfig: Record<string, { label: string; color: string; dotColor: string }> = {
   PENDING: { label: 'Ожидает', color: 'text-yellow-600 dark:text-yellow-400', dotColor: 'bg-yellow-500' },
@@ -12,7 +11,6 @@ const statusConfig: Record<string, { label: string; color: string; dotColor: str
 
 export const TasksOverview = () => {
   const navigate = useNavigate();
-  const openForm = useFormNavigation();
   const { tasks, isLoading } = useActiveTasks();
 
   if (isLoading) {
@@ -43,14 +41,7 @@ export const TasksOverview = () => {
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => openForm(FormQuery.CREATE_TASK)}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
+          
             <Button
               variant="ghost"
               size="sm"

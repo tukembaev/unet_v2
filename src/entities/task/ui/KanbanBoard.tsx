@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { TaskCard } from "./TaskCard";
 import { TaskCategory, EmployeeTask, TaskStatus } from "../model/types";
 import { TaskRole, TaskFilters } from "./TaskFilter";
@@ -199,13 +200,23 @@ const KanbanBoardComponent: React.FC<KanbanBoardProps> = ({
   return (
     <div className="overflow-x-auto pb-4">
       <div className="container mx-auto flex gap-6 min-w-max">
-        {sectionConfig.map((section) => {
+        {sectionConfig.map((section, columnIndex) => {
           const sortedTasks = filteredAndSortedTasks[section.key];
           const taskCount = sortedTasks.length;
           const currentSortMode = sortModes[section.key];
 
           return (
-            <div key={section.key} className="w-80 flex-shrink-0">
+            <motion.div
+              key={section.key}
+              className="w-80 flex-shrink-0"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ 
+                duration: 0.3, 
+                delay: columnIndex * 0.05,
+                ease: "easeOut"
+              }}
+            >
               <div className="space-y-4">
                 {/* Section Header */}
                 <div className="flex items-center gap-2 px-1">
@@ -245,30 +256,53 @@ const KanbanBoardComponent: React.FC<KanbanBoardProps> = ({
 
                 {/* Tasks List */}
                 <div className="space-y-3">
-                  {sortedTasks.length > 0 ? (
-                    sortedTasks.map((task) => (
-                      <TaskCard key={task.id} task={task} currentUserId={currentUserId} />
-                    ))
-                  ) : (
-                    <Empty className="border border-dashed max-h-[159px]">
-                      <EmptyHeader className="gap-1.5">
-                        <EmptyMedia variant="icon" className="mb-0 size-8 [&_svg]:size-4">
-                          <ListCheck size={12} />
-                        </EmptyMedia>
-                        <EmptyTitle className="text-sm font-semibold">Нет задач</EmptyTitle>
-                        <EmptyDescription className="text-xs">
-                          {section.key === "PENDING" && "Нет задач в очереди"}
-                          {section.key === "IN_PROGRESS" && "Нет задач в работе"}
-                          {section.key === "REVIEW" && "Нет задач на контроле"}
-                          {section.key === "COMPLETED" && "Нет завершенных задач"}
-                          {section.key === "CANCELED" && "Нет отмененных задач"}
-                        </EmptyDescription>
-                      </EmptyHeader>
-                    </Empty>
-                  )}
+                  <AnimatePresence mode="popLayout">
+                    {sortedTasks.length > 0 ? (
+                      sortedTasks.map((task, index) => (
+                        <motion.div
+                          key={task.id}
+                          layout
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                          transition={{
+                            duration: 0.25,
+                            delay: index * 0.03,
+                            ease: "easeOut",
+                            layout: { duration: 0.3, ease: "easeInOut" }
+                          }}
+                        >
+                          <TaskCard task={task} currentUserId={currentUserId} />
+                        </motion.div>
+                      ))
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                      >
+                        <Empty className="border border-dashed max-h-[159px]">
+                          <EmptyHeader className="gap-1.5">
+                            <EmptyMedia variant="icon" className="mb-0 size-8 [&_svg]:size-4">
+                              <ListCheck size={12} />
+                            </EmptyMedia>
+                            <EmptyTitle className="text-sm font-semibold">Нет задач</EmptyTitle>
+                            <EmptyDescription className="text-xs">
+                              {section.key === "PENDING" && "Нет задач в очереди"}
+                              {section.key === "IN_PROGRESS" && "Нет задач в работе"}
+                              {section.key === "REVIEW" && "Нет задач на контроле"}
+                              {section.key === "COMPLETED" && "Нет завершенных задач"}
+                              {section.key === "CANCELED" && "Нет отмененных задач"}
+                            </EmptyDescription>
+                          </EmptyHeader>
+                        </Empty>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>

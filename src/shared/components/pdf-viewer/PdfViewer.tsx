@@ -83,11 +83,7 @@ const PdfViewer = ({ url ,status }: { url: string , status:string}) => {
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">Документ</h3>
-            {status && (
-            <Badge variant="outline" className="text-sm">
-              {status}
-            </Badge>
-          )}
+          
           </div>
           
           <div className="flex items-center gap-2">

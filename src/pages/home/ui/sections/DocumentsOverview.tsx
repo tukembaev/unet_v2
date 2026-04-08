@@ -1,12 +1,11 @@
-import { Card, CardContent, Skeleton, Button } from 'shared/ui';
-import { FileText, ArrowRight, Plus } from 'lucide-react';
+import { ArrowRight, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Card, CardContent, Skeleton } from 'shared/ui';
 import { usePendingDocuments } from '../../model/hooks/usePendingDocuments';
-import { useFormNavigation, FormQuery } from 'shared/lib';
 
 export const DocumentsOverview = () => {
   const navigate = useNavigate();
-  const openForm = useFormNavigation();
+
   const { documents, isLoading } = usePendingDocuments();
 
   if (isLoading) {
@@ -37,14 +36,7 @@ export const DocumentsOverview = () => {
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => openForm(FormQuery.CREATE_DOCUMENT)}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
+       
             <Button
               variant="ghost"
               size="sm"

@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "shared/ui/avatar";
 import { Button } from "shared/ui";
 import { TooltipProvider } from "shared/ui/tooltip";
 import { cn } from "shared/lib";
-import { GitBranch, X, Check, Plus } from "lucide-react";
+import { GitBranch, Plus, ShieldXIcon, ShieldCheckIcon } from "lucide-react";
 import ApprovalUserTooltip from "./ApprovalUserTooltip";
 
 export type ApprovalRole = "Отправитель" | "Согласующий" | "Получатель";
@@ -144,9 +144,9 @@ const DocumentApprovalFlow = ({
                 variant="destructive"
                 size="sm"
                 onClick={onReject}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40"
               >
-                <X className="h-3 w-3" />
+                <ShieldXIcon className="h-3 w-3" />
                 Отказать
               </Button>
             )}
@@ -155,9 +155,9 @@ const DocumentApprovalFlow = ({
                 variant="default"
                 size="sm"
                 onClick={onApprove}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-green-600/10 text-green-600 hover:bg-green-600/20 focus-visible:ring-green-600/20 dark:bg-green-400/10 dark:text-green-400 dark:hover:bg-green-400/20 dark:focus-visible:ring-green-400/40"
               >
-                <Check className="h-3 w-3" />
+                <ShieldCheckIcon className="h-3 w-3" />
                 {currentParticipant.type_approval}
               </Button>
             )}
@@ -199,7 +199,7 @@ const DocumentApprovalFlow = ({
                           participantRefs.current[index] = el;
                         }}
                         className={cn(
-                          "transition-all  p-0 cursor-pointer hover:scale-110 w-10 h-10 sm:w-12 sm:h-12",
+                          "transition-all p-0 cursor-pointer hover:scale-110 w-10 h-10 sm:w-12 sm:h-12",
                           getStatusColor(participant, index)
                         )}
                       >

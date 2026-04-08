@@ -4,6 +4,7 @@ import { TaskFile } from "entities/task/model/types";
 import { Download, FileCheck, FileText, Trash2, Upload } from "lucide-react";
 import { useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { motion } from "motion/react";
 import { apiClientGo } from "shared/config";
 import { Button, Card, CardContent, CardHeader, CardTitle, Separator } from "shared/ui";
 import { toast } from "sonner";
@@ -106,7 +107,12 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
   const hasAttachedDocument = task?.doc_id && task?.doc_title;
 
   return (
-    <Card className="hover:shadow-md transition-all duration-200">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className="hover:shadow-md transition-all duration-200">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5 text-primary" />
@@ -247,6 +253,7 @@ const TaskDocumentsCard = ({ canAddDocuments }: TaskDocumentsCardProps) => {
         </div>
       </CardContent>
     </Card>
+    </motion.div>
   );
 };
 

@@ -1,68 +1,111 @@
-import { Card, CardContent } from "shared/ui";
-import { FileText, Calendar, Hash, User, FileSignature } from "lucide-react";
+import { Card, CardContent, Badge } from "shared/ui";
+import { FileText, Calendar, Hash, User, Clock, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { motion } from "motion/react";
+import { useParams } from "react-router-dom";
+import { useDocumentDetails } from "entities/documents/model/queries";
+
+const statusConfig: Record<string, { icon: React.ReactNode; className: string }> = {
+  'В режиме ожидания': {
+    icon: <Clock className="h-3 w-3" />,
+    className: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+  },
+  'В процессе выполнения': {
+    icon: <Loader2 className="h-3 w-3 animate-spin" />,
+    className: 'bg-blue-100 text-blue-800 border-blue-300',
+  },
+  'Завершено': {
+    icon: <CheckCircle2 className="h-3 w-3" />,
+    className: 'bg-green-100 text-green-800 border-green-300',
+  },
+  'Доработать': {
+    icon: <XCircle className="h-3 w-3" />,
+    className: 'bg-red-100 text-red-800 border-red-300',
+  },
+};
 
 const DocFileCard = () => {
+  const { id } = useParams<{ id: string }>();
+  const { data: document } = useDocumentDetails(id || '');
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '-';
+    return new Intl.DateTimeFormat('ru-RU', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(dateString)).replace(',', ' года в');
+  };
+
+  if (!document) return null;
+
   return (
-    <Card className="hover:shadow-md transition-all duration-200">
-      <CardContent className="p-6">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <FileText className="h-5 w-5 text-primary" />
-          Карточка документа
-        </h3>
-        
-        <div className="space-y-4">
-          {/* Type */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-            <FileText className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground font-medium mb-1">Тип документа</p>
-              <p className="text-sm font-medium">Заявление</p>
-            </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className="hover:shadow-md transition-all duration-200">
+        <CardContent className="p-4">
+          {/* Header with Status */}
+          <div className="flex items-center justify-between mb-3 pb-3 border-b">
+            <h3 className="text-base font-semibold flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary" />
+              Карточка документа
+            </h3>
+            {document.status && (
+              <Badge 
+                variant="outline" 
+                className={`gap-1.5 whitespace-nowrap ${statusConfig[document.status]?.className || 'bg-gray-100 text-gray-800 border-gray-300'}`}
+              >
+                {statusConfig[document.status]?.icon}
+                {document.status}
+              </Badge>
+            )}
           </div>
-
-          {/* Date */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-            <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground font-medium mb-1">Дата поступления</p>
-              <p className="text-sm font-medium">05.08.2025 17:47</p>
-            </div>
-          </div>
-
-          {/* Document Number */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-            <Hash className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground font-medium mb-1">Номер исходящего документа</p>
-              <p className="text-sm font-medium">DOC - 2025-08-054063</p>
-            </div>
-          </div>
-
-          {/* Sender Info */}
-          <div className="border-t pt-4">
-            <p className="text-xs text-muted-foreground font-semibold mb-3">Сведения об исходящем</p>
-            
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground font-medium mb-1">Отправитель</p>
-                  <p className="text-sm font-medium">Сманов Мадияр 777</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <FileSignature className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground font-medium mb-1">Подписант</p>
-                  <p className="text-sm font-medium">Toga Inumaki 52</p>
-                </div>
+          
+          {/* Grid Layout for Fields */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Type */}
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/50">
+              <FileText className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground mb-0.5">Тип</p>
+                <p className="text-sm font-medium truncate">{document.type || '-'}</p>
               </div>
             </div>
+
+            {/* Date */}
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/50">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground mb-0.5">Дата</p>
+                <p className="text-sm font-medium truncate">{formatDate(document.created_at)}</p>
+              </div>
+            </div>
+
+            {/* Document ID */}
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/50 col-span-2">
+              <Hash className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground mb-0.5">ID документа</p>
+                <p className="text-sm font-medium truncate">{document.id || '-'}</p>
+              </div>
+            </div>
+
+            {/* Sender */}
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/50 col-span-2">
+              <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground mb-0.5">Отправитель</p>
+                <p className="text-sm font-medium truncate">{document.sender_full_name || '-'}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
