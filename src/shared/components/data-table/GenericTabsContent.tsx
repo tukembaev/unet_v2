@@ -62,7 +62,7 @@ export function GenericTabsContent<T>({
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <TabsList className="h-auto gap-2 rounded-xl p-1">
+            <TabsList className="h-auto gap-2 rounded-xl p-1 cursor-pointer">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.value;
                 const Icon = tab.icon;
@@ -71,13 +71,13 @@ export function GenericTabsContent<T>({
                     key={tab.value}
                     layout
                     className={cn(
-                      'flex h-9 items-center justify-center overflow-hidden rounded-md cursor-pointer',
+                      'flex h-9 items-center justify-center overflow-hidden rounded-md',
                       isActive ? 'flex-1' : 'flex-none'
                     )}
                     onClick={() => handleTabChange(tab.value)}
                     initial={false}
                     animate={{
-                      width: isActive ? 'auto' : 'auto'
+                      width: isActive ? 'auto' : 36
                     }}
                     transition={{
                       type: 'spring',
@@ -87,25 +87,25 @@ export function GenericTabsContent<T>({
                   >
                     <TabsTrigger value={tab.value} asChild>
                       <motion.div
-                        className="flex h-9 w-full items-center justify-center gap-2 px-4"
+                        className="flex h-9 w-full items-center justify-center gap-1.5 px-3"
                         animate={{ filter: 'blur(0px)' }}
                         exit={{ filter: 'blur(2px)' }}
                         transition={{ duration: 0.25, ease: 'easeOut' }}
                       >
                         {Icon && <Icon className="h-4 w-4 shrink-0" />}
-                        <AnimatePresence initial={false} mode="wait">
-                          <motion.span
-                            key={tab.value}
-                            className="font-medium whitespace-nowrap"
-                            initial={{ opacity: 0.7, scale: 0.95 }}
-                            animate={{ 
-                              opacity: isActive ? 1 : 0.7, 
-                              scale: isActive ? 1 : 0.95 
-                            }}
-                            transition={{ duration: 0.2, ease: 'easeOut' }}
-                          >
-                            {tab.label}
-                          </motion.span>
+                        <AnimatePresence initial={false}>
+                          {isActive && (
+                            <motion.span
+                              className="font-medium whitespace-nowrap"
+                              initial={{ opacity: 0, scaleX: 0.8 }}
+                              animate={{ opacity: 1, scaleX: 1 }}
+                              exit={{ opacity: 0, scaleX: 0.8 }}
+                              transition={{ duration: 0.25, ease: 'easeOut' }}
+                              style={{ originX: 0 }}
+                            >
+                              {tab.label}
+                            </motion.span>
+                          )}
                         </AnimatePresence>
                       </motion.div>
                     </TabsTrigger>

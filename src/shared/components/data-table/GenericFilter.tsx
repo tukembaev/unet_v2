@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Button, Badge, Checkbox } from 'shared/ui';
-import { Filter, X } from 'lucide-react';
+import { Button, Badge, Checkbox, Label } from 'shared/ui';
+import { Filter, X, LucideIcon } from 'lucide-react';
 
 export interface FilterOption {
   label: string;
   value: string;
+  icon?: LucideIcon;
 }
 
 export interface FilterGroup {
@@ -73,7 +74,7 @@ export const GenericFilter: React.FC<GenericFilterProps> = ({
         <div className="absolute top-full left-0 mt-2 w-72 bg-popover border border-border rounded-lg shadow-lg z-50">
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium text-sm">Фильтры</h3>
+              <h3 className="font-semibold text-sm">Фильтры</h3>
               {hasActiveFilters && onClearAll && (
                 <Button
                   variant="ghost"
@@ -87,34 +88,38 @@ export const GenericFilter: React.FC<GenericFilterProps> = ({
               )}
             </div>
 
-            {filterGroups.map((group, index) => (
-              <div key={group.id} className={index > 0 ? 'mt-4' : ''}>
-                <h4 className="text-xs font-medium text-muted-foreground mb-2">
-                  {group.label}
-                </h4>
-                <div className="space-y-2">
-                  {group.options.map((option) => (
-                    <div
-                      key={option.value}
-                      className="flex items-center space-x-2 cursor-pointer hover:bg-accent p-2 rounded"
-                      onClick={() =>
-                        handleFilterToggle(option.value, group.selectedValues, group.onChange)
-                      }
-                    >
-                      <Checkbox
-                        checked={group.selectedValues.includes(option.value)}
-                        onCheckedChange={() =>
-                          handleFilterToggle(option.value, group.selectedValues, group.onChange)
-                        }
-                      />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {option.label}
-                      </span>
-                    </div>
-                  ))}
+            <div className="space-y-4">
+              {filterGroups.map((group) => (
+                <div key={group.id}>
+                  <Label className="font-semibold text-xs text-muted-foreground mb-2 block">
+                    {group.label}
+                  </Label>
+                  <div className="flex flex-col gap-4">
+                    {group.options.map((option) => {
+                      const Icon = option.icon;
+                      return (
+                        <div key={option.value} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`${group.id}-${option.value}`}
+                            checked={group.selectedValues.includes(option.value)}
+                            onCheckedChange={() =>
+                              handleFilterToggle(option.value, group.selectedValues, group.onChange)
+                            }
+                          />
+                          <Label
+                            htmlFor={`${group.id}-${option.value}`}
+                            className="text-sm cursor-pointer flex items-center gap-2"
+                          >
+                            {Icon && <Icon className="h-4 w-4" aria-hidden="true" />}
+                            {option.label}
+                          </Label>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       )}

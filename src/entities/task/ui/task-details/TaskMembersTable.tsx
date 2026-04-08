@@ -5,15 +5,19 @@ import { TaskMember } from "../../model/types";
 import { EmptyState } from "shared/components/EmptyState";
 import { useFormNavigation, FormQuery } from "shared/lib";
 import { UserTooltip } from "entities/user";
+import { translateRole, getRoleIcon, getRoleColors } from "shared/lib/role-translations";
+import { useEmployeeByUserId } from "entities/user/model/queries";
 
 interface TaskMembersTableProps {
   members: TaskMember[];
   taskId: string;
   canAddMembers: boolean;
+  creatorId: string;
 }
 
-const TaskMembersTable = ({ members, taskId, canAddMembers }: TaskMembersTableProps) => {
+const TaskMembersTable = ({ members, taskId, canAddMembers, creatorId }: TaskMembersTableProps) => {
   const openForm = useFormNavigation();
+  const { data: creator } = useEmployeeByUserId(creatorId);
 
   const getMemberStatus = (isOnline: boolean) => {
     return isOnline ? "Онлайн" : "Офлайн";
@@ -26,7 +30,7 @@ const TaskMembersTable = ({ members, taskId, canAddMembers }: TaskMembersTablePr
   const handleAddMember = () => {
     openForm(FormQuery.ADD_TASK_MEMBERS, { task_id: taskId }, { syncUrl: false });
   };
-
+  
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -65,7 +69,52 @@ const TaskMembersTable = ({ members, taskId, canAddMembers }: TaskMembersTablePr
                   </TableRow>
                 </TableHeader>
                 <TableBody>
+                  {/* Строка с создателем */}
+                  {creator && (
+                    <TableRow className="bg-muted/30">
+                      <TableCell>
+                        <UserTooltip userId={creatorId}>
+                          <div className="flex items-center gap-3 cursor-pointer">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={creator.avatar_url || undefined} alt={creator.full_name} />
+                              <AvatarFallback>
+                                {creator.first_name[0]}{creator.last_name[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <span className="font-medium hover:underline">{creator.full_name}</span>
+                            </div>
+                          </div>
+                        </UserTooltip>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">
+                          Офлайн
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant="outline" 
+                          className="bg-purple-50 text-purple-700 border-purple-200 border flex items-center gap-1 w-fit"
+                        >
+                          {getRoleIcon('CREATOR') && (() => {
+                            const CreatorIcon = getRoleIcon('CREATOR');
+                            return CreatorIcon ? <CreatorIcon className="h-3 w-3" /> : null;
+                          })()}
+                          {translateRole('CREATOR')}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm">{creator.email || "-"}</span>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  
+                  {/* Остальные участники */}
                   {members.map((member) => {
+                    const RoleIcon = getRoleIcon(member.role);
+                    const colors = getRoleColors(member.role);
+                    
                     return (
                       <TableRow key={member.user_id}>
                         <TableCell>
@@ -93,7 +142,13 @@ const TaskMembersTable = ({ members, taskId, canAddMembers }: TaskMembersTablePr
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">{member.role}</Badge>
+                          <Badge 
+                            variant="outline" 
+                            className={`${colors.bg} ${colors.text} ${colors.border} border flex items-center gap-1 w-fit`}
+                          >
+                            {RoleIcon && <RoleIcon className="h-3 w-3" />}
+                            {translateRole(member.role)}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           <span className="text-sm">{member.email || "-"}</span>

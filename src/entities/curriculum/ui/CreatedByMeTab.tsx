@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Calendar, Layers } from 'lucide-react';
 import { ROUTES, getRoute } from 'app/providers/routes';
 import {
   Table,
@@ -16,9 +17,9 @@ import { GenericFilter, FilterGroup } from 'shared/components/data-table';
 
 // Generate year options from 2020 to 2050
 const generateYearOptions = () => {
-  const options = [{ label: 'Все', value: 'all' }];
+  const options = [{ label: 'Все', value: 'all', icon: Layers }];
   for (let year = 2020; year <= 2050; year++) {
-    options.push({ label: year.toString(), value: year.toString() });
+    options.push({ label: year.toString(), value: year.toString(), icon: Calendar });
   }
   return options;
 };

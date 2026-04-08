@@ -1,6 +1,23 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, FileText, Clock, Loader2, CheckCircle2, XCircle, Inbox, Send, History } from 'lucide-react';
+import { 
+  Plus, 
+  FileText, 
+  Clock, 
+  Loader2, 
+  CheckCircle2, 
+  XCircle, 
+  Inbox, 
+  Send, 
+  History,
+
+  UserCog,
+  ClipboardList,
+  Mail,
+  BarChart3,
+  Layers,
+  File
+} from 'lucide-react';
 import { Badge } from 'shared/ui';
 import { DocumentsTableSkeleton } from './DocumentsTableSkeleton';
 import {
@@ -43,21 +60,29 @@ const typeLabels: Record<DocumentType, string> = {
   REPORT: 'Отчет',
 };
 
+const typeIcons: Record<DocumentType, React.ReactNode> = {
+  ORDER_STUD: <File className="h-4 w-4" />,
+  ORDER_EMPL: <UserCog className="h-4 w-4" />,
+  APPLICATION: <ClipboardList className="h-4 w-4" />,
+  MAIL: <Mail className="h-4 w-4" />,
+  REPORT: <BarChart3 className="h-4 w-4" />,
+};
+
 const typeOptions = [
-  { label: 'Все', value: 'all' },
-  { label: 'Приказ (студент)', value: 'ORDER_STUD' },
-  { label: 'Приказ (сотрудник)', value: 'ORDER_EMPL' },
-  { label: 'Заявление', value: 'APPLICATION' },
-  { label: 'Письмо', value: 'MAIL' },
-  { label: 'Отчет', value: 'REPORT' },
+  { label: 'Все', value: 'all', icon: Layers },
+  { label: 'Приказ (студент)', value: 'ORDER_STUD', icon: File },
+  { label: 'Приказ (сотрудник)', value: 'ORDER_EMPL', icon: UserCog },
+  { label: 'Заявление', value: 'APPLICATION', icon: ClipboardList },
+  { label: 'Письмо', value: 'MAIL', icon: Mail },
+  { label: 'Отчет', value: 'REPORT', icon: BarChart3 },
 ];
 
 const statusOptions = [
-  { label: 'Все', value: 'all' },
-  { label: 'В режиме ожидания', value: 'В режиме ожидания' },
-  { label: 'В процессе выполнения', value: 'В процессе выполнения' },
-  { label: 'Выполнено', value: 'Выполнено' },
-  { label: 'Доработать', value: 'Доработать' },
+  { label: 'Все', value: 'all', icon: Layers },
+  { label: 'В режиме ожидания', value: 'В режиме ожидания', icon: Clock },
+  { label: 'В процессе выполнения', value: 'В процессе выполнения', icon: Loader2 },
+  { label: 'Выполнено', value: 'Выполнено', icon: CheckCircle2 },
+  { label: 'Доработать', value: 'Доработать', icon: XCircle },
 ];
 
 const tabs: TabConfig[] = [
@@ -114,10 +139,15 @@ export const DocumentsContent = () => {
     {
       key: 'type',
       label: 'Тип',
-      width: '150px',
-      minWidth: '150px',
+      width: '200px',
+      minWidth: '200px',
       className: 'whitespace-nowrap',
-      render: (doc) => typeLabels[doc.type] || doc.type,
+      render: (doc) => (
+        <div className="flex items-center gap-2">
+          {typeIcons[doc.type]}
+          <span>{typeLabels[doc.type] || doc.type}</span>
+        </div>
+      ),
     },
     {
       key: 'title',
