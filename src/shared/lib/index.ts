@@ -4,6 +4,7 @@ export { useForm, FormField, type InferFormValues } from './form';
 export { usePrintArea } from './print-area';
 export { formatDate, formatDateTime } from './format-date';
 export { performLogout } from './auth-utils';
+export { translateRole, roleTranslations, getRoleIcon, getRoleColors, roleIcons, roleColors } from './role-translations';
 export { 
   FormQuery, 
   useFormNavigation, 

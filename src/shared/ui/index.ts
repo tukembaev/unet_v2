@@ -35,16 +35,6 @@ export {
   NavigationMenuIndicator,
   NavigationMenuViewport,
 } from './navigation-menu';
-export {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-  BreadcrumbEllipsis,
-} from './breadcrumb';
-export { default as SmartBreadcrumbs } from './smart-breadcrumbs';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
 export {
   Table,

@@ -243,7 +243,7 @@ const TaskDetails = () => {
             transition={{ duration: 0.2, delay: 0.05 }}
           >
             {/* Members Table */}
-            <TaskMembersTable members={task.members} taskId={task.id} canAddMembers={canAddMembers} />
+            <TaskMembersTable members={task.members} taskId={task.id} canAddMembers={canAddMembers} creatorId={task.creator_id} />
 
             {/* Subtasks Table */}
             <TaskSubtasksTable 
