@@ -1,8 +1,8 @@
+import { Briefcase, Building2, FileText, Mail, Phone } from "lucide-react";
 import React from "react";
-import { Card, CardHeader, CardContent, CardFooter, Badge, Button } from "shared/ui";
-import { Mail, Phone, Briefcase, Building2, FileText, Settings } from "lucide-react";
-import type { IUser } from "../model/types";
 import { cn } from "shared/lib";
+import { Badge, Button, Card, CardContent, CardFooter, CardHeader } from "shared/ui";
+import type { IUser } from "../model/types";
 
 interface Props {
   user: IUser;

@@ -1,4 +1,4 @@
-import { Crown, Users, Eye, UserCog, LucideIcon, Gavel } from 'lucide-react';
+import { Crown, Eye, Gavel, LucideIcon, Users } from 'lucide-react';
 
 export const roleTranslations: Record<string, string> = {
   'RESPONSIBLE': 'Ответственный',

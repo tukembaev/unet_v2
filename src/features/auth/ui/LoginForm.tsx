@@ -12,7 +12,7 @@ import {
   CardContent,
   Input,
   Label,
-  Separator,
+  Separator
 } from "shared/ui";
 import { getHttpErrorMessage } from "shared/lib/http-error";
 import { cn } from "shared/lib/utils";

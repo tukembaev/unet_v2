@@ -1,5 +1,4 @@
-import { History, CheckCircle2, Send, FilePlus, Clock, XCircle, UserPlus, HistoryIcon } from "lucide-react";
-import { LucideIcon } from "lucide-react";
+import { CheckCircle2, Clock, FilePlus, History, HistoryIcon, LucideIcon, Send, UserPlus, XCircle } from "lucide-react";
 
 // Общий тип истории
 export type BaseHistory = {

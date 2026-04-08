@@ -1,9 +1,12 @@
+import type { Notification } from 'entities/notification';
+import { AlertCircle, Check, FileText, Info, ListTodo } from 'lucide-react';
+import { useNotifications } from 'pages/home/model/hooks/useNotifications';
 import { useState } from 'react';
-import { FileText, AlertCircle, Info, Check, ListTodo } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Button,
   Badge,
+  Button,
+  Card,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -11,10 +14,7 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
-  Card,
 } from 'shared/ui';
-import { useNotifications } from 'pages/home/model/hooks/useNotifications';
-import type { Notification } from 'entities/notification';
 
 const getNotificationIcon = (notification: Notification) => {
   const isTask = notification.source_service === 'tasks';
