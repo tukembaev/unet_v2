@@ -1,9 +1,12 @@
-import { LoginForm } from "features/auth";
+import { LoginForm, useGoogleOAuthCallback } from "features/auth";
+import kstuLogo from "shared/assets/img/kstu.png";
 import { AppLogo, Card, CardContent } from "shared/ui";
 import { cn } from "shared/lib/utils";
 
 /** Shell страницы входа + карточка shadcn; токены — в `.login-scope` (globals.css). */
 export const LoginPage = () => {
+  const { processing: googleOAuthProcessing } = useGoogleOAuthCallback();
+
   return (
     <div
       className={cn(
@@ -12,6 +15,15 @@ export const LoginPage = () => {
         "font-['Nunito',system-ui,sans-serif] antialiased"
       )}
     >
+      {googleOAuthProcessing && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/70 backdrop-blur-sm"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="text-sm font-medium text-foreground">Вход через Google…</p>
+        </div>
+      )}
       <div
         className={cn(
           "pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat",
@@ -40,7 +52,23 @@ export const LoginPage = () => {
         <aside className="max-[900px]:hidden">
           <div className="py-2 text-[rgba(255,255,255,0.92)]">
             <div className="mb-6">
-              <AppLogo size="xl" className="max-h-20 drop-shadow-md" />
+              <div className="flex flex-wrap items-center gap-4 sm:gap-5">
+                <AppLogo size="xl" className="max-h-20 drop-shadow-md" />
+                <div className="h-12 w-px shrink-0 bg-white/25" aria-hidden />
+                <div className="flex flex-col gap-1">
+                  <img
+                    src={kstuLogo}
+                    alt="Кыргызский государственный технический университет им. И. Раззакова"
+                    className={cn(
+                      "h-14 max-h-[4.5rem] w-auto object-contain object-left",
+                      "brightness-0 invert drop-shadow-md"
+                    )}
+                    width={140}
+                    height={72}
+                    decoding="async"
+                  />
+                </div>
+              </div>
             </div>
             <span
               className={cn(

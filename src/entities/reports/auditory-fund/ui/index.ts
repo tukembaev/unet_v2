@@ -1,0 +1,1 @@
+export { AuditoryFundTable } from './AuditoryFundTable';

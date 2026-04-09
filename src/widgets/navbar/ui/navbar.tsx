@@ -2,18 +2,13 @@ import { ROUTES } from 'app/providers/routes';
 import {
   BarChart3,
   BookOpen,
-  CheckSquare,
-  Clock,
   GraduationCap,
-  Laptop,
-  List,
   Menu,
   MessageSquare,
-  Users,
-  type LucideIcon
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { usePermissions } from 'entities/user';
 import { cn } from 'shared/lib/utils';
 import {
   AppLogo,
@@ -32,113 +27,71 @@ import {
 } from 'shared/ui';
 import { NotificationBell } from './NotificationBell';
 import { UserMenu } from './user-menu';
-
-
-interface NavItem {
-  title: string;
-  href: string;
-  description?: string;
-  icon: LucideIcon;
-}
-
-interface NavSection {
-  title: string;
-  items: NavItem[];
-}
-
-const navigationSections: NavSection[] = [
-  {
-    title: 'Структура',
-    items: [
-      {
-        title: 'Учебное управление',
-        href: ROUTES.EDUCATION_MANAGEMENT,
-        description: 'Управление учебным процессом',
-        icon: GraduationCap,
-      },
-      {
-        title: 'IT департамент',
-        href: ROUTES.IT_DEPARTMENT,
-        description: 'Информационные технологии',
-        icon: Laptop,
-      },
-      {
-        title: 'Отчеты KPI',
-        href: ROUTES.KPI_REPORTS,
-        description: 'Ключевые показатели эффективности',
-        icon: BarChart3,
-      },
-    ],
-  },
-  {
-    title: 'Документооборот',
-    items: [
-      {
-        title: 'Документы',
-        href: ROUTES.APPLICATIONS,
-        description: 'Входящие документы',
-        icon: MessageSquare,
-      },
-     
-      {
-        title: 'Задачи',
-        href: ROUTES.TASK,
-        description: 'Управление задачами',
-        icon: CheckSquare,
-      },
-    ],
-  },
-  {
-    title: 'Учебный процесс',
-    items: [
-      {
-        title: 'РУП',
-        href: ROUTES.CURRICULUM,
-        description: 'Рабочие учебные планы',
-        icon: BookOpen,
-      },
-      {
-        title: 'Дисциплины кафедры',
-        href: ROUTES.DEPARTMENTDISCIPLINES,
-        description: 'Дисциплины кафедры',
-        icon: List,
-      },
-      {
-        title: 'Потоки',
-        href: ROUTES.STREAMS,
-        description: 'Учебные потоки',
-        icon: Users,
-      },
-      {
-        title: 'Нагрузка',
-        href: ROUTES.WORKLOAD,
-        description: 'Учебная нагрузка',
-        icon: Clock,
-      },
-    ],
-  },
-  {
-    title: 'Отчетность',
-    items: [
-      {
-        title: 'Задачи',
-        href: ROUTES.TASK_REPORTS,
-        description: 'Сформировать отчеты по задачам',
-        icon: BarChart3,
-      },
-    ],
-  },
-];
+import {
+  NAVIGATION_SECTIONS,
+  filterNavigationForPermissions,
+} from '../config/navigation';
+import type { NavItemConfig } from '../config/navigation';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { permissions, isLoading } = usePermissions();
+
+  const navigationSections = useMemo(
+    () =>
+      isLoading
+        ? NAVIGATION_SECTIONS
+        : filterNavigationForPermissions(permissions),
+    [isLoading, permissions]
+  );
 
   const isActiveRoute = (href: string) => {
     if (href === ROUTES.HOME) {
       return location.pathname === href;
     }
     return location.pathname.startsWith(href);
+  };
+
+  const getSectionMeta = (title: string) => {
+    if (title === 'Структура') {
+      return {
+        BgIcon: GraduationCap,
+        iconColor: 'text-blue-500',
+        description:
+          'Управление структурными подразделениями и ключевыми показателями университета',
+      };
+    }
+    if (title === 'Документооборот') {
+      return {
+        BgIcon: MessageSquare,
+        iconColor: 'text-green-500',
+        description:
+          'Работа с документами, заявками и задачами в едином пространстве',
+      };
+    }
+    if (title === 'Учебный процесс') {
+      return {
+        BgIcon: BookOpen,
+        iconColor: 'text-purple-500',
+        description:
+          'Планирование и организация учебного процесса, управление нагрузкой',
+      };
+    }
+    if (title === 'Отчетность') {
+      return {
+        BgIcon: BarChart3,
+        iconColor: 'text-orange-500',
+        description:
+          'Формирование и анализ отчетов по всем направлениям деятельности',
+      };
+    }
+
+    return {
+      BgIcon: sectionIconFallback,
+      iconColor: 'text-primary',
+      description: 'Раздел навигации по рабочим инструментам системы',
+    };
   };
 
   return (
@@ -163,18 +116,21 @@ export function Navbar() {
                       {section.title}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4 shadow-lg border">
-                        {section.items.map((item) => (
-                          <ListItem
-                            key={item.href}
-                            title={item.title}
-                            href={item.href}
-                            icon={item.icon}
-                          >
-                            {item.description}
-                          </ListItem>
-                        ))}
-                      </ul>
+                      <div className="grid w-[700px] grid-cols-[280px_1fr] gap-4 border p-4 shadow-lg">
+                        <SectionCard sectionTitle={section.title} />
+                        <ul className="grid gap-3">
+                          {section.items.map((item) => (
+                            <ListItem
+                              key={item.href}
+                              title={item.title}
+                              href={item.href}
+                              icon={item.icon}
+                            >
+                              {item.description}
+                            </ListItem>
+                          ))}
+                        </ul>
+                      </div>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
                 ))}
@@ -240,6 +196,29 @@ export function Navbar() {
       </div>
     </header>
   );
+
+  function sectionIconFallback(props: { className?: string; strokeWidth?: number }) {
+    return <BookOpen {...props} />;
+  }
+
+  function SectionCard({ sectionTitle }: { sectionTitle: string }) {
+    const { BgIcon, iconColor, description } = getSectionMeta(sectionTitle);
+
+    return (
+      <div className="relative flex min-h-[240px] flex-col overflow-hidden rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 p-6">
+        <div className="absolute right-0 top-0 h-32 w-32 opacity-20">
+          <BgIcon className={cn('h-full w-full', iconColor)} strokeWidth={0.5} />
+        </div>
+        <div className="relative z-10 mt-auto space-y-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 backdrop-blur-sm">
+            <BgIcon className="h-6 w-6 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold">{sectionTitle}</h3>
+          <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+        </div>
+      </div>
+    );
+  }
 }
 
 function ListItem({
@@ -251,7 +230,7 @@ function ListItem({
   title: string;
   children?: React.ReactNode;
   href: string;
-  icon: LucideIcon;
+  icon: NavItemConfig['icon'];
 }) {
   return (
     <li>

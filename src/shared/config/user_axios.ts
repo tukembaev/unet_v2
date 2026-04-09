@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { performLogout } from 'shared/lib/auth-utils';
+import { attachRefreshInterceptor } from 'shared/lib/axios-auth-refresh';
 
 export const apiUserClient = axios.create({
   baseURL: 'https://uadmin.kstu.kg/users/api/v1/',
@@ -36,18 +36,4 @@ apiUserClient.interceptors.request.use(
   }
 );
 
-// Response interceptor
-apiUserClient.interceptors.response.use(
-  (response) => response,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (error: any) => {
-    // Handle common errors
-    if (error.response?.status === 401) {
-      // Handle unauthorized - очищаем все данные и кэш
-      performLogout();
-      window.location.href = '/';
-    }
-    return Promise.reject(error);
-  }
-);
-
+attachRefreshInterceptor(apiUserClient);

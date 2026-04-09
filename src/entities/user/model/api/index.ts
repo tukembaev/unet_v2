@@ -1,7 +1,13 @@
 
 import { apiUserClient } from "shared/config";
 import { apiClientGo } from "shared/config/go_axios";
-import { UserListItem, CurrentUser, EmployeeDetails } from "../types";
+import {
+  UserListItem,
+  CurrentUser,
+  EmployeeDetails,
+  PatchCurrentUserBody,
+  ChangePasswordBody,
+} from "../types";
 
 export const getUsersList = async (): Promise<UserListItem[]> => {
   const { data } = await apiUserClient.get(`employees/select`, {
@@ -21,6 +27,19 @@ export const syncUsers = async (users: UserListItem[]): Promise<void> => {
 export const getCurrentUser = async (): Promise<CurrentUser> => {
   const { data } = await apiUserClient.get(`users/me`);
   return data;
+};
+
+export const patchCurrentUser = async (
+  body: PatchCurrentUserBody
+): Promise<CurrentUser> => {
+  const { data } = await apiUserClient.patch<CurrentUser>(`users/me`, body);
+  return data;
+};
+
+export const changePassword = async (
+  body: ChangePasswordBody
+): Promise<void> => {
+  await apiUserClient.post(`users/me/password`, body);
 };
 
 export const getEmployeeDetails = async (userId: string): Promise<EmployeeDetails> => {

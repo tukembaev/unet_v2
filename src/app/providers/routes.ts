@@ -32,6 +32,7 @@ export const ROUTES = {
   
   // Отчетность
   TASK_REPORTS: '/reports/tasks',
+  AUDITORIUM_FUND: '/reports/auditorium-fund',
 } as const;
 
 // Type for route paths
