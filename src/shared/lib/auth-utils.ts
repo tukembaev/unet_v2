@@ -12,6 +12,7 @@ export const performLogout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('refresh');
   localStorage.removeItem('pin');
+  localStorage.removeItem('user');
   
   // Очищаем sessionStorage
   sessionStorage.clear();

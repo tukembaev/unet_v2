@@ -17,7 +17,10 @@ import ProfilePage from "pages/profile";
 import StreamsPage from "pages/streams";
 import { TaskPage } from "pages/task";
 import { TaskReportsPage } from "pages/task-reports";
+import AuditoriumFundPage from "pages/auditorium-fund";
+import WorkloadPage from "pages/workload";
 import { createBrowserRouter, RouteObject } from "react-router-dom";
+import { AccessGuard } from "./AccessGuard";
 import { ROUTES } from "./routes";
 
 
@@ -38,78 +41,88 @@ const routes: RouteObject[] = [
     errorElement: <NotFoundPage />,
     children: [
       {
-        path: ROUTES.HOME,
-        index: true,
-        element: <HomePage />,
+        element: <AccessGuard />,
+        children: [
+          {
+            path: ROUTES.HOME,
+            index: true,
+            element: <HomePage />,
+          },
+          {
+            path: ROUTES.ABOUT,
+            element: <AboutPage />,
+          },
+          {
+            path: ROUTES.IT_DEPARTMENT,
+            element: <ItDepartmentPage />,
+          },
+          {
+            path: ROUTES.EDUCATION_MANAGEMENT,
+            element: <EducationManagementPage />,
+          },
+          {
+            path: `${ROUTES.REPORT_SYLLABUS}/:syllabusId/:profileId`,
+            element: <SyllabusReport />,
+          },
+          {
+            path: ROUTES.TASK,
+            element: <TaskPage />,
+          },
+          {
+            path: ROUTES.TASK_DETAILS,
+            element: <TaskDetails />,
+          },
+          {
+            path: ROUTES.APPLICATIONS,
+            element: <DocumentsPage />,
+          },
+          {
+            path: ROUTES.DOCUMENT_DETAILS,
+            element: <DocumentDetails />,
+          },
+          {
+            path: ROUTES.STREAMS,
+            element: <StreamsPage />,
+          },
+          {
+            path: ROUTES.STREAM_DETAILS,
+            element: <StreamsInfo />,
+          },
+          {
+            path: ROUTES.CURRICULUM_DETAIL,
+            element: <CurriculumDetailPage />,
+          },
+          {
+            path: ROUTES.CURRICULUM,
+            element: <CurriculumPage />,
+          },
+          {
+            path: ROUTES.DEPARTMENTDISCIPLINES,
+            element: <DepartmentDisciplinesPage />,
+          },
+          {
+            path: ROUTES.WORKLOAD,
+            element: <WorkloadPage />,
+          },
+          {
+            path: ROUTES.PERSONAL_CARD,
+            element: <ProfilePage />,
+          },
+          {
+            path: ROUTES.TASK_REPORTS,
+            element: <TaskReportsPage />,
+          },
+          {
+            path: ROUTES.AUDITORIUM_FUND,
+            element: <AuditoriumFundPage />,
+          },
+          {
+            path: ROUTES.KPI_REPORTS,
+            element: <KpiReportPage />,
+          },
+        ],
       },
-      {
-        path: ROUTES.ABOUT,
-        element: <AboutPage />,
-      },
-      {
-        path: ROUTES.IT_DEPARTMENT,
-        element: <ItDepartmentPage />,
-      },
-      {
-        path: ROUTES.EDUCATION_MANAGEMENT,
-        element: <EducationManagementPage />,
-      },
-      {
-        path: `${ROUTES.REPORT_SYLLABUS}/:syllabusId/:profileId`,
-        element: <SyllabusReport />,
-      },
-      {
-        path: ROUTES.TASK,
-        element: <TaskPage />,
-      },
-      {
-        path: ROUTES.TASK_DETAILS,
-        element: <TaskDetails />,
-      },
-      {
-        path: ROUTES.APPLICATIONS,
-        element: <DocumentsPage />,
-      },
-      {
-        path: ROUTES.DOCUMENT_DETAILS,
-        element: <DocumentDetails />,
-      },
- 
-      {
-        path: ROUTES.STREAMS,
-        element: <StreamsPage />,
-      },
-      {
-        path: ROUTES.STREAM_DETAILS,
-        element: <StreamsInfo />,
-      },
-      {
-        path: ROUTES.CURRICULUM_DETAIL,
-        element: <CurriculumDetailPage />,
-      },
-      {
-        path: ROUTES.CURRICULUM,
-        element: <CurriculumPage />,
-      },
-      {
-        path: ROUTES.DEPARTMENTDISCIPLINES,
-        element: <DepartmentDisciplinesPage />,
-      },
-      {
-        path: ROUTES.PERSONAL_CARD,
-        element: <ProfilePage />,
-      },
-      {
-        path: ROUTES.TASK_REPORTS,
-        element: <TaskReportsPage />,
-      },
-      {
-        path: ROUTES.KPI_REPORTS,
-        element: <KpiReportPage />,
-      },
-
     ],
-
   },
 
   {

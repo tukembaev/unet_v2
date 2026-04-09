@@ -29,6 +29,7 @@ import { UserEditModal } from "features/user-menu";
 import { useCurrentUser } from "entities/user";
 import { ThemeSelector } from "./ThemeSelector";
 import { performLogout } from "shared/lib/auth-utils";
+import { logoutRequest } from "features/auth/model/api";
 
 
 
@@ -39,9 +40,13 @@ export function UserMenu() {
   const navigate = useNavigate();
   const { data: user, isLoading } = useCurrentUser();
   console.log(user)
-  const onLogout = () => {
-    performLogout();
-    navigate("/", { replace: true });
+  const onLogout = async () => {
+    try {
+      await logoutRequest();
+    } finally {
+      performLogout();
+      navigate("/", { replace: true });
+    }
   };
 
   const getInitials = (firstName?: string, lastName?: string) => {

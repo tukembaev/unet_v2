@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { attachRefreshInterceptor } from 'shared/lib/axios-auth-refresh';
 
 export const apiNotificationClient = axios.create({
   baseURL: 'https://uadmin.kstu.kg/notifications/',
@@ -35,18 +36,5 @@ apiNotificationClient.interceptors.request.use(
   }
 );
 
-// Response interceptor
-apiNotificationClient.interceptors.response.use(
-  (response) => response,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (error: any) => {
-    // Handle common errors
-    if (error.response?.status === 401) {
-      // Handle unauthorized - очищаем все данные и кэш
-    //   performLogout();
-    //   window.location.href = '/';
-    }
-    return Promise.reject(error);
-  }
-);
+attachRefreshInterceptor(apiNotificationClient);
 

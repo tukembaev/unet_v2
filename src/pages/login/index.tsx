@@ -1,10 +1,12 @@
-import { LoginForm } from "features/auth";
+import { LoginForm, useGoogleOAuthCallback } from "features/auth";
 import kstuLogo from "shared/assets/img/kstu.png";
 import { AppLogo, Card, CardContent } from "shared/ui";
 import { cn } from "shared/lib/utils";
 
 /** Shell страницы входа + карточка shadcn; токены — в `.login-scope` (globals.css). */
 export const LoginPage = () => {
+  const { processing: googleOAuthProcessing } = useGoogleOAuthCallback();
+
   return (
     <div
       className={cn(
@@ -13,6 +15,15 @@ export const LoginPage = () => {
         "font-['Nunito',system-ui,sans-serif] antialiased"
       )}
     >
+      {googleOAuthProcessing && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/70 backdrop-blur-sm"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="text-sm font-medium text-foreground">Вход через Google…</p>
+        </div>
+      )}
       <div
         className={cn(
           "pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat",

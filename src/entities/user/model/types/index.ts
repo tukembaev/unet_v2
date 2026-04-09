@@ -58,6 +58,16 @@ export interface CurrentUser {
   avatar_url: string | null;
 }
 
+/** PATCH /users/me — поля зависят от контракта API */
+export interface PatchCurrentUserBody {
+  email?: string;
+}
+
+export interface ChangePasswordBody {
+  current_password: string;
+  new_password: string;
+}
+
 // Employee details types
 export interface EmployeeDetails {
   id: string;

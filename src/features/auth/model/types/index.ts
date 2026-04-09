@@ -1,7 +1,8 @@
 export interface LoginResponse {
   access: string;
   refresh: string;
-
+  /** Для POST `/users/refresh` — заголовок `X-CSRF-TOKEN` (cookie-сессия). */
+  csrf_token?: string;
 }
 
 export interface User {
