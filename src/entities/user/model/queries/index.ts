@@ -7,6 +7,8 @@ import {
   patchCurrentUser,
   changePassword,
 } from "../api";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { getUsersList, syncUsers, getCurrentUser, getEmployeeDetails, getEmployeeByUserId } from "../api";
 
 export function useUsersList() {
   return useQuery({
@@ -79,5 +81,11 @@ export function useChangePassword() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
+export function useEmployeeByUserId(userId: string, enabled = true) {
+  return useQuery({
+    queryKey: ['employeeByUserId', userId],
+    queryFn: () => getEmployeeByUserId(userId),
+    enabled: enabled && !!userId,
+    staleTime: 5 * 60 * 1000,
   });
 }
