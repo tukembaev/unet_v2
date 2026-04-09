@@ -1,14 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  getUsersList,
-  syncUsers,
-  getCurrentUser,
-  getEmployeeDetails,
-  patchCurrentUser,
-  changePassword,
-} from "../api";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { getUsersList, syncUsers, getCurrentUser, getEmployeeDetails, getEmployeeByUserId } from "../api";
+import { getUsersList, syncUsers, getCurrentUser, getEmployeeDetails, patchCurrentUser, changePassword, getEmployeeByUserId, uploadCurrentUserAvatar } from "../api";
 
 export function useUsersList() {
   return useQuery({
@@ -64,23 +55,16 @@ export function useChangePassword() {
   });
 }
 
-export function usePatchCurrentUser() {
+export function useUploadCurrentUserAvatar() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: patchCurrentUser,
+    mutationFn: uploadCurrentUserAvatar,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
   });
 }
 
-export function useChangePassword() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: changePassword,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-    },
 export function useEmployeeByUserId(userId: string, enabled = true) {
   return useQuery({
     queryKey: ['employeeByUserId', userId],

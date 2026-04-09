@@ -60,7 +60,13 @@ export interface CurrentUser {
 
 /** PATCH /users/me — поля зависят от контракта API */
 export interface PatchCurrentUserBody {
+  first_name?: string;
+  last_name?: string;
+  middle_name?: string;
   email?: string;
+  phone_number?: string;
+  birth_date?: string;
+  gender?: "M" | "F";
 }
 
 export interface ChangePasswordBody {

@@ -42,6 +42,23 @@ export const changePassword = async (
   await apiUserClient.post(`users/me/password`, body);
 };
 
+export const uploadCurrentUserAvatar = async (
+  file: File
+): Promise<CurrentUser> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await apiUserClient.post<CurrentUser>(
+    `users/me/avatar`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return data;
+};
+
 export const getEmployeeDetails = async (userId: string): Promise<EmployeeDetails> => {
   const { data } = await apiUserClient.get(`employees/${userId}`);
   return data;

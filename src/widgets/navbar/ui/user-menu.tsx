@@ -39,7 +39,6 @@ import { logoutRequest } from "features/auth/model/api";
 export function UserMenu() {
   const navigate = useNavigate();
   const { data: user, isLoading } = useCurrentUser();
-  console.log(user)
   const onLogout = async () => {
     try {
       await logoutRequest();
@@ -101,44 +100,55 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <button
           aria-label="Открыть меню пользователя"
-          className="flex items-center gap-3 rounded-md px-2 py-1 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary"
+          className="group flex items-center gap-3 rounded-xl border border-transparent px-2 py-1.5 transition-colors hover:border-border/70 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-primary"
         >
-          <Avatar className="h-9 w-9 rounded-full">
+          <Avatar className="h-9 w-9 rounded-full ring-1 ring-border/60">
             <AvatarImage src={user.avatar_url || undefined} alt={fullName} />
             <AvatarFallback className="bg-primary text-primary-foreground">
               {getInitials(user.first_name, user.last_name)}
             </AvatarFallback>
           </Avatar>
           <div className="hidden md:flex flex-col text-left text-sm leading-tight">
-            <span className="truncate font-medium">{fullName}</span>
+            <span className="truncate font-semibold">{fullName}</span>
             <span className="truncate text-xs text-muted-foreground">{user.email}</span>
           </div>
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-72 p-2 rounded-3xl shadow-none bg-background">
-        <Card className="relative overflow-hidden border-none shadow-none bg-card">
-          <CardHeader className="relative z-10 border rounded-3xl flex justify-between flex-row items-center gap-2 pb-2 pt-2 px-3 bg-muted/50">
-            <Avatar className="h-9 w-9 rounded-full">
+      <DropdownMenuContent
+        align="end"
+        className="w-[320px] rounded-3xl border border-border/70 bg-background/95 p-2.5 shadow-xl backdrop-blur"
+      >
+        <Card className="relative overflow-hidden rounded-[22px] border border-border/70 bg-card/95 shadow-sm">
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-24 opacity-40"
+            style={{
+              background:
+                "radial-gradient(65% 90% at 50% 10%, rgb(59 130 246 / 0.35) 0%, transparent 80%)",
+            }}
+            aria-hidden
+          />
+          <CardHeader className="relative z-10 flex flex-row items-center gap-3 rounded-2xl border border-border/60 bg-muted/40 px-3 py-2.5">
+            <Avatar className="h-10 w-10 rounded-full ring-1 ring-border/80">
               <AvatarImage src={user.avatar_url || undefined} alt={fullName} />
               <AvatarFallback>{getInitials(user.first_name, user.last_name)}</AvatarFallback>
             </Avatar>
-            <div className="flex-1 px-2">
-              <CardTitle className="text-sm font-semibold">
+            <div className="min-w-0 flex-1 pr-1">
+              <CardTitle className="truncate text-sm font-semibold">
                 {fullName}
               </CardTitle>
-              <CardDescription className="text-xs text-muted-foreground">
+              <CardDescription className="truncate text-xs text-muted-foreground">
                 {mainEmployment?.position || "Сотрудник"}
               </CardDescription>
             </div>
-            <span className="text-xs text-emerald-500 font-medium">
+            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
               {user.is_active ? "online" : "offline"}
             </span>
           </CardHeader>
 
-          <CardContent className="relative z-10 flex flex-col rounded-3xl mt-2 gap-3 px-3 py-3 bg-card">
+          <CardContent className="relative z-10 mt-2 flex flex-col gap-3 px-3 pb-3 pt-1">
             {kpiValue > 0 && (
-              <div className="flex items-center gap-3 border p-2 rounded-3xl">
+              <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-muted/30 p-2.5">
                 <div className={`w-12 h-12 flex items-center justify-center rounded-full ${efficiencyColor}`}>
                   <PieChartIcon className="w-6 h-6" />
                 </div>
@@ -149,30 +159,35 @@ export function UserMenu() {
               </div>
             )}
 
-            <Button variant="secondary" onClick={() => navigate('profile-card')} className="w-full flex items-center justify-center gap-2">
+            <a
+              href="https://ureport.kstu.kg/personalcard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/80 bg-muted/40 px-3 py-2 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
               <BarChart2 className="w-4 h-4" />
               Личная карточка
-            </Button>
+            </a>
 
-            <div className="flex flex-col gap-2">
+            <div className="space-y-1 rounded-2xl border border-border/60 bg-muted/20 p-2.5">
               {user.phone_number && (
-                <div className="flex items-center gap-2 py-1 px-1">
-                  <Phone className="w-4 h-4 text-slate-500" />
+                <div className="flex items-center gap-2.5 rounded-lg px-1 py-1.5">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">{formatPhoneNumber(user.phone_number)}</span>
                 </div>
               )}
-              <div className="flex items-center gap-2 py-1 px-1">
-                <Mail className="w-4 h-4 text-slate-500" />
+              <div className="flex items-center gap-2.5 rounded-lg px-1 py-1.5">
+                <Mail className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">{user.email}</span>
               </div>
               {mainEmployment && (
                 <>
-                  <div className="flex items-center gap-2 py-1 px-1">
-                    <Briefcase className="w-4 h-4 text-slate-500" />
+                  <div className="flex items-center gap-2.5 rounded-lg px-1 py-1.5">
+                    <Briefcase className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">{mainEmployment.position}</span>
                   </div>
-                  <div className="flex items-center gap-2 py-1 px-1">
-                    <Building2 className="w-4 h-4 text-slate-500" />
+                  <div className="flex items-center gap-2.5 rounded-lg px-1 py-1.5">
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">{mainEmployment.organization_name}</span>
                   </div>
                 </>
@@ -180,26 +195,21 @@ export function UserMenu() {
             </div>
 
             {/* Theme Selector - удлиненная кнопка */}
-            <div className="mt-2">
+            <div className="mt-1">
               <ThemeSelector />
             </div>
 
             {/* Кнопки "Настройки" и "Выйти" */}
-            <div className="flex items-center justify-between gap-2 mt-2">
-              <UserEditModal 
-                user={{
-                  first_name: user.first_name,
-                  surname: user.last_name,
-                  email: user.email,
-                  number_phone: user.phone_number || "",
-                  position: mainEmployment?.position || "",
-                }} 
+            <div className="mt-1 flex items-center justify-between gap-2">
+              <UserEditModal
+                user={user}
+                position={mainEmployment?.position || "Сотрудник"}
               />
 
               <Button
                 onClick={onLogout}
                 variant="secondary"
-                className="flex items-center gap-2 flex-1 justify-center"
+                className="flex flex-1 items-center justify-center gap-2 border border-border/70 bg-muted/40 hover:bg-muted"
               >
                 <LogOut className="w-4 h-4" />
                 Выйти
@@ -207,7 +217,7 @@ export function UserMenu() {
             </div>
 
             {user.username && (
-              <p className="text-center text-xs text-muted-foreground mt-2">
+              <p className="mt-1 text-center text-xs text-muted-foreground">
                 @{user.username}
               </p>
             )}
