@@ -6,9 +6,7 @@ import {
   getEmployeeDetails,
   patchCurrentUser,
   changePassword,
-  getEmployeeByUserId,
 } from "../api";
-
 
 export function useUsersList() {
   return useQuery({
@@ -64,11 +62,22 @@ export function useChangePassword() {
   });
 }
 
-export function useEmployeeByUserId(userId: string, enabled = true) {
-  return useQuery({
-    queryKey: ['employeeByUserId', userId],
-    queryFn: () => getEmployeeByUserId(userId),
-    enabled: enabled && !!userId,
-    staleTime: 5 * 60 * 1000,
+export function usePatchCurrentUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: patchCurrentUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+    },
+  });
+}
+
+export function useChangePassword() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: changePassword,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+    },
   });
 }

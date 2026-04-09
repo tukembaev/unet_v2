@@ -1,11 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+
 import { BookOpen, Download, Eye, EyeOff, QrCode } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-
-import { getCurrentUser, type CurrentUser } from "entities/user";
+import { CurrentUser } from "entities/user";
+import { cn } from "shared/lib/utils";
+import { getCurrentUser } from "entities/user/model/api";
+import { getHttpErrorMessage } from "shared/lib/http-error";
+import { toast } from "sonner";
 import {
   Button,
   Card,
@@ -14,14 +18,13 @@ import {
   Label,
   Separator
 } from "shared/ui";
-import { getHttpErrorMessage } from "shared/lib/http-error";
-import { cn } from "shared/lib/utils";
-import { toast } from "sonner";
 import { useLogin } from "../model/queries";
 import { LoginFormValues, loginSchema } from "../model/schema";
 import { AccountSafetyAfterLoginDialog } from "./AccountSafetyAfterLoginDialog";
+
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import { GoogleLoginButton } from "./GoogleLoginButton";
+
 
 const inputClassName = cn(
   "h-12 rounded-xl border-input bg-white px-3.5 py-3 text-[15px] font-normal leading-[1.4] text-foreground",
