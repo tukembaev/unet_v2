@@ -13,9 +13,16 @@ import { DepartmentEmployeesSection } from "./DepartmentEmployeesSection";
 interface DepartmentsProps {
   id: number;
   onBack: () => void;
+  initialDepartmentId?: number;
+  initialDepartmentName?: string;
 }
 
-export function DepartmentsKpiReports({ id, onBack }: DepartmentsProps) {
+export function DepartmentsKpiReports({
+  id,
+  onBack,
+  initialDepartmentId,
+  initialDepartmentName,
+}: DepartmentsProps) {
   const { data, isLoading, error } = useDepartmentsKpi(id);
   const departmentsKpiReport = (data ?? []) as KpiDepartmentsReport[];
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -23,11 +30,16 @@ export function DepartmentsKpiReports({ id, onBack }: DepartmentsProps) {
   const [selectedDept, setSelectedDept] = useState<{
     id: number;
     name: string;
-  } | null>(null);
+  } | null>(
+    initialDepartmentId
+      ? { id: initialDepartmentId, name: initialDepartmentName || `Кафедра #${initialDepartmentId}` }
+      : null
+  );
 
   if (selectedDept) {
     return (
       <DepartmentEmployeesSection
+        instituteId={id}
         departmentId={selectedDept.id}
         departmentName={selectedDept.name}
         onBack={() => setSelectedDept(null)}

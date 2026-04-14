@@ -13,6 +13,7 @@ export const ROUTES = {
 
   IT_DEPARTMENT: '/structure/it-department',
   KPI_REPORTS: '/kpi-reports',
+  KPI_EMPLOYEE: '/kpi-employee',
   
   REPORT_SYLLABUS: 'report-syllabus',
   // Документооборот

@@ -96,7 +96,7 @@ export function EmployeesTab() {
       {isLoading && rows.length === 0 ? (
         <KpiEmployeeTableSkeleton />
       ) : (
-        <KpiEmployeeReportTable rows={rows} />
+        <KpiEmployeeReportTable rows={rows} detailNavigationState={{ tab: "employees" }} />
       )}
     </div>
   );

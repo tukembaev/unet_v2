@@ -12,12 +12,14 @@ import { KpiEmployeeTableSkeleton } from "../../../KpiEmployeeTableSkeleton";
 const PAGE_ASSUME = 20;
 
 type Props = {
+  instituteId: number;
   departmentId: number;
   departmentName: string;
   onBack: () => void;
 };
 
 export function DepartmentEmployeesSection({
+  instituteId,
   departmentId,
   departmentName,
   onBack,
@@ -158,7 +160,15 @@ export function DepartmentEmployeesSection({
       {isLoading && rows.length === 0 ? (
         <KpiEmployeeTableSkeleton />
       ) : (
-        <KpiEmployeeReportTable rows={rows} />
+        <KpiEmployeeReportTable
+          rows={rows}
+          detailNavigationState={{
+            tab: "institute",
+            instituteId,
+            departmentId,
+            departmentName,
+          }}
+        />
       )}
     </div>
   );

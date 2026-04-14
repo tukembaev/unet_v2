@@ -38,6 +38,27 @@ export type EmployeeReportParams = {
   department?: string;
 };
 
+export type KpiEmployeePublicationResponse = Array<{
+  id: number;
+  title: string;
+  category?: Array<{
+    id: number;
+    title: string;
+    kpi?: Array<{
+      id: number;
+      title?: string;
+      status?: string;
+      published?: string;
+      description?: string;
+      rejection_reason?: string | null;
+      country?: string;
+      link?: string;
+      files?: Array<{ id: number; file: string }>;
+      kpi_authors?: Array<{ user_id?: number; employee_name?: string; photo?: string }>;
+    }>;
+  }>;
+}>;
+
 /** Все сотрудники — отчёт (`GET /employee-report/`). */
 export async function getEmployeeReportPage(
   params: EmployeeReportParams = {}
@@ -53,6 +74,25 @@ export async function getEmployeeReportPage(
     },
   });
   return normalizePaginated<KpiReportTableRow>(data);
+}
+
+/** Личные KPI-публикации сотрудника (`GET /kpi-employee/{id}/`). */
+export async function getKpiEmployeePublications(
+  employeeId: number
+): Promise<KpiEmployeePublicationResponse> {
+  const { data } = await apiClient.get<unknown>(`kpi-employee/${employeeId}/`);
+  return Array.isArray(data) ? (data as KpiEmployeePublicationResponse) : [];
+}
+
+export type PatchKpiInfoPayload = {
+  status: "В ожидании" | "Подтверждено" | "Отказано";
+  rejection_reason?: string;
+};
+
+/** Обновить статус KPI записи (`PATCH /kpi-info/{id}/`). */
+export async function patchKpiInfoStatus(kpiId: number, payload: PatchKpiInfoPayload) {
+  const { data } = await apiClient.patch(`kpi-info/${kpiId}/`, payload);
+  return data;
 }
 
 /** DOCX: сотрудники кафедры (`GET /employee-report/docx/`). */

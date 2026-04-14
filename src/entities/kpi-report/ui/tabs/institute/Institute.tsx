@@ -1,18 +1,32 @@
 import { useKpiInstitutionReport } from "entities/kpi-report/model/queries";
 import { formatKpiCardScore } from "entities/kpi-report/lib/format-kpi-card-score";
 import { Award, ArrowLeft, BarChart3, Building2, Printer } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "shared/ui";
 import { printElement } from "shared/lib/print-element";
 import { KpiOrgCardsSkeleton } from "../../KpiOrgCardsSkeleton";
 import { DepartmentsKpiReports } from "./departments/DepartmentsKpiReports";
 
-export function Institute() {
+type RestoreContext = {
+  tab?: string;
+  instituteId?: number;
+  departmentId?: number;
+  departmentName?: string;
+};
+
+export function Institute({ restoreContext }: { restoreContext?: RestoreContext }) {
   const [selectedInstitute, setSelectedInstitute] = useState<number | null>(null);
   const { data: institutionsKpiReport, isLoading, error } = useKpiInstitutionReport();
   const filteredData = institutionsKpiReport?.filter((item) => item);
   const listRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!restoreContext || restoreContext.tab !== "institute") return;
+    if (restoreContext.instituteId && restoreContext.instituteId > 0) {
+      setSelectedInstitute(restoreContext.instituteId);
+    }
+  }, [restoreContext]);
 
   return (
     <div className="space-y-4 p-2">
@@ -108,7 +122,22 @@ export function Institute() {
         </div>
         )
       ) : (
-        <DepartmentsKpiReports id={selectedInstitute} onBack={() => setSelectedInstitute(null)} />
+        <DepartmentsKpiReports
+          id={selectedInstitute}
+          onBack={() => setSelectedInstitute(null)}
+          initialDepartmentId={
+            restoreContext?.tab === "institute" &&
+            restoreContext.instituteId === selectedInstitute
+              ? restoreContext.departmentId
+              : undefined
+          }
+          initialDepartmentName={
+            restoreContext?.tab === "institute" &&
+            restoreContext.instituteId === selectedInstitute
+              ? restoreContext.departmentName
+              : undefined
+          }
+        />
       )}
     </div>
   );

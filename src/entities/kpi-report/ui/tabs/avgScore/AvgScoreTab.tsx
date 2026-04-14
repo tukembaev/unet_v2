@@ -211,6 +211,7 @@ export function AvgScoreTab() {
           rows={rows}
           positionColumnTitle="Структура"
           totalScoreColumnTitle="Общий балл"
+          detailNavigationState={{ tab: "avgScore" }}
         />
       ) : (
         <div className="rounded-xl border border-dashed border-border/70 bg-muted/10 px-6 py-12 text-center text-sm text-muted-foreground">

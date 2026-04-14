@@ -1,4 +1,5 @@
 import { Award, Briefcase, UserRound } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "shared/ui";
 import {
@@ -11,6 +12,7 @@ import {
 } from "shared/ui";
 import { cn } from "shared/lib/utils";
 import type { KpiReportTableRow } from "../model/types";
+import { ROUTES } from "app/providers/routes";
 import {
   formatCriterionCell,
   formatCriterionColumnHeader,
@@ -21,6 +23,12 @@ import {
   getMetricCellValue,
   pickBKpiColumnKeys,
 } from "../lib/employee-report-row";
+
+function resolveUserId(row: KpiReportTableRow): number | null {
+  const raw = row.user_id;
+  const n = typeof raw === "number" ? raw : Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
 
 function initials(name: string) {
   const p = name.split(/\s+/).filter(Boolean);
@@ -36,6 +44,7 @@ type Props = {
   positionColumnTitle?: string;
   /** Подпись колонки итога (например «Общий балл»). */
   totalScoreColumnTitle?: string;
+  detailNavigationState?: Record<string, unknown>;
 };
 
 export function KpiEmployeeReportTable({
@@ -43,7 +52,9 @@ export function KpiEmployeeReportTable({
   className,
   positionColumnTitle = "Должность",
   totalScoreColumnTitle = "Баллы",
+  detailNavigationState,
 }: Props) {
+  const navigate = useNavigate();
   const bKeys = pickBKpiColumnKeys(rows);
 
   if (rows.length === 0) {
@@ -104,11 +115,21 @@ export function KpiEmployeeReportTable({
               const avatar = getEmployeeAvatarUrl(row);
               const position = getEmployeePosition(row);
               const earnedTotal = getEarnedScoreDisplay(row);
+              const userId = resolveUserId(row);
 
               return (
                 <TableRow
                   key={String(row.id ?? idx)}
-                  className="border-b border-border/40 transition-colors hover:bg-muted/20"
+                  className={cn(
+                    "border-b border-border/40 transition-colors hover:bg-muted/20",
+                    userId && "cursor-pointer"
+                  )}
+                  onClick={() => {
+                    if (!userId) return;
+                    navigate(`${ROUTES.KPI_EMPLOYEE}/${userId}`, {
+                      state: detailNavigationState ? { kpiBackContext: detailNavigationState } : undefined,
+                    });
+                  }}
                 >
                   <TableCell className="px-4 py-3 align-middle">
                     <div className="flex items-center gap-3">
