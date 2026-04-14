@@ -1,6 +1,6 @@
-import { Tabs } from "@radix-ui/react-tabs";
-import { PageHeader } from "widgets/page-header";
 import { KpiReportTabContent, KpiReportTabList } from "entities/kpi-report";
+import { PageHeader } from "widgets/page-header";
+import { Tabs } from "shared/ui";
 
 export const KpiReportPage = () => {
   return (

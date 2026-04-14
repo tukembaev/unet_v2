@@ -4,11 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 import { ROUTES } from "app/providers/routes";
 import { googleAuthRequest } from "../model/api";
+import { consumeExpectedGoogleNonce } from "../lib/google-oauth";
 import { getHttpErrorMessage } from "shared/lib/http-error";
 import { toast } from "sonner";
 
 /**
- * После редиректа Google в URL есть `#access_token=...` — обмениваем на сессию UNET.
+ * После редиректа Google в URL есть `#id_token=...` — обмениваем на сессию UNET.
  * Модульные флаги нужны из‑за React Strict Mode (двойной mount): hash очищается один раз,
  * второй проход всё ещё видит токен в памяти и не дублирует запрос.
  */
@@ -34,7 +35,23 @@ export function useGoogleOAuthCallback() {
       return;
     }
 
-    const fromHash = hashParams.get("access_token");
+    const expectedNonce = consumeExpectedGoogleNonce();
+    const nonceFromHash = hashParams.get("nonce");
+    if (expectedNonce && nonceFromHash && expectedNonce !== nonceFromHash) {
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname + window.location.search
+      );
+      toast.error("Не удалось подтвердить Google-сессию", {
+        description: "Ошибка nonce. Повторите вход через Google.",
+      });
+      return;
+    }
+
+    const idTokenFromHash = hashParams.get("id_token");
+    const accessTokenFromHash = hashParams.get("access_token");
+    const fromHash = idTokenFromHash ?? accessTokenFromHash;
     if (fromHash) {
       googleOAuthTokenFromHash = fromHash;
       window.history.replaceState(
@@ -44,8 +61,8 @@ export function useGoogleOAuthCallback() {
       );
     }
 
-    const accessToken = googleOAuthTokenFromHash;
-    if (!accessToken) return;
+    const idToken = googleOAuthTokenFromHash;
+    if (!idToken) return;
 
     if (googleOAuthExchangeStarted) return;
     googleOAuthExchangeStarted = true;
@@ -53,7 +70,7 @@ export function useGoogleOAuthCallback() {
     void (async () => {
       try {
         setProcessing(true);
-        await googleAuthRequest(accessToken);
+        await googleAuthRequest(idToken);
         googleOAuthTokenFromHash = null;
         await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
         toast.success("Вход через Google выполнен");

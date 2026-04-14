@@ -4,6 +4,7 @@ import {
   DropdownMenuContent,
   Avatar,
   AvatarFallback,
+  AvatarImage,
   Skeleton,
 } from "shared/ui";
 import {
@@ -23,7 +24,6 @@ import {
   Briefcase,
   Building2,
 } from "lucide-react";
-import { AvatarImage } from "@radix-ui/react-avatar";
 import { useNavigate } from "react-router-dom";
 import { UserEditModal } from "features/user-menu";
 import { useCurrentUser } from "entities/user";
@@ -119,7 +119,7 @@ export function UserMenu() {
         align="end"
         className="w-[320px] rounded-3xl border border-border/70 bg-background/95 p-2.5 shadow-xl backdrop-blur"
       >
-        <Card className="relative overflow-hidden rounded-[22px] border border-border/70 bg-card/95 shadow-sm">
+        <Card className="relative overflow-hidden rounded-[22px] border-none shadow-none bg-card">
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-24 opacity-40"
             style={{
@@ -215,12 +215,6 @@ export function UserMenu() {
                 Выйти
               </Button>
             </div>
-
-            {user.username && (
-              <p className="mt-1 text-center text-xs text-muted-foreground">
-                @{user.username}
-              </p>
-            )}
           </CardContent>
         </Card>
       </DropdownMenuContent>

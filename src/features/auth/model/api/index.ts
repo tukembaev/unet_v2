@@ -25,13 +25,10 @@ export async function loginRequest(
   return data;
 }
 
-/**
- * Обмен access_token Google на сессию UNET (как POST /users/auth).
- * Тело и путь — уточнить по Swagger бэкенда при отличии от контракта.
- */
+
 export async function googleAuthRequest(googleAccessToken: string): Promise<unknown> {
   const data = await apiUserClient.post(`users/auth/google`, {
-    access_token: googleAccessToken,
+    id_token: googleAccessToken,
   });
   const raw = extractAuthPayload(data.data as unknown as Record<string, unknown>);
   const normalized = normalizeAuthPayload(raw);

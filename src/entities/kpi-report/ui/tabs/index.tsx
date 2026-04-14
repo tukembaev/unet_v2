@@ -1,10 +1,9 @@
 import { TabsContent, TabsList, TabsTrigger } from "shared/ui";
 
-import { BarChart2, Building2, Star, Users } from "lucide-react";
+import { Building2, Star, Users } from "lucide-react";
 import { Institute } from "./institute/Institute";
 import { EmployeesTab } from "./employees/EmployeesTab";
 import { AvgScoreTab } from "./avgScore/AvgScoreTab";
-import { Rating } from "./rating/Rating";
 
 export const KpiReportTabList = () => {
   return (
@@ -16,10 +15,7 @@ export const KpiReportTabList = () => {
         <Users size={20} /> Все сотрудники
       </TabsTrigger>
       <TabsTrigger value="avgScore" className="flex-shrink-0 gap-1">
-        <Star size={20} /> Выше среднего бала
-      </TabsTrigger>
-      <TabsTrigger value="rating" className="flex-shrink-0 gap-1">
-        <BarChart2 size={20} /> Рейтинг по критериям
+        <Star size={20} /> Выше среднего балла
       </TabsTrigger>
     </TabsList>
   );
@@ -38,10 +34,6 @@ export const KpiReportTabContent = () => {
 
       <TabsContent value="avgScore">
         <AvgScoreTab />
-      </TabsContent>
-
-      <TabsContent value="rating">
-        <Rating />
       </TabsContent>
     </div>
   );
