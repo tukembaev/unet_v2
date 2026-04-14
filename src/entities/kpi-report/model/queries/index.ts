@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 
 import type { AvgKpiParams, EmployeeReportParams } from "../api";
 import type {
@@ -11,9 +11,12 @@ import type { AvgKpiNormalizedResponse } from "../../lib/normalize-avg-kpi";
 import {
   getAvgKpiPage,
   getEmployeeReportPage,
+  getKpiEmployeePublications,
   getKpiDepartmentsByInstitute,
   getKpiDivisionsList,
   getKpiInstitutes,
+  patchKpiInfoStatus,
+  type PatchKpiInfoPayload,
 } from "../api";
 
 export function useKpiInstitutionReport() {
@@ -51,6 +54,27 @@ export function useAvgKpiReport(params: AvgKpiParams) {
     queryFn: () => getAvgKpiPage(params),
     enabled: Boolean(params.position?.trim()),
     placeholderData: (prev) => prev,
+  });
+}
+
+export function useKpiEmployeePublications(employeeId: number | null) {
+  return useQuery({
+    queryKey: ["kpi-report", "kpi-employee", employeeId],
+    queryFn: () => getKpiEmployeePublications(employeeId!),
+    enabled: employeeId != null && employeeId > 0,
+  });
+}
+
+export function usePatchKpiInfoStatus(employeeId: number | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ kpiId, payload }: { kpiId: number; payload: PatchKpiInfoPayload }) =>
+      patchKpiInfoStatus(kpiId, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["kpi-report", "kpi-employee", employeeId],
+      });
+    },
   });
 }
 

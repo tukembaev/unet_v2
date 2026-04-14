@@ -2,7 +2,7 @@ import axios from 'axios';
 import { attachRefreshInterceptor } from 'shared/lib/axios-auth-refresh';
 
 export const apiUserClient = axios.create({
-  baseURL: 'https://uadmin.kstu.kg/users/api/v1/',
+  baseURL: 'https://utask.kstu.kg/users/api/v1/',
   timeout: 10000,
   withCredentials: true,
   headers: {

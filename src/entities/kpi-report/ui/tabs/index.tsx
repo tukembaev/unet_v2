@@ -21,11 +21,20 @@ export const KpiReportTabList = () => {
   );
 };
 
-export const KpiReportTabContent = () => {
+export const KpiReportTabContent = ({
+  restoreContext,
+}: {
+  restoreContext?: {
+    tab?: string;
+    instituteId?: number;
+    departmentId?: number;
+    departmentName?: string;
+  };
+}) => {
   return (
     <div className="mt-6">
       <TabsContent value="institute">
-        <Institute />
+        <Institute restoreContext={restoreContext} />
       </TabsContent>
 
       <TabsContent value="employees">

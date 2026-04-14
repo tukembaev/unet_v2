@@ -2,7 +2,7 @@ import axios from 'axios';
 import { performLogout } from 'shared/lib/auth-utils';
 
 /** Совпадает с `baseURL` в `user_axios` + `users/refresh` → `/users/api/v1/users/refresh` */
-const USERS_API_V1 = 'https://uadmin.kstu.kg/users/api/v1/';
+const USERS_API_V1 = 'https://utask.kstu.kg/users/api/v1/';
 const REFRESH_URL = `${USERS_API_V1}users/refresh`;
 
 let refreshPromise: Promise<void> | null = null;

@@ -11,6 +11,7 @@ import EducationManagementPage from "pages/edu-management";
 import { HomePage } from "pages/home";
 import ItDepartmentPage from "pages/it-department";
 import { KpiReportPage } from "pages/kpi-report";
+import { KpiEmployeePage } from "pages/kpi-employee";
 import { LoginPage } from "pages/login";
 import { NotFoundPage } from "pages/not-found";
 import ProfilePage from "pages/profile";
@@ -119,6 +120,10 @@ const routes: RouteObject[] = [
           {
             path: ROUTES.KPI_REPORTS,
             element: <KpiReportPage />,
+          },
+          {
+            path: `${ROUTES.KPI_EMPLOYEE}/:userId`,
+            element: <KpiEmployeePage />,
           },
         ],
       },

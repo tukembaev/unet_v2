@@ -2,7 +2,7 @@ import axios from 'axios';
 import { attachRefreshInterceptor } from 'shared/lib/axios-auth-refresh';
 
 export const apiNotificationClient = axios.create({
-  baseURL: 'https://uadmin.kstu.kg/notifications/',
+  baseURL: 'https://utask.kstu.kg/notifications/',
   timeout: 10000,
   withCredentials: true,
   headers: {

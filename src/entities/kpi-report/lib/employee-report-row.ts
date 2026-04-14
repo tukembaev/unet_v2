@@ -162,12 +162,26 @@ export function flatMetricsSource(row: KpiReportTableRow): KpiReportTableRow {
       }
     }
   };
+  const mergeMetricArray = (arr: unknown) => {
+    if (!Array.isArray(arr)) return;
+    arr.forEach((v, i) => {
+      const key = `b_${i + 1}`;
+      if (!(key in out) || out[key] == null || out[key] === "") {
+        out[key] = v;
+      }
+    });
+  };
 
   mergeNested(row.scores);
   mergeNested(row.criteria_scores);
   mergeNested(row.criterion_scores);
   mergeNested(row.kpi_scores);
   mergeNested(row.criteria);
+  mergeMetricArray(row.criteria);
+  mergeMetricArray(row.scores);
+  mergeMetricArray(row.criteria_scores);
+  mergeMetricArray(row.criterion_scores);
+  mergeMetricArray(row.kpi_scores);
 
   return out;
 }
@@ -190,6 +204,22 @@ export function getMetricCellValue(row: KpiReportTableRow, key: string): unknown
   const ctx = mergeEmployeeRowContext(row);
   const vCtx = ctx[key];
   if (vCtx != null && vCtx !== "") return vCtx;
+
+  const idx = metricIndexFromKey(key);
+  if (idx != null) {
+    const pickFromArray = (arr: unknown) =>
+      Array.isArray(arr) ? arr[idx - 1] : undefined;
+    for (const arrKey of [
+      "criteria",
+      "scores",
+      "criteria_scores",
+      "criterion_scores",
+      "kpi_scores",
+    ] as const) {
+      const val = pickFromArray(row[arrKey]);
+      if (val != null && val !== "") return val;
+    }
+  }
 
   return undefined;
 }

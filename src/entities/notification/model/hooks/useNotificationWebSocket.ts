@@ -11,7 +11,7 @@ import type { WsNotification } from '../types';
 import { DOCUMENT_DETAILS_QUERY_KEY, DOCUMENTS_QUERY_KEY } from 'entities/documents';
 
 const WS_BASE_URL = 
-'wss://uadmin.kstu.kg/notifications/ws'
+'wss://utask.kstu.kg/notifications/ws'
 ;
 const RECONNECT_DELAY_MS = 3000;
 const MAX_RECONNECT_ATTEMPTS = 10;
