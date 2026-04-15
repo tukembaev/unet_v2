@@ -44,7 +44,6 @@ export function SyllabusPlanContent({
     try {
       await appendSemester.mutateAsync({
         syllabusId: data.id,
-        semesters: [...semesters, { syllabus: data.id }],
       });
       toast.success("Семестр добавлен");
     } catch (e) {
@@ -171,12 +170,16 @@ export function SyllabusPlanContent({
             </EmptyContent>
           </Empty>
         )}
-        <CreateCourseDialog />
-        <CreateElectiveDialog />
-        <ManageProfilesDialog
-          semesters={semesters}
-          directionId={data.id}
-        />
+        {role === "admin" ? (
+          <>
+            <CreateCourseDialog />
+            <CreateElectiveDialog />
+            <ManageProfilesDialog
+              semesters={semesters}
+              directionId={data.id}
+            />
+          </>
+        ) : null}
       </CardContent>
     </Card>
   );
