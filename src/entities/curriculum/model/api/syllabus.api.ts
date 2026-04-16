@@ -97,13 +97,18 @@ export async function createSyllabus(
   return data;
 }
 
-/**
- * PATCH /courses/{syllabusId}/ — обновить список семестров (как в legacy: добавить `{ syllabus }`).
- */
+/** POST /semesters/{rupId}/ — создать новый семестр для РУП. */
 export async function appendSemesterToSyllabus(
-  syllabusId: number,
-  payload: { semesters: unknown[] }
+  syllabusId: number
 ): Promise<unknown> {
-  const { data } = await apiClient.patch(`courses/${syllabusId}/`, payload);
+  const { data } = await apiClient.post(`semesters/${syllabusId}/`, {});
+  return data;
+}
+
+/** DELETE /semester/{semesterId}/ — удалить семестр. */
+export async function deleteSemesterFromSyllabus(
+  semesterId: number
+): Promise<unknown> {
+  const { data } = await apiClient.delete(`semester/${semesterId}/`);
   return data;
 }

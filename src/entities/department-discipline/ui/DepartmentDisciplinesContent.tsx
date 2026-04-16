@@ -18,6 +18,8 @@ import { useDepartmentDisciplines } from '../model/queries';
 import { DepartmentDisciplineDialog } from './DepartmentDisciplineDialog';
 import { DepartmentDisciplinesTableSkeleton } from './DepartmentDisciplinesTableSkeleton';
 
+const EMPTY_ROWS: DepartmentDisciplineRow[] = [];
+
 function TagList({ items }: { items: string[] | null | undefined }) {
   if (!items?.length) {
     return <span className="text-muted-foreground">—</span>;
@@ -40,19 +42,24 @@ function TagList({ items }: { items: string[] | null | undefined }) {
 export function DepartmentDisciplinesContent() {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create');
+  const [editing, setEditing] = useState<DepartmentDisciplineRow | null>(null);
+
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedSearch(searchInput.trim()), 350);
     return () => window.clearTimeout(t);
   }, [searchInput]);
 
   const {
-    data: rows = [],
+    data: rowsData,
     isPending,
     isFetching,
     isError,
     error,
     refetch,
   } = useDepartmentDisciplines(debouncedSearch);
+  const rows = rowsData ?? EMPTY_ROWS;
 
   useEffect(() => {
     if (!isError || !error) return;
@@ -60,10 +67,6 @@ export function DepartmentDisciplinesContent() {
       id: 'department-disciplines-list',
     });
   }, [isError, error]);
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create');
-  const [editing, setEditing] = useState<DepartmentDisciplineRow | null>(null);
 
   const openCreate = useCallback(() => {
     setEditing(null);

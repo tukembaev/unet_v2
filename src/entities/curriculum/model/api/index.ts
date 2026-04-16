@@ -5,4 +5,5 @@ export {
   fetchSyllabusCourse,
   createSyllabus,
   appendSemesterToSyllabus,
+  deleteSemesterFromSyllabus,
 } from './syllabus.api';

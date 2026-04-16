@@ -6,7 +6,7 @@ import { SyllabusPlanContent } from "./SyllabusPlanContent";
 
 export const SyllabusReport = () => {
   const { syllabusId, profileId } = useParams();
-  const role = "admin"; // mock
+  const role = "user";
 
   const { data, isLoading, isError } = useSyllabusReport(
     syllabusId ? Number(syllabusId) : undefined,
@@ -16,5 +16,5 @@ export const SyllabusReport = () => {
   if (isLoading) return <SyllabusReportSkeleton />;
   if (isError || !data) return <p>Ошибка загрузки данных</p>;
 
-  return <SyllabusPlanContent data={data} role={role} showAddSemesterEmpty />;
+  return <SyllabusPlanContent data={data} role={role} showAddSemesterEmpty={false} />;
 };

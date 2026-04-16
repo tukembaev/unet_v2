@@ -40,3 +40,24 @@ export async function logoutRequest(): Promise<void> {
   await apiUserClient.post("users/auth/logout");
 }
 
+export async function forgotPasswordRequest(username: string): Promise<string> {
+  const { data } = await apiUserClient.post<string>("users/forgot-password", {
+    username: username.trim(),
+  });
+  return data;
+}
+
+export async function verifyForgotPasswordCode(code: string): Promise<string> {
+  const { data } = await apiUserClient.post<string>("users/forgot-password/verify", {
+    code: code.trim(),
+  });
+  return data;
+}
+
+export async function resetPasswordByCode(code: string, newPassword: string): Promise<void> {
+  await apiUserClient.post("users/forgot-password/reset", {
+    code: code.trim(),
+    new_password: newPassword,
+  });
+}
+

@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { getHttpErrorMessage } from 'shared/lib';
-import type { DepartmentDisciplineRow } from '../model/types';
+import type { DepartmentDisciplineRow, SelectOptions } from '../model/types';
 import {
   useCreateDepartmentDiscipline,
   useDeleteDepartmentDiscipline,
@@ -32,6 +32,9 @@ import {
   SelectValue,
 } from 'shared/ui';
 import { OptionMultiSelect } from './OptionMultiSelect';
+
+/** Stable fallback so query `data ?? x` does not produce a new `[]` every render. */
+const EMPTY_SELECT_OPTIONS: SelectOptions[] = [];
 
 const LEVEL_EDUCATIONS = [
   { value: 1, label: 'Бакалавр', eng: 'bachelor' },
@@ -118,8 +121,10 @@ type Props = {
 
 export function DepartmentDisciplineDialog({ open, onOpenChange, mode, discipline }: Props) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const { data: prereqOptions = [], isLoading: prereqLoading } = usePrerequisiteOptions();
-  const { data: dirOptions = [], isLoading: dirLoading } = useDirectionOptions();
+  const { data: prereqData, isLoading: prereqLoading } = usePrerequisiteOptions();
+  const { data: dirData, isLoading: dirLoading } = useDirectionOptions();
+  const prereqOptions = prereqData ?? EMPTY_SELECT_OPTIONS;
+  const dirOptions = dirData ?? EMPTY_SELECT_OPTIONS;
   const createMut = useCreateDepartmentDiscipline();
   const updateMut = useUpdateDepartmentDiscipline();
   const deleteMut = useDeleteDepartmentDiscipline();
@@ -136,15 +141,18 @@ export function DepartmentDisciplineDialog({ open, onOpenChange, mode, disciplin
   });
 
   useEffect(() => {
-    if (!open) {
-      setDeleteConfirmOpen(false);
-      return;
-    }
-    if (mode === 'edit' && discipline) {
-      reset(rowToFormValues(discipline, prereqOptions, dirOptions));
-    } else if (mode === 'create') {
-      reset(defaultEmpty);
-    }
+    if (!open) setDeleteConfirmOpen(false);
+  }, [open]);
+
+  /** Create: reset only when `open` / `mode` change — avoids loops if deps flicker. */
+  useEffect(() => {
+    if (!open || mode !== 'create') return;
+    reset(defaultEmpty);
+  }, [open, mode, reset]);
+
+  useEffect(() => {
+    if (!open || mode !== 'edit' || !discipline) return;
+    reset(rowToFormValues(discipline, prereqOptions, dirOptions));
   }, [open, mode, discipline, prereqOptions, dirOptions, reset]);
 
   const onSubmit = handleSubmit(async (values) => {

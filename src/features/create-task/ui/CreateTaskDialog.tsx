@@ -42,6 +42,7 @@ export function CreateTaskDialog() {
     submitForm,
     isSubmitting,
   } = useCreateTaskForm();
+  const { setValue } = form;
 
   const isImportant = useWatch({ control: form.control, name: 'isImportant' });
   const deadline = useWatch({ control: form.control, name: 'deadline' });
@@ -71,24 +72,24 @@ export function CreateTaskDialog() {
   // Устанавливаем parent_task_id когда компонент монтируется или изменяется parentTaskId
   React.useEffect(() => {
     if (parentTaskId) {
-      form.setValue('parent_task_id', parentTaskId);
+      setValue('parent_task_id', parentTaskId);
     } else {
-      form.setValue('parent_task_id', '');
+      setValue('parent_task_id', '');
     }
-  }, [parentTaskId, form]);
+  }, [parentTaskId, setValue]);
 
   // Устанавливаем данные документа, если они переданы
   React.useEffect(() => {
     if (documentName) {
-      form.setValue('doc_title', documentName);
+      setValue('doc_title', documentName);
     }
     if (docId) {
-      form.setValue('doc_id', docId);
+      setValue('doc_id', docId);
     }
     if (documentType) {
-      form.setValue('doc_type', documentType);
+      setValue('doc_type', documentType);
     }
-  }, [documentName, docId, documentType, form]);
+  }, [documentName, docId, documentType, setValue]);
 
 
   const isSubtaskMode = !!parentTaskId;

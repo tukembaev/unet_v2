@@ -6,6 +6,7 @@ import { CourseEditDialog } from "features/syllabus/index";
 import { Plus } from "lucide-react";
 import { Fragment, ReactNode, useCallback, useState } from "react";
 import { FormQuery, useFormNavigation } from "shared/lib";
+import { cn } from "shared/lib/utils";
 import {
   Table,
   TableBody,
@@ -48,8 +49,14 @@ export const SyllabusTable = ({
   const renderCourseRow = (course: SyllabusCourse, indexCell?: ReactNode) => (
     <TableRow
       key={course.id}
-      className="hover:bg-muted/30 cursor-pointer border-b border-border"
-      onClick={() => openEditor(course)}
+      className={cn(
+        "hover:bg-muted/30 border-b border-border",
+        role === "admin" && "cursor-pointer"
+      )}
+      onClick={() => {
+        if (role !== "admin") return;
+        openEditor(course);
+      }}
     >
       {indexCell}
       <TableCell className="py-2 px-3 border-r border-border">{course.code ?? "—"}</TableCell>

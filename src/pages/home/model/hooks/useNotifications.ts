@@ -8,8 +8,11 @@ import type { Notification } from 'entities/notification';
 
 export type { Notification };
 
+const EMPTY_NOTIFICATIONS: Notification[] = [];
+
 export const useNotifications = () => {
-  const { data: notifications = [], isLoading } = useNotificationsList();
+  const { data: notificationsData, isLoading } = useNotificationsList();
+  const notifications = notificationsData ?? EMPTY_NOTIFICATIONS;
 
   const markAsReadMutation = useMarkNotificationAsRead();
   const markAllAsReadMutation = useMarkAllNotificationsAsRead();

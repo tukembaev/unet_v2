@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { CurrentUser } from "entities/user";
 import { cn } from "shared/lib/utils";
 import { getCurrentUser } from "entities/user/model/api";
+import { clearSuppressLoginAutoRedirect } from "shared/lib/auth-utils";
 import { getHttpErrorMessage } from "shared/lib/http-error";
 import { toast } from "sonner";
 import {
@@ -69,6 +70,7 @@ export const LoginForm = () => {
           loginPassword: values.password,
         });
       } else {
+        clearSuppressLoginAutoRedirect();
         navigate("/home");
       }
     } catch (err) {
@@ -99,6 +101,7 @@ export const LoginForm = () => {
           loginPassword={postAuth.loginPassword}
           onComplete={() => {
             setPostAuth(null);
+            clearSuppressLoginAutoRedirect();
             navigate("/home");
           }}
         />
