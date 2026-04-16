@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarDays, ExternalLink, FileText, Paperclip, ShieldCheck, UserRound } from "lucide-react";
 
+import type { KpiEmployeePublicationResponse } from "entities/kpi-report/model/api";
 import { usePatchKpiInfoStatus, useKpiEmployeePublications } from "entities/kpi-report/model/queries";
 import { getHttpErrorMessage } from "shared/lib/http-error";
 import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Textarea } from "shared/ui";
@@ -24,13 +25,16 @@ function normalizedStatus(status?: string) {
   return "waiting";
 }
 
+const EMPTY_PUBLICATIONS: KpiEmployeePublicationResponse = [];
+
 export const KpiEmployeePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { userId } = useParams<{ userId: string }>();
   const numericUserId = Number(userId);
   const validUserId = Number.isFinite(numericUserId) && numericUserId > 0 ? numericUserId : null;
-  const { data: publications = [], isLoading, error } = useKpiEmployeePublications(validUserId);
+  const { data: publicationsData, isLoading, error } = useKpiEmployeePublications(validUserId);
+  const publications = publicationsData ?? EMPTY_PUBLICATIONS;
   const patchStatus = usePatchKpiInfoStatus(validUserId);
   const backContext = (location.state as { kpiBackContext?: Record<string, unknown> } | null)
     ?.kpiBackContext as

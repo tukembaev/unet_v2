@@ -23,6 +23,9 @@ import { addProfiles } from "entities/education-management/model/api";
 import { useProfilesInDirections } from "entities/education-management/model/queries";
 import { useQueryClient } from "@tanstack/react-query";
 import { curriculumKeys } from "entities/curriculum/model/queries";
+import type { SelectOptions } from "entities/education-management/model/types";
+
+const EMPTY_PROFILE_OPTIONS: SelectOptions[] = [];
 
 type Props = {
   semesters: SyllabusSemester[];
@@ -36,7 +39,8 @@ export const ManageProfilesDialog = ({ semesters, directionId }: Props) => {
   const [selectedBySemester, setSelectedBySemester] = useState<Record<number, number | null>>({});
   const [savingSemesterId, setSavingSemesterId] = useState<number | null>(null);
   const [removingKey, setRemovingKey] = useState<string | null>(null);
-  const { data: profilesOptionsData = [] } = useProfilesInDirections(directionId);
+  const { data: profilesOptionsDataRaw } = useProfilesInDirections(directionId);
+  const profilesOptionsData = profilesOptionsDataRaw ?? EMPTY_PROFILE_OPTIONS;
 
   const semestersSorted = useMemo(
     () =>

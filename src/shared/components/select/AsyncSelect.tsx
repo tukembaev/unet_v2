@@ -25,6 +25,8 @@ interface AsyncSelectProps {
 const ITEM_HEIGHT = 48;
 const LIST_MAX_HEIGHT = 300;
 
+const EMPTY_USERS: UserListItem[] = [];
+
 export function AsyncSelect({
   value,
   onChange,
@@ -35,7 +37,8 @@ export function AsyncSelect({
   const [search, setSearch] = useState("");
   const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
 
-  const { data: users = [], isLoading, isError, refetch, isFetching } = useUsersList();
+  const { data: usersData, isLoading, isError, refetch, isFetching } = useUsersList();
+  const users = usersData ?? EMPTY_USERS;
 
   const filteredUsers = useMemo(() => {
     if (!search) return users;

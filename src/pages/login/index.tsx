@@ -1,11 +1,36 @@
 import { LoginForm, useGoogleOAuthCallback } from "features/auth";
+import { useCurrentUser } from "entities/user/model/queries";
 import kstuLogo from "shared/assets/img/kstu.png";
 import { AppLogo, Card, CardContent } from "shared/ui";
 import { cn } from "shared/lib/utils";
+import { Navigate, useLocation } from "react-router-dom";
+import { ROUTES } from "app/providers/routes";
+import { shouldSuppressLoginAutoRedirect } from "shared/lib/auth-utils";
+import { Loader2 } from "lucide-react";
+
+/** Только внутренние пути приложения (без open-redirect). */
+function safeRedirectPath(from: unknown): string {
+  if (typeof from !== "string" || !from.startsWith("/")) return ROUTES.HOME;
+  if (from.startsWith("//") || from.includes("://")) return ROUTES.HOME;
+  const normalized = from.split("?")[0]?.split("#")[0] ?? "";
+  if (normalized === "" || normalized === ROUTES.AUTH) return ROUTES.HOME;
+  return from;
+}
 
 /** Shell страницы входа + карточка shadcn; токены — в `.login-scope` (globals.css). */
 export const LoginPage = () => {
+  const location = useLocation();
+  const { data: user, isSuccess, isPending } = useCurrentUser();
   const { processing: googleOAuthProcessing } = useGoogleOAuthCallback();
+  const checkingSession = !googleOAuthProcessing && isPending;
+
+  const from = (location.state as { from?: string } | null)?.from;
+
+  const suppressAutoRedirect = shouldSuppressLoginAutoRedirect();
+
+  if (!googleOAuthProcessing && isSuccess && user && !suppressAutoRedirect) {
+    return <Navigate to={safeRedirectPath(from)} replace />;
+  }
 
   return (
     <div
@@ -101,7 +126,14 @@ export const LoginPage = () => {
           )}
         >
           <CardContent className="bg-card p-[clamp(24px,4vw,36px)]">
-            <LoginForm />
+            {checkingSession ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden />
+                <p className="text-sm text-muted-foreground">Проверка сессии…</p>
+              </div>
+            ) : (
+              <LoginForm />
+            )}
           </CardContent>
         </Card>
       </div>

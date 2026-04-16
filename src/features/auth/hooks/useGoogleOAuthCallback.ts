@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "app/providers/routes";
 import { googleAuthRequest } from "../model/api";
 import { consumeExpectedGoogleNonce } from "../lib/google-oauth";
+import { clearSuppressLoginAutoRedirect } from "shared/lib/auth-utils";
 import { getHttpErrorMessage } from "shared/lib/http-error";
 import { toast } from "sonner";
 
@@ -72,6 +73,7 @@ export function useGoogleOAuthCallback() {
         setProcessing(true);
         await googleAuthRequest(idToken);
         googleOAuthTokenFromHash = null;
+        clearSuppressLoginAutoRedirect();
         await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
         toast.success("Вход через Google выполнен");
         navigate(ROUTES.HOME);
