@@ -28,7 +28,7 @@ export const NotificationBell = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const unreadNotifications = notifications.filter((n) => !n.is_read).slice(0, 5);
-  console.log(unreadNotifications)
+ 
   const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
     

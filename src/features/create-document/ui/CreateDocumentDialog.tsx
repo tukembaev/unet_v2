@@ -90,7 +90,7 @@ export function CreateDocumentDialog() {
         user_name: selectedMemberUser.full_name, // Сохраняем имя для отображения
       };
       
-      console.log('Auto-adding member:', member);
+
       addMember(member);
       
       // Очищаем выбор

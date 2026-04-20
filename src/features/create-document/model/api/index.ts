@@ -40,19 +40,6 @@ export const documentsActionApi = {
         });
       }
 
-      // Логирование для отладки
-      console.log('Creating document with payload:', {
-        sender_id: payload.sender_id,
-        type: payload.type,
-        status: 'В процессе выполнения',
-        title: payload.title,
-        file: payload.file?.name,
-        text: payload.text ? `${payload.text.substring(0, 50)}...` : undefined,
-        members: membersForApi,
-        membersJson,
-        additionalFiles: payload.files?.map(f => f.name) || [],
-      });
-
       const { data } = await apiDocsClient.post('create/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',

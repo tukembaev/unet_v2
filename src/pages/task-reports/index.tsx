@@ -14,7 +14,7 @@ export const TaskReportsPage = () => {
   // Queries
   const usersQuery = useUsersReport(dateRange);
   const performanceQuery = usePerformanceReport(dateRange);
-  console.log(performanceQuery)
+
   return (
     <div className="space-y-6 p-6">
       <TaskReportsHeader

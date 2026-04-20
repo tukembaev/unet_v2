@@ -55,7 +55,7 @@ const TaskTabsContentComponent: React.FC<TaskTabsContentProps> = ({
 }) => {
 
   const { data: tasksData, isLoading } = useEmployeeTasks();
-  console.log(tasksData)
+
   const filteredTasks = useMemo(() => {
     if (!tasksData) {
       return emptyTaskCategory();
