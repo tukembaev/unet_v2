@@ -48,17 +48,16 @@ export const useCreateDocumentForm = () => {
 
   const addMember = (member: CreateDocumentMember) => {
     const currentMembers = form.getValues('members') || [];
-    console.log('addMember - current members:', currentMembers);
-    console.log('addMember - adding member:', member);
+   
     
     const newMembers = [...currentMembers, member];
-    console.log('addMember - new members array:', newMembers);
+
     
     form.setValue('members', newMembers);
     
     // Проверяем что установилось
     const afterSet = form.getValues('members');
-    console.log('addMember - members after setValue:', afterSet);
+
   };
 
   const removeMember = (index: number) => {
@@ -88,16 +87,6 @@ export const useCreateDocumentForm = () => {
         toast.error('Загрузите файл или введите текст документа');
         return false;
       }
-
-      console.log('Submitting form with data:', {
-        sender_id: data.sender_id,
-        type: data.type,
-        title: data.title,
-        file: data.file?.name,
-        text: data.text ? `${data.text.substring(0, 50)}...` : undefined,
-        members: data.members,
-        files: data.files?.map(f => f.name),
-      });
 
       // Create document
       await createDocument({

@@ -53,7 +53,7 @@ export function useNotificationWebSocket(userId: string | undefined) {
     ws.onmessage = (event) => {
       try {
         const notification: WsNotification = JSON.parse(event.data);
-        console.log(notification);
+       
         
         // Prevent duplicate toasts using global Set
         if (shownNotifications.has(notification.id)) {
