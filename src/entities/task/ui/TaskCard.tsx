@@ -113,7 +113,7 @@ const TaskCardComponent: React.FC<TaskCardProps> = ({ task, currentUserId }) => 
 
           {/* Description */}
           <p className="text-xs text-muted-foreground line-clamp-2">
-            Compile competitor landing page designs for inspiration. G..
+            {task.description}
           </p>
 
           {/* Separator */}

@@ -79,6 +79,7 @@ export interface User {
     deadline_at: string | null;
     responsible_user_id: string;
     responsible_username: string;
+    description:string;
     members: Array<{
       user_id: string;
       user_name: string;

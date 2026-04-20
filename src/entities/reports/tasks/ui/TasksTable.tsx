@@ -20,6 +20,8 @@ import { Button } from 'shared/ui/button';
 import { Download } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
+import UserTooltip from 'entities/user/ui/UserTooltip';
 import type { ReportTask, TaskRole, TaskStatus } from '../model/types';
 
 interface TasksTableProps {
@@ -78,6 +80,8 @@ export const TasksTable = ({
   onDownloadPdf,
   isDownloading = false,
 }: TasksTableProps) => {
+  const navigate = useNavigate();
+
   if (isLoading) {
     return <TasksTableSkeleton />;
   }
@@ -147,7 +151,10 @@ export const TasksTable = ({
             ) : (
               tasks.map((task) => (
                 <TableRow key={task.id}>
-                  <TableCell>
+                  <TableCell 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => navigate('/task-details', { state: { taskId: task.id } })}
+                  >
                     <div>
                       <div className="font-medium">{task.title}</div>
                       {task.description && (
@@ -170,12 +177,14 @@ export const TasksTable = ({
                   <TableCell>
                     <div className="flex -space-x-2">
                       {task.members.slice(0, 3).map((member) => (
-                        <Avatar key={member.user_id} className="w-8 h-8 border-2 border-background">
-                          <AvatarImage src={member.avatar_url} />
-                          <AvatarFallback className="text-xs">
-                            {member.user_name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
+                        <UserTooltip key={member.user_id} userId={member.user_id}>
+                          <Avatar className="w-8 h-8 border-2 border-background cursor-pointer hover:z-10 transition-all">
+                            <AvatarImage src={member.avatar_url} />
+                            <AvatarFallback className="text-xs">
+                              {member.user_name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                        </UserTooltip>
                       ))}
                       {task.members.length > 3 && (
                         <div className="w-8 h-8 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">

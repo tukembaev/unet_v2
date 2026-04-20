@@ -16,6 +16,10 @@ const WS_BASE_URL =
 const RECONNECT_DELAY_MS = 3000;
 const MAX_RECONNECT_ATTEMPTS = 10;
 
+// Global singleton to prevent multiple WebSocket connections in StrictMode
+const activeConnections = new Map<string, WebSocket>();
+const shownNotifications = new Set<string>();
+
 export function useNotificationWebSocket(userId: string | undefined) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -26,18 +30,41 @@ export function useNotificationWebSocket(userId: string | undefined) {
   const connect = useCallback(() => {
     if (!userId) return;
 
-    if (wsRef.current?.readyState === WebSocket.OPEN) return;
+    // Check if there's already an active connection for this user
+    const existingWs = activeConnections.get(userId);
+    if (existingWs?.readyState === WebSocket.OPEN) {
+      wsRef.current = existingWs;
+      return;
+    }
+
+    // Close any existing connection before creating a new one
+    if (existingWs) {
+      existingWs.close();
+      activeConnections.delete(userId);
+    }
 
     const ws = new WebSocket(`${WS_BASE_URL}/${userId}`);
 
     ws.onopen = () => {
       reconnectAttemptsRef.current = 0;
+      activeConnections.set(userId, ws);
     };
 
     ws.onmessage = (event) => {
       try {
         const notification: WsNotification = JSON.parse(event.data);
         console.log(notification);
+        
+        // Prevent duplicate toasts using global Set
+        if (shownNotifications.has(notification.id)) {
+          return;
+        }
+        shownNotifications.add(notification.id);
+        
+        // Clean up old notification IDs after 10 seconds
+        setTimeout(() => {
+          shownNotifications.delete(notification.id);
+        }, 10000);
         
         // Invalidate queries
         queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY });
@@ -82,6 +109,7 @@ export function useNotificationWebSocket(userId: string | undefined) {
     };
 
     ws.onclose = () => {
+      activeConnections.delete(userId);
       wsRef.current = null;
 
       if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
@@ -103,10 +131,17 @@ export function useNotificationWebSocket(userId: string | undefined) {
     return () => {
       const timer = reconnectTimerRef.current;
       if (timer != null) clearTimeout(timer);
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
+      
+      // Don't close the WebSocket on unmount if it's still in the global map
+      // This prevents closing the connection when StrictMode unmounts/remounts
+      if (wsRef.current && userId) {
+        const activeWs = activeConnections.get(userId);
+        if (activeWs !== wsRef.current) {
+          // Only close if this is not the active connection
+          wsRef.current.close();
+        }
       }
+      wsRef.current = null;
     };
-  }, [connect]);
+  }, [connect, userId]);
 }
