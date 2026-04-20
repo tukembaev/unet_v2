@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Bell, FileText, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Button, Badge, Popover, PopoverContent, PopoverTrigger } from 'shared/ui';
+import { useNavigate } from 'react-router-dom';
 import { useNotifications } from 'pages/home/model/hooks/useNotifications';
 import type { Notification, NotificationIconType } from 'entities/notification';
 import { getNotificationIconType } from 'entities/notification';
@@ -23,13 +24,26 @@ const notificationColors: Record<NotificationIconType, string> = {
 export const NotificationBell = () => {
   const [open, setOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const unreadNotifications = notifications.filter((n) => !n.is_read).slice(0, 5);
-
+  console.log(unreadNotifications)
   const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
-    setOpen(false);
+    
+    const isTask = notification.source_service === 'tasks';
+    const isDocument = notification.source_service === 'documentflow';
+    
+    if (isTask && notification.extra_data?.task_id) {
+      setOpen(false);
+      navigate('/task-details', { state: { taskId: notification.extra_data.task_id } });
+    } else if (isDocument && notification.extra_data?.link) {
+      setOpen(false);
+      navigate(notification.extra_data.link);
+    } else {
+      setOpen(false);
+    }
   };
 
   return (
