@@ -48,16 +48,8 @@ export const useCreateDocumentForm = () => {
 
   const addMember = (member: CreateDocumentMember) => {
     const currentMembers = form.getValues('members') || [];
-   
-    
     const newMembers = [...currentMembers, member];
-
-    
     form.setValue('members', newMembers);
-    
-    // Проверяем что установилось
-    const afterSet = form.getValues('members');
-
   };
 
   const removeMember = (index: number) => {

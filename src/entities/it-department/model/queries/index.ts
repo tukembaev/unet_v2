@@ -1,13 +1,13 @@
 // it-department/model/queries/index.ts
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { activateEmployee, deactivateEmployee, fetchEmployees, resetEmployeePassword, resetEmployeePin, updateEmployee } from "../api";
-import { EmployeeFilters, EmployeeUpdatePayload, EmployeesResponse, ID } from "../types";
+import { fetchEmployeeDetail, fetchEmployees, resetEmployeePassword } from "../api";
+import { EmployeeDetail, EmployeeFilters, EmployeesResponse, ID } from "../types";
 
 
 const KEYS = {
   list: (f: EmployeeFilters) =>
-    ["it-dept", "employees", f.page ?? 1, f.search ?? "", f.before_age, f.after_age, f.gender, f.position_id, f.citizen, f.stavka, f.national] as const,
+    ["it-dept", "employees", f.page ?? 1, f.size ?? 15, f.search ?? ""] as const,
 };
 /** Получение списка сотрудников */
 
@@ -18,29 +18,12 @@ export function useEmployees(filters: EmployeeFilters) {
     placeholderData: keepPreviousData, // <-- вместо keepPreviousData: true
   });
 }
-/** Обновление контактов */
-export function useUpdateEmployee(filters: EmployeeFilters) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, payload }: { id: ID; payload: EmployeeUpdatePayload }) =>
-      updateEmployee(id, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.list(filters) }),
-  });
-}
 
-export function useDeactivateEmployee(filters: EmployeeFilters) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: ID) => deactivateEmployee(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.list(filters) }),
-  });
-}
-
-export function useActivateEmployee(filters: EmployeeFilters) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: ID) => activateEmployee(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.list(filters) }),
+export function useEmployeeDetail(userId: ID | null) {
+  return useQuery<EmployeeDetail>({
+    queryKey: ["it-dept", "employee-detail", userId],
+    queryFn: () => fetchEmployeeDetail(userId as ID),
+    enabled: userId != null,
   });
 }
 
@@ -48,14 +31,6 @@ export function useResetPassword(filters: EmployeeFilters) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: ID) => resetEmployeePassword(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.list(filters) }),
-  });
-}
-
-export function useResetPin(filters: EmployeeFilters) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: ID) => resetEmployeePin(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.list(filters) }),
   });
 }
