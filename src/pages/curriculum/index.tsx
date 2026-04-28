@@ -5,7 +5,7 @@ import { PageHeader } from 'widgets/page-header';
 import { Input, Button } from 'shared/ui';
 import { Plus, Search } from 'lucide-react';
 import { CurriculumContent } from 'entities/curriculum';
-import { CreateRupDialog } from 'features/curriculum';
+import { CreateRupDialog, EditRupDialog } from 'features/curriculum';
 import { FormQuery, useFormNavigation } from 'shared/lib';
 
 export const CurriculumPage = () => {
@@ -44,6 +44,7 @@ export const CurriculumPage = () => {
       <CurriculumContent searchQuery={searchQuery} />
 
       <CreateRupDialog />
+      <EditRupDialog />
     </div>
   );
 };
