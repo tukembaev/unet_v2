@@ -1,7 +1,7 @@
 
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { Camera, KeyRound, Settings, UserRound } from "lucide-react";
+import { Camera, Eye, EyeOff, KeyRound, Settings, UserRound } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -100,6 +100,9 @@ type Props = {
 export function UserEditModal({ user, position }: Props) {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const patchUser = usePatchCurrentUser();
@@ -372,19 +375,72 @@ export function UserEditModal({ user, position }: Props) {
             <form onSubmit={onSavePassword} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="current_password">Текущий пароль</Label>
-                <Input id="current_password" type="password" {...passwordForm.register("current_password")} />
+                <div className="relative">
+                  <Input
+                    id="current_password"
+                    type={showCurrentPassword ? "text" : "password"}
+                    className="pr-11"
+                    {...passwordForm.register("current_password")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                    aria-label={showCurrentPassword ? "Скрыть пароль" : "Показать пароль"}
+                    onClick={() => setShowCurrentPassword((prev) => !prev)}
+                  >
+                    {showCurrentPassword ? (
+                      <EyeOff className="h-4 w-4" aria-hidden />
+                    ) : (
+                      <Eye className="h-4 w-4" aria-hidden />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="new_password">Новый пароль</Label>
-                <Input id="new_password" type="password" {...passwordForm.register("new_password")} />
+                <div className="relative">
+                  <Input
+                    id="new_password"
+                    type={showNewPassword ? "text" : "password"}
+                    className="pr-11"
+                    {...passwordForm.register("new_password")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                    aria-label={showNewPassword ? "Скрыть пароль" : "Показать пароль"}
+                    onClick={() => setShowNewPassword((prev) => !prev)}
+                  >
+                    {showNewPassword ? (
+                      <EyeOff className="h-4 w-4" aria-hidden />
+                    ) : (
+                      <Eye className="h-4 w-4" aria-hidden />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="new_password_repeat">Повторите новый пароль</Label>
-                <Input
-                  id="new_password_repeat"
-                  type="password"
-                  {...passwordForm.register("new_password_repeat")}
-                />
+                <div className="relative">
+                  <Input
+                    id="new_password_repeat"
+                    type={showRepeatPassword ? "text" : "password"}
+                    className="pr-11"
+                    {...passwordForm.register("new_password_repeat")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                    aria-label={showRepeatPassword ? "Скрыть пароль" : "Показать пароль"}
+                    onClick={() => setShowRepeatPassword((prev) => !prev)}
+                  >
+                    {showRepeatPassword ? (
+                      <EyeOff className="h-4 w-4" aria-hidden />
+                    ) : (
+                      <Eye className="h-4 w-4" aria-hidden />
+                    )}
+                  </button>
+                </div>
               </div>
               <Button type="submit" className="w-full" disabled={busy}>
                 Изменить пароль

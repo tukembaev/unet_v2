@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import type { DisciplineOption } from "entities/education-management/model/api";
 import {
@@ -35,10 +35,24 @@ export function DisciplineCombobox({
   emptyText = "Ничего не найдено",
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const selected = options.find((o) => String(o.value) === value);
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredOptions = useMemo(() => {
+    if (!normalizedSearch) return options;
+    return options.filter((opt) =>
+      `${opt.label} ${opt.value}`.toLowerCase().includes(normalizedSearch)
+    );
+  }, [normalizedSearch, options]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) setSearch("");
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           type="button"
@@ -60,17 +74,22 @@ export function DisciplineCombobox({
         className="w-[var(--radix-popover-trigger-width)] p-0"
         align="start"
       >
-        <Command>
-          <CommandInput placeholder={searchPlaceholder} />
+        <Command shouldFilter={false}>
+          <CommandInput
+            placeholder={searchPlaceholder}
+            value={search}
+            onValueChange={setSearch}
+          />
           <CommandList className="max-h-72">
             <CommandEmpty>{emptyText}</CommandEmpty>
             <CommandGroup>
-              {options.map((opt) => (
+              {filteredOptions.map((opt) => (
                 <CommandItem
                   key={opt.value}
                   value={`${opt.label} ${opt.value}`}
                   onSelect={() => {
                     onValueChange(String(opt.value));
+                    setSearch("");
                     setOpen(false);
                   }}
                 >

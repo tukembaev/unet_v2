@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -32,6 +32,7 @@ import {
 import { curriculumKeys } from "entities/curriculum/model/queries";
 import { useAllDiscipline } from "entities/education-management/model/queries";
 import {
+  deleteCourse,
   updateCourse,
   type DisciplineOption,
 } from "entities/education-management/model/api";
@@ -65,6 +66,8 @@ interface Props {
 }
 
 export const CourseEditDialog = ({ course }: Props) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const open = useIsFormOpen(FormQuery.EDIT_COURSE);
   const isDialogOpen = open && !!course;
   const closeForm = useFormClose();
@@ -227,9 +230,41 @@ export const CourseEditDialog = ({ course }: Props) => {
     }
   });
 
+  const handleDelete = async () => {
+    const parsedCourseId = Number(courseId);
+    if (!Number.isFinite(parsedCourseId) || !course) {
+      toast.error("Не найден курс для удаления");
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await deleteCourse(parsedCourseId, {
+        semester: course.semester,
+        profile: course.profile ?? null,
+        discipline: course.discipline,
+        group: course.group ?? null,
+      });
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: curriculumKeys.courses() }),
+        queryClient.invalidateQueries({ queryKey: ["syllabus-report"] }),
+      ]);
+
+      toast.success("Дисциплина удалена");
+      setDeleteConfirmOpen(false);
+      closeForm(FormQuery.EDIT_COURSE);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Не удалось удалить дисциплину");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
-    <Dialog open={isDialogOpen} onOpenChange={() => closeForm(FormQuery.EDIT_COURSE)}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+    <>
+      <Dialog open={isDialogOpen} onOpenChange={() => closeForm(FormQuery.EDIT_COURSE)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Редактирование дисциплины</DialogTitle>
           <DialogDescription>Измените параметры выбранного курса</DialogDescription>
@@ -346,31 +381,38 @@ export const CourseEditDialog = ({ course }: Props) => {
           <div className="grid grid-cols-5 gap-4">
             <Field>
               <FieldLabel>Кредит</FieldLabel>
-              <Input type="number" {...register("credit")} placeholder="0" />
+              <Input type="number" step="any" min="0" {...register("credit")} placeholder="0" />
               {errors.credit && <FieldError>{errors.credit.message}</FieldError>}
             </Field>
 
             <Field>
               <FieldLabel>Всего ауд.</FieldLabel>
-              <Input type="number" {...register("amount_hours")} placeholder="0" readOnly />
+              <Input
+                type="number"
+                step="any"
+                min="0"
+                {...register("amount_hours")}
+                placeholder="0"
+                readOnly
+              />
               {errors.amount_hours && <FieldError>{errors.amount_hours.message}</FieldError>}
             </Field>
 
             <Field>
               <FieldLabel>Лекции</FieldLabel>
-              <Input type="number" {...register("lecture_hours")} placeholder="0" />
+              <Input type="number" step="any" min="0" {...register("lecture_hours")} placeholder="0" />
               {errors.lecture_hours && <FieldError>{errors.lecture_hours.message}</FieldError>}
             </Field>
 
             <Field>
               <FieldLabel>Практика</FieldLabel>
-              <Input type="number" {...register("practice_hours")} placeholder="0" />
+              <Input type="number" step="any" min="0" {...register("practice_hours")} placeholder="0" />
               {errors.practice_hours && <FieldError>{errors.practice_hours.message}</FieldError>}
             </Field>
 
             <Field>
               <FieldLabel>Лаб.</FieldLabel>
-              <Input type="number" {...register("lab_hours")} placeholder="0" />
+              <Input type="number" step="any" min="0" {...register("lab_hours")} placeholder="0" />
               {errors.lab_hours && <FieldError>{errors.lab_hours.message}</FieldError>}
             </Field>
           </div>
@@ -378,19 +420,58 @@ export const CourseEditDialog = ({ course }: Props) => {
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button
               type="button"
+              variant="destructive"
+              onClick={() => setDeleteConfirmOpen(true)}
+              disabled={isSubmitting || isDeleting}
+            >
+              {isDeleting ? "Удаление..." : "Удалить дисциплину"}
+            </Button>
+            <Button
+              type="button"
               variant="outline"
               onClick={() => closeForm(FormQuery.EDIT_COURSE)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isDeleting}
             >
               Отмена
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || isDeleting}>
               {isSubmitting ? "Сохранение..." : "Сохранить изменения"}
             </Button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Удалить дисциплину?</DialogTitle>
+            <DialogDescription>
+              {course ? (
+                <>Будет удалена дисциплина «{course.name_subject}». Это действие нельзя отменить.</>
+              ) : null}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={isDeleting}
+            >
+              Отмена
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => void handleDelete()}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Удаление..." : "Удалить"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

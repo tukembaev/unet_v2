@@ -136,14 +136,13 @@ export function DepartmentDisciplinesContent() {
                   <TableHead className="min-w-[220px]">Наименование</TableHead>
                   <TableHead className="w-28 whitespace-nowrap">Кредиты</TableHead>
                   <TableHead className="w-40 whitespace-nowrap">Уровень</TableHead>
-                  <TableHead className="min-w-[180px]">Направления</TableHead>
                   <TableHead className="min-w-[180px]">Пререквизиты</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                       Список дисциплин пуст
                     </TableCell>
                   </TableRow>
@@ -183,9 +182,6 @@ export function DepartmentDisciplinesContent() {
                         ) : null}
                       </TableCell>
                       <TableCell className="align-top text-sm">{item.level_education_name ?? '—'}</TableCell>
-                      <TableCell className="align-top">
-                        <TagList items={item.directions_names} />
-                      </TableCell>
                       <TableCell className="align-top">
                         <TagList items={item.prerequisites_names} />
                       </TableCell>

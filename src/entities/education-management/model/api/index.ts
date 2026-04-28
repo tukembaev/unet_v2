@@ -141,6 +141,29 @@ export const updateCourse = async (
   throw lastError;
 };
 
+export const deleteCourse = async (
+  courseId: number,
+  payload?: UpdateCoursePayload
+) => {
+  const endpoints = [
+    `course/${courseId}/`,
+    `courses/${courseId}/`,
+    `new-create-course/${courseId}/`,
+  ];
+
+  let lastError: unknown = null;
+  for (const endpoint of endpoints) {
+    try {
+      const { data } = await apiClient.delete(endpoint, payload ? { data: payload } : undefined);
+      return data;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
+};
+
 export type DisciplineOption = {
   value: number;
   label: string;

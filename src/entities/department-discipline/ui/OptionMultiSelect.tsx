@@ -34,10 +34,18 @@ export function OptionMultiSelect({
   className,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const selected = useMemo(() => {
     const set = new Set(value);
     return options.filter((o) => set.has(o.value));
   }, [options, value]);
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredOptions = useMemo(() => {
+    if (!normalizedSearch) return options;
+    return options.filter((opt) =>
+      `${opt.label} ${opt.value}`.toLowerCase().includes(normalizedSearch)
+    );
+  }, [normalizedSearch, options]);
 
   const toggle = (id: number) => {
     const set = new Set(value);
@@ -52,7 +60,13 @@ export function OptionMultiSelect({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover
+        open={open}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          if (!nextOpen) setSearch('');
+        }}
+      >
         <PopoverTrigger asChild>
           <Button
             type="button"
@@ -69,12 +83,12 @@ export function OptionMultiSelect({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-          <Command>
-            <CommandInput placeholder="Поиск..." />
+          <Command shouldFilter={false}>
+            <CommandInput placeholder="Поиск..." value={search} onValueChange={setSearch} />
             <CommandList className="max-h-60">
               <CommandEmpty>Ничего не найдено</CommandEmpty>
               <CommandGroup>
-                {options.map((opt) => {
+                {filteredOptions.map((opt) => {
                   const checked = value.includes(opt.value);
                   return (
                     <CommandItem
