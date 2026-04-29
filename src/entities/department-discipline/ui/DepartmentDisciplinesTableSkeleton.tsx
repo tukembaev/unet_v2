@@ -10,7 +10,6 @@ export function DepartmentDisciplinesTableSkeleton() {
             <TableHead className="min-w-[220px]">Наименование</TableHead>
             <TableHead className="w-28 whitespace-nowrap">Кредиты</TableHead>
             <TableHead className="w-40 whitespace-nowrap">Уровень</TableHead>
-            <TableHead className="min-w-[180px]">Направления</TableHead>
             <TableHead className="min-w-[180px]">Пререквизиты</TableHead>
           </TableRow>
         </TableHeader>
@@ -29,12 +28,6 @@ export function DepartmentDisciplinesTableSkeleton() {
               </TableCell>
               <TableCell>
                 <Skeleton className="h-4 w-24" />
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-wrap gap-1">
-                  <Skeleton className="h-6 w-20 rounded-md" />
-                  <Skeleton className="h-6 w-16 rounded-md" />
-                </div>
               </TableCell>
               <TableCell>
                 <Skeleton className="h-6 w-28 rounded-md" />

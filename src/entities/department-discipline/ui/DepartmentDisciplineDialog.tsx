@@ -9,7 +9,6 @@ import type { DepartmentDisciplineRow, SelectOptions } from '../model/types';
 import {
   useCreateDepartmentDiscipline,
   useDeleteDepartmentDiscipline,
-  useDirectionOptions,
   usePrerequisiteOptions,
   useUpdateDepartmentDiscipline,
 } from '../model/queries';
@@ -45,7 +44,14 @@ const LEVEL_EDUCATIONS = [
 
 const schema = z.object({
   title: z.string().min(1, 'Укажите наименование'),
-  credit: z.coerce.number().min(0.01, 'Укажите кредиты'),
+  credit: z
+    .preprocess((v) => {
+      if (v === '' || v === null || v === undefined) return undefined;
+      const n = typeof v === 'number' ? v : Number(v);
+      return Number.isNaN(n) ? undefined : n;
+    }, z.number().min(0).optional())
+    .refine((v) => v !== undefined, 'Укажите кредиты')
+    .transform((v) => v as number),
   credit_part_time: z.preprocess((v) => {
     if (v === '' || v === null || v === undefined) return undefined;
     const n = typeof v === 'number' ? v : Number(v);
@@ -53,7 +59,6 @@ const schema = z.object({
   }, z.number().min(0).optional()),
   level_education: z.string().min(1, 'Выберите уровень'),
   prerequisiteIds: z.array(z.number()),
-  directionIds: z.array(z.number()),
   title_ky: z.string().optional(),
   title_en: z.string().optional(),
 });
@@ -75,30 +80,23 @@ function matchIdsByNames(
   return ids;
 }
 
-const defaultEmpty: FormValues = {
+const defaultEmpty: Partial<FormValues> = {
   title: '',
-  credit: 0,
   credit_part_time: undefined,
   level_education: '',
   prerequisiteIds: [],
-  directionIds: [],
   title_ky: '',
   title_en: '',
 };
 
 function rowToFormValues(
   row: DepartmentDisciplineRow,
-  prereqOptions: { value: number; label: string }[],
-  dirOptions: { value: number; label: string }[]
+  prereqOptions: { value: number; label: string }[]
 ): FormValues {
   const fromPrereq =
     row.prerequisites?.length && prereqOptions.length
       ? row.prerequisites
       : matchIdsByNames(row.prerequisites_names, prereqOptions);
-  const fromDir =
-    row.directions?.length && dirOptions.length
-      ? row.directions
-      : matchIdsByNames(row.directions_names, dirOptions);
 
   return {
     title: row.title ?? '',
@@ -106,7 +104,6 @@ function rowToFormValues(
     credit_part_time: row.credit_part_time ?? undefined,
     level_education: row.level_education ?? '',
     prerequisiteIds: fromPrereq,
-    directionIds: fromDir,
     title_ky: row.title_ky ?? '',
     title_en: row.title_en ?? '',
   };
@@ -122,9 +119,7 @@ type Props = {
 export function DepartmentDisciplineDialog({ open, onOpenChange, mode, discipline }: Props) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const { data: prereqData, isLoading: prereqLoading } = usePrerequisiteOptions();
-  const { data: dirData, isLoading: dirLoading } = useDirectionOptions();
   const prereqOptions = prereqData ?? EMPTY_SELECT_OPTIONS;
-  const dirOptions = dirData ?? EMPTY_SELECT_OPTIONS;
   const createMut = useCreateDepartmentDiscipline();
   const updateMut = useUpdateDepartmentDiscipline();
   const deleteMut = useDeleteDepartmentDiscipline();
@@ -152,8 +147,8 @@ export function DepartmentDisciplineDialog({ open, onOpenChange, mode, disciplin
 
   useEffect(() => {
     if (!open || mode !== 'edit' || !discipline) return;
-    reset(rowToFormValues(discipline, prereqOptions, dirOptions));
-  }, [open, mode, discipline, prereqOptions, dirOptions, reset]);
+    reset(rowToFormValues(discipline, prereqOptions));
+  }, [open, mode, discipline, prereqOptions, reset]);
 
   const onSubmit = handleSubmit(async (values) => {
     const payload = {
@@ -167,7 +162,6 @@ export function DepartmentDisciplineDialog({ open, onOpenChange, mode, disciplin
           : undefined,
       level_education: values.level_education,
       prerequisites: values.prerequisiteIds,
-      directions: values.directionIds,
     };
 
     try {
@@ -223,7 +217,12 @@ export function DepartmentDisciplineDialog({ open, onOpenChange, mode, disciplin
           <div className="grid gap-4 sm:grid-cols-2">
             <Field>
               <FieldLabel>Кредиты</FieldLabel>
-              <Input type="number" step="any" min={0} placeholder="0" {...register('credit')} />
+              <Input
+                type="number"
+                step="any"
+                placeholder="Введите кредиты"
+                {...register('credit')}
+              />
               {errors.credit && <FieldError>{errors.credit.message}</FieldError>}
             </Field>
             <Field>
@@ -275,23 +274,6 @@ export function DepartmentDisciplineDialog({ open, onOpenChange, mode, disciplin
                   onChange={field.onChange}
                   placeholder="Выберите пререквизиты"
                   disabled={prereqLoading}
-                />
-              )}
-            />
-          </Field>
-
-          <Field>
-            <FieldLabel>Направления</FieldLabel>
-            <Controller
-              name="directionIds"
-              control={control}
-              render={({ field }) => (
-                <OptionMultiSelect
-                  options={dirOptions}
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Выберите направления"
-                  disabled={dirLoading}
                 />
               )}
             />

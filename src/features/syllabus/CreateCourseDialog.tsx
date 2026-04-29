@@ -334,7 +334,7 @@ export const CreateCourseDialog = ({
           <div className="grid grid-cols-5 gap-4">
             <Field>
               <FieldLabel>Кредит</FieldLabel>
-              <Input type="number" {...register("credit")} placeholder="0" />
+              <Input type="number" step="any" min="0" {...register("credit")} placeholder="0" />
               {errors.credit && <FieldError>{errors.credit.message}</FieldError>}
             </Field>
 
@@ -342,6 +342,8 @@ export const CreateCourseDialog = ({
               <FieldLabel>Всего ауд.</FieldLabel>
               <Input
                 type="number"
+                step="any"
+                min="0"
                 {...register("amount_hours")}
                 placeholder="0"
                 readOnly
@@ -353,7 +355,7 @@ export const CreateCourseDialog = ({
 
             <Field>
               <FieldLabel>Лекции</FieldLabel>
-              <Input type="number" {...register("lecture_hours")} placeholder="0" />
+              <Input type="number" step="any" min="0" {...register("lecture_hours")} placeholder="0" />
               {errors.lecture_hours && (
                 <FieldError>{errors.lecture_hours.message}</FieldError>
               )}
@@ -361,7 +363,7 @@ export const CreateCourseDialog = ({
 
             <Field>
               <FieldLabel>Практика</FieldLabel>
-              <Input type="number" {...register("practice_hours")} placeholder="0" />
+              <Input type="number" step="any" min="0" {...register("practice_hours")} placeholder="0" />
               {errors.practice_hours && (
                 <FieldError>{errors.practice_hours.message}</FieldError>
               )}
@@ -369,7 +371,7 @@ export const CreateCourseDialog = ({
 
             <Field>
               <FieldLabel>Лаб.</FieldLabel>
-              <Input type="number" {...register("lab_hours")} placeholder="0" />
+              <Input type="number" step="any" min="0" {...register("lab_hours")} placeholder="0" />
               {errors.lab_hours && (
                 <FieldError>{errors.lab_hours.message}</FieldError>
               )}

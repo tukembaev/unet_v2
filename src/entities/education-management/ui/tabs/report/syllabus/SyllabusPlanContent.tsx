@@ -61,20 +61,26 @@ export function SyllabusPlanContent({
   return (
     <Card className="max-w-full border-none shadow-none">
       <CardContent className="space-y-6">
-        <div className="text-center text-sm mb-4">
-          <p className="text-xs mb-1">
+        <div
+          className="text-center text-sm mb-4"
+          style={{ fontFamily: '"Times New Roman", Times, serif' }}
+        >
+          <p className="text-[12px] mb-1">
             Министерство образования и науки Кыргызской Республики
           </p>
-          <p className="text-xs text-primary mb-2">
+          <p className="text-[12px] mb-2">
             Кыргызский государственный технический университет им. И.Раззакова
           </p>
-          <p className="text-sm font-bold mb-3">РАБОЧИЙ УЧЕБНЫЙ ПЛАН</p>
+          <p className="text-base font-bold uppercase tracking-wide">РАБОЧИЙ УЧЕБНЫЙ ПЛАН</p>
         </div>
 
-        <div className="text-[13px] leading-6 grid grid-cols-3 gap-4">
+        <div
+          className="grid grid-cols-3 gap-6 text-[14px] leading-6"
+          style={{ fontFamily: '"Times New Roman", Times, serif' }}
+        >
           <div>
             <p className="font-semibold mb-2">Утверждаю:</p>
-            <p>Проектор по</p>
+            <p>Проректор по</p>
             <p>академической работе</p>
           </div>
           <div className="text-center space-y-1">
@@ -85,7 +91,7 @@ export function SyllabusPlanContent({
               <b>Профиль:</b> {data.profile}
             </p>
             <p>
-              <b>Квалификация:</b> Бакалавр
+              <b>Квалификация:</b> {data.level_education}
             </p>
             <p>
               <b>Нормативный срок обучения:</b> {data.duration} года
@@ -95,7 +101,7 @@ export function SyllabusPlanContent({
             </p>
           </div>
           <div className="text-right">
-            <p className="font-semibold mb-2">Для набора с :</p>
+            <p className="font-semibold mb-2">Для набора с:</p>
             <p>
               {data.start_year} - {data.end_year} учебного года
             </p>

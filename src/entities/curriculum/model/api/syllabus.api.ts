@@ -4,12 +4,32 @@ import type {
   CreateSyllabusPayload,
   DirectionItem,
   SyllabusDirectionOption,
+  SyllabusListItemDetail,
   SyllabusTemplateOption,
+  UpdateSyllabusPayload,
 } from '../types';
 
 /** GET /all-syllabus/ — список РУП */
 export async function fetchSyllabusList(): Promise<DirectionItem[]> {
   const { data } = await apiClient.get<DirectionItem[]>('all-syllabus/');
+  return data;
+}
+
+/** GET /all-syllabus/{id}/ — детали РУП */
+export async function fetchSyllabusById(id: number): Promise<SyllabusListItemDetail> {
+  const { data } = await apiClient.get<SyllabusListItemDetail>(`all-syllabus/${id}/`);
+  return data;
+}
+
+/** PATCH /all-syllabus/{id}/ — редактирование РУП */
+export async function updateSyllabusById(
+  id: number,
+  payload: UpdateSyllabusPayload
+): Promise<SyllabusListItemDetail> {
+  const { data } = await apiClient.patch<SyllabusListItemDetail>(
+    `all-syllabus/${id}/`,
+    payload
+  );
   return data;
 }
 

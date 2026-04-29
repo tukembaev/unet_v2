@@ -14,6 +14,27 @@ export interface DirectionItem {
 
 export type Directions = DirectionItem[];
 
+/** РУП из GET /all-syllabus/{id}/ */
+export interface SyllabusListItemDetail {
+  id: number;
+  name_direction: number;
+  direction: string;
+  form_education: string | null;
+  level_education: string | null;
+  creator_id: number | null;
+  start_year: string | null;
+  end_year: string | null;
+}
+
+export interface UpdateSyllabusPayload {
+  name_direction?: number;
+  form_education?: string;
+  level_education?: string;
+  creator_id?: number | null;
+  start_year?: string;
+  end_year?: string;
+}
+
 /**
  * POST /new-syllabus/
  */

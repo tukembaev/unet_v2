@@ -1,7 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Eye, EyeOff } from "lucide-react";
 
 import { useChangePassword, usePatchCurrentUser } from "entities/user";
 import type { CurrentUser } from "entities/user";
@@ -64,6 +65,8 @@ export function AccountSafetyAfterLoginDialog({
   loginPassword,
   onComplete,
 }: Props) {
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const patchUser = usePatchCurrentUser();
   const changePwd = useChangePassword();
 
@@ -159,13 +162,27 @@ export function AccountSafetyAfterLoginDialog({
             >
               Новый пароль
             </Label>
-            <Input
-              id="safety-new-pw"
-              type="password"
-              autoComplete="new-password"
-              className={inputClassName}
-              {...form.register("new_password")}
-            />
+            <div className="relative">
+              <Input
+                id="safety-new-pw"
+                type={showNewPassword ? "text" : "password"}
+                autoComplete="new-password"
+                className={cn(inputClassName, "pr-11")}
+                {...form.register("new_password")}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label={showNewPassword ? "Скрыть пароль" : "Показать пароль"}
+                onClick={() => setShowNewPassword((prev) => !prev)}
+              >
+                {showNewPassword ? (
+                  <EyeOff className="h-4 w-4" aria-hidden />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden />
+                )}
+              </button>
+            </div>
             {form.formState.errors.new_password && (
               <p className="text-[13px] text-destructive">
                 {form.formState.errors.new_password.message}
@@ -179,13 +196,27 @@ export function AccountSafetyAfterLoginDialog({
             >
               Повторите пароль
             </Label>
-            <Input
-              id="safety-new-pw2"
-              type="password"
-              autoComplete="new-password"
-              className={inputClassName}
-              {...form.register("new_password_confirm")}
-            />
+            <div className="relative">
+              <Input
+                id="safety-new-pw2"
+                type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
+                className={cn(inputClassName, "pr-11")}
+                {...form.register("new_password_confirm")}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label={showConfirmPassword ? "Скрыть пароль" : "Показать пароль"}
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" aria-hidden />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden />
+                )}
+              </button>
+            </div>
             {form.formState.errors.new_password_confirm && (
               <p className="text-[13px] text-destructive">
                 {form.formState.errors.new_password_confirm.message}

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Layers } from 'lucide-react';
+import { Calendar, Layers, Pencil } from 'lucide-react';
 import { ROUTES, getRoute } from 'app/providers/routes';
 import {
   Table,
@@ -14,6 +14,7 @@ import {
 import { useSyllabusList } from '../model';
 import { DirectionItem } from '../model';
 import { GenericFilter, FilterGroup } from 'shared/components/data-table';
+import { FormQuery, useFormNavigation } from 'shared/lib';
 
 // Generate year options from 2020 to 2050
 const generateYearOptions = () => {
@@ -33,6 +34,7 @@ interface CreatedByMeTabProps {
 export const CreatedByMeTab = ({ searchQuery }: CreatedByMeTabProps) => {
   const { data: directions, isLoading } = useSyllabusList();
   const [selectedYear, setSelectedYear] = useState<string>('all');
+  const openForm = useFormNavigation();
 
   const filteredData = useMemo(() => {
     if (!directions) return [];
@@ -120,12 +122,13 @@ export const CreatedByMeTab = ({ searchQuery }: CreatedByMeTabProps) => {
               <TableHead className="text-center font-bold">
                 Уровень образования
               </TableHead>
+              <TableHead className="text-center font-bold">Действия</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   {searchQuery || selectedYear !== 'all'
                     ? 'По вашему запросу ничего не найдено'
                     : 'Нет данных для отображения'}
@@ -156,6 +159,21 @@ export const CreatedByMeTab = ({ searchQuery }: CreatedByMeTabProps) => {
                   </TableCell>
                   <TableCell className="text-center">
                     {item.level_education?.trim() ? item.level_education : '—'}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openForm(FormQuery.EDIT_RUP, {
+                          rupId: String(item.id),
+                        })
+                      }
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-muted"
+                      aria-label="Редактировать РУП"
+                      title="Редактировать РУП"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
                   </TableCell>
                 </TableRow>
               ))
