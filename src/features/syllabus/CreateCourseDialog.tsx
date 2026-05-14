@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "shared/ui";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,12 +33,15 @@ import {
   createCourse,
   type DisciplineOption,
 } from "entities/education-management/model/api";
-import { useAllDiscipline } from "entities/education-management/model/queries";
+import {
+  flattenAllDisciplinePages,
+  useAllDisciplineInfinite,
+} from "entities/education-management/model/queries";
 import { curriculumKeys } from "entities/curriculum/model/queries";
 import { DisciplineCombobox } from "./ui/DisciplineCombobox";
 
 const HOURS_PER_CREDIT = 30;
-const CYCLE_OPTIONS = ["ОГЦ", "МЕН", "Проф", "ОН"];
+const CYCLE_OPTIONS = ["ОГЦ", "МЕН", "Проф", "ОН", "МДК"];
 const COURSE_TYPE_OPTIONS = ["Базовая часть", "Вузовский компонент", "Курс по выбору"];
 const CONTROL_FORM_OPTIONS = ["Экзамен", "Зачет", "Курс/пр", "Курс/р"];
 const CONTROL_TYPE_OPTIONS = ["ргр", "ргз", "Контр"] as const;
@@ -85,11 +88,29 @@ export const CreateCourseDialog = ({
     profileStr && profileStr !== "null" && !Number.isNaN(Number(profileStr))
       ? Number(profileStr)
       : null;
-  const { data: disciplineOptionsData, isLoading: isLoadingDisciplines } =
-    useAllDiscipline();
-  const disciplineOptions: DisciplineOption[] = Array.isArray(disciplineOptionsData)
-    ? disciplineOptionsData
-    : [];
+  const [disciplineSearch, setDisciplineSearch] = useState("");
+  const [disciplineLabelFallback, setDisciplineLabelFallback] = useState("");
+  const {
+    data: disciplinePages,
+    isPending: isDisciplinePending,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useAllDisciplineInfinite(disciplineSearch);
+  const isDisciplineListFetching =
+    (isFetching || isDisciplinePending) && !isFetchingNextPage;
+  const disciplineOptions: DisciplineOption[] = useMemo(
+    () => flattenAllDisciplinePages(disciplinePages),
+    [disciplinePages]
+  );
+
+  useEffect(() => {
+    if (!open) {
+      setDisciplineSearch("");
+      setDisciplineLabelFallback("");
+    }
+  }, [open]);
 
   const {
     register,
@@ -128,6 +149,7 @@ export const CreateCourseDialog = ({
     setValue("disciplineId", disciplineId, { shouldValidate: true });
     const selected = disciplineOptions.find((item) => String(item.value) === disciplineId);
     if (!selected) return;
+    if (selected.label) setDisciplineLabelFallback(selected.label);
 
     if (selected.cycle) {
       setValue("cycle", selected.cycle);
@@ -234,7 +256,12 @@ export const CreateCourseDialog = ({
                 options={disciplineOptions}
                 value={disciplineValue}
                 onValueChange={handleDisciplineChange}
-                disabled={isLoadingDisciplines}
+                onBackendSearchChange={setDisciplineSearch}
+                isListFetching={isDisciplineListFetching}
+                selectedLabelFallback={disciplineLabelFallback}
+                onLoadMore={() => void fetchNextPage()}
+                hasMore={Boolean(hasNextPage)}
+                isFetchingNextPage={isFetchingNextPage}
               />
               {errors.disciplineId && (
                 <FieldError>{errors.disciplineId.message}</FieldError>

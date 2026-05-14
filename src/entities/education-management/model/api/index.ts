@@ -184,10 +184,64 @@ export type DisciplineOption = {
   control_type?: string;
 };
 
-export const getAllDiscipline = async (): Promise<DisciplineOption[]> => {
-  const { data } = await apiClient.get('all-discipline/');
-  return data;
+/** Размер страницы для GET all-discipline/?limit=&offset= */
+export const ALL_DISCIPLINE_PAGE_SIZE = 50;
+
+export type AllDisciplinePageResult = {
+  items: DisciplineOption[];
+  hasMore: boolean;
 };
+
+function parseAllDisciplineResponse(
+  data: unknown,
+  limit: number,
+  offset: number
+): AllDisciplinePageResult {
+  if (Array.isArray(data)) {
+    const items = data as DisciplineOption[];
+    return {
+      items,
+      hasMore: items.length >= limit,
+    };
+  }
+  if (
+    data &&
+    typeof data === 'object' &&
+    'results' in data &&
+    Array.isArray((data as { results: unknown }).results)
+  ) {
+    const { results, count, next } = data as {
+      results: DisciplineOption[];
+      count?: number;
+      next?: string | null;
+    };
+    const items = results;
+    let hasMore = false;
+    if (next) hasMore = true;
+    else if (typeof count === 'number') hasMore = offset + items.length < count;
+    else hasMore = items.length >= limit;
+    return { items, hasMore };
+  }
+  return { items: [], hasMore: false };
+}
+
+export async function getAllDisciplinePage(params: {
+  offset: number;
+  limit?: number;
+  /** Поиск на бэке (query `search`) */
+  search?: string;
+}): Promise<AllDisciplinePageResult> {
+  const limit = params.limit ?? ALL_DISCIPLINE_PAGE_SIZE;
+  const q = params.search?.trim();
+  const { data } = await apiClient.get<unknown>('all-discipline/', {
+    params: {
+      limit,
+      offset: params.offset,
+      ...(q ? { search: q } : {}),
+    },
+  });
+  return parseAllDisciplineResponse(data, limit, params.offset);
+}
 
 export const getProfilesInDirections = async (
   directionId: number

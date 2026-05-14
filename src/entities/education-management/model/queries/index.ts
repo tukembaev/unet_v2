@@ -1,5 +1,20 @@
-import { useQuery } from '@tanstack/react-query';
-import { getUsers, getDisciplineTemplates, getFaculties, getReports, getWorkPlanBySemester, getWorkLoadBySemester, getFamilyDirection, getDirections, getSyllabusReport, getAllDiscipline, getProfilesInDirections } from '../api';
+import { useInfiniteQuery, useQuery, type InfiniteData } from '@tanstack/react-query';
+import {
+  getUsers,
+  getDisciplineTemplates,
+  getFaculties,
+  getReports,
+  getWorkPlanBySemester,
+  getWorkLoadBySemester,
+  getFamilyDirection,
+  getDirections,
+  getSyllabusReport,
+  getAllDisciplinePage,
+  getProfilesInDirections,
+  ALL_DISCIPLINE_PAGE_SIZE,
+  type AllDisciplinePageResult,
+  type DisciplineOption,
+} from '../api';
 
 export function useUsers() {
   return useQuery({
@@ -68,10 +83,35 @@ export function useSyllabusReport(syllabusId: number | undefined, profileId: num
   });
 }
 
-export function useAllDiscipline() {
-  return useQuery({
-    queryKey: ['all-discipline'],
-    queryFn: getAllDiscipline,
+export function flattenAllDisciplinePages(
+  data: InfiniteData<AllDisciplinePageResult> | undefined
+): DisciplineOption[] {
+  if (!data?.pages?.length) return [];
+  const byValue = new Map<number, DisciplineOption>();
+  for (const page of data.pages) {
+    for (const item of page.items) {
+      byValue.set(item.value, item);
+    }
+  }
+  return [...byValue.values()];
+}
+
+/** Порционная загрузка справочника дисциплин (limit/offset, search на бэке) для селектов РУП */
+export function useAllDisciplineInfinite(search: string) {
+  const trimmed = search.trim();
+  return useInfiniteQuery({
+    queryKey: ['all-discipline', 'infinite', trimmed],
+    queryFn: ({ pageParam }) =>
+      getAllDisciplinePage({
+        limit: ALL_DISCIPLINE_PAGE_SIZE,
+        offset: pageParam as number,
+        search: trimmed || undefined,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      if (!lastPage.hasMore) return undefined;
+      return (lastPageParam as number) + lastPage.items.length;
+    },
   });
 }
 
