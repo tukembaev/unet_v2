@@ -20,9 +20,8 @@ export const getFamilyDirection = async (kind: number): Promise<FamilyDirection>
 
 export const getSyllabusReport = async (
   syllabus: number,
-  profile_id: number
 ): Promise<SyllabusRoot> => {
-  const { data } = await apiClient.get(`courses/${syllabus}/${profile_id}`);
+  const { data } = await apiClient.get(`courses/${syllabus}`);
   return data;
 };
 

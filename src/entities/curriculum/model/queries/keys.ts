@@ -3,6 +3,8 @@ export const curriculumKeys = {
   root: ['curriculum'] as const,
   lists: () => [...curriculumKeys.root, 'list'] as const,
   list: () => [...curriculumKeys.lists()] as const,
+  detail: (id: number | undefined) =>
+    [...curriculumKeys.list(), 'detail', id ?? 'none'] as const,
   courses: () => [...curriculumKeys.root, 'course'] as const,
   course: (syllabusId: number | undefined, profileId?: number) =>
     [...curriculumKeys.courses(), syllabusId, profileId ?? 'base'] as const,

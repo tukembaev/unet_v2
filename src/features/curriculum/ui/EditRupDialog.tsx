@@ -109,7 +109,7 @@ export function EditRupDialog() {
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: [...curriculumKeys.list(), "detail", rupId],
+    queryKey: curriculumKeys.detail(rupId),
     queryFn: () => fetchSyllabusById(rupId),
     enabled: open && Number.isFinite(rupId) && rupId > 0,
   });
@@ -137,7 +137,7 @@ export function EditRupDialog() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: curriculumKeys.list() });
       void queryClient.invalidateQueries({
-        queryKey: [...curriculumKeys.list(), "detail", rupId],
+        queryKey: curriculumKeys.detail(rupId),
       });
     },
   });

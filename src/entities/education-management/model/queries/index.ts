@@ -78,8 +78,8 @@ export function useWorkLoadBySemester(year: number, department_id: number, repor
 export function useSyllabusReport(syllabusId: number | undefined, profileId: number | undefined) {
   return useQuery({
     queryKey: ['syllabus-report', syllabusId, profileId],
-    queryFn: () => getSyllabusReport(syllabusId!, profileId!),
-    enabled: !!syllabusId && !!profileId,
+    queryFn: () => getSyllabusReport(syllabusId!,),
+    enabled: !!syllabusId,
   });
 }
 

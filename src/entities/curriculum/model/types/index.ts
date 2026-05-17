@@ -24,6 +24,17 @@ export interface SyllabusListItemDetail {
   creator_id: number | null;
   start_year: string | null;
   end_year: string | null;
+  is_verified?: boolean;
+  reason_reject?: string | null;
+  cipher?: string | null;
+  profile?: string | null;
+  duration?: number | null;
+  institute?: string | null;
+  department?: string | null;
+  employee_name?: string | null;
+  date_create?: string | null;
+  semester_count?: number | null;
+  subjects_count?: number | null;
 }
 
 export interface UpdateSyllabusPayload {
@@ -33,6 +44,8 @@ export interface UpdateSyllabusPayload {
   creator_id?: number | null;
   start_year?: string;
   end_year?: string;
+  is_verified?: boolean;
+  reason_reject?: string | null;
 }
 
 /**
