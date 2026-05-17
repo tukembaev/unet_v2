@@ -108,6 +108,9 @@ export interface Syllabus {
   profile_id: number
   profile: string
   subjects: number
+  level_education: string
+  form_education: string
+  is_verified: boolean
 }
 
 export interface Reports {

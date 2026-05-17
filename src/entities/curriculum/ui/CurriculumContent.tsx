@@ -14,7 +14,6 @@ export const CurriculumContent = ({ searchQuery }: CurriculumContentProps) => {
     <Tabs value={activeTab} onValueChange={setActiveTab}>
       <TabsList>
         <TabsTrigger value="created">Созданные мной</TabsTrigger>
-        <TabsTrigger value="reports">Отчеты</TabsTrigger>
       </TabsList>
 
       <TabsContent value="created" className="mt-4">

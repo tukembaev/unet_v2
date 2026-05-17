@@ -30,7 +30,10 @@ import {
   DialogTitle,
 } from "shared/ui/dialog";
 import { curriculumKeys } from "entities/curriculum/model/queries";
-import { useAllDiscipline } from "entities/education-management/model/queries";
+import {
+  flattenAllDisciplinePages,
+  useAllDisciplineInfinite,
+} from "entities/education-management/model/queries";
 import {
   deleteCourse,
   updateCourse,
@@ -40,7 +43,7 @@ import { SyllabusCourse } from "entities/education-management/model/types";
 import { DisciplineCombobox } from "./ui/DisciplineCombobox";
 
 const HOURS_PER_CREDIT = 30;
-const CYCLE_OPTIONS = ["ОГЦ", "МЕН", "Проф", "ОН"];
+const CYCLE_OPTIONS = ["ОГЦ", "МЕН", "Проф", "ОН", "МДК"];
 const COURSE_TYPE_OPTIONS = ["Базовая часть", "Вузовский компонент", "Курс по выбору"];
 const CONTROL_FORM_OPTIONS = ["Экзамен", "Зачет", "Курс/пр", "Курс/р"];
 const CONTROL_TYPE_OPTIONS = ["ргр", "ргз", "Контр"] as const;
@@ -73,11 +76,31 @@ export const CourseEditDialog = ({ course }: Props) => {
   const closeForm = useFormClose();
   const courseId = useStoredFormParam(FormQuery.EDIT_COURSE, "courseId");
   const queryClient = useQueryClient();
-  const { data: disciplineOptionsData, isLoading: isLoadingDisciplines } =
-    useAllDiscipline();
-  const disciplineOptions: DisciplineOption[] = Array.isArray(disciplineOptionsData)
-    ? disciplineOptionsData
-    : [];
+  const [disciplineSearch, setDisciplineSearch] = useState("");
+  const [disciplineLabelFallback, setDisciplineLabelFallback] = useState("");
+  const {
+    data: disciplinePages,
+    isPending: isDisciplinePending,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useAllDisciplineInfinite(disciplineSearch);
+  const isDisciplineListFetching =
+    (isFetching || isDisciplinePending) && !isFetchingNextPage;
+  const disciplineOptions: DisciplineOption[] = useMemo(
+    () => flattenAllDisciplinePages(disciplinePages),
+    [disciplinePages]
+  );
+
+  useEffect(() => {
+    if (!isDialogOpen) setDisciplineSearch("");
+  }, [isDialogOpen]);
+
+  useEffect(() => {
+    if (!isDialogOpen || !course) return;
+    setDisciplineLabelFallback(course.name_subject);
+  }, [isDialogOpen, course?.id, course?.name_subject]);
 
   const courseDisciplineId = course?.discipline != null ? String(course.discipline) : "";
 
@@ -164,6 +187,7 @@ export const CourseEditDialog = ({ course }: Props) => {
     setValue("disciplineId", disciplineId, { shouldValidate: true });
     const selected = availableOptions.find((item) => String(item.value) === disciplineId);
     if (!selected) return;
+    if (selected.label) setDisciplineLabelFallback(selected.label);
 
     if (selected.cycle) setValue("cycle", selected.cycle);
     if (selected.course_type) {
@@ -286,7 +310,12 @@ export const CourseEditDialog = ({ course }: Props) => {
                 options={availableOptions}
                 value={watch("disciplineId") ?? ""}
                 onValueChange={handleDisciplineChange}
-                disabled={isLoadingDisciplines}
+                onBackendSearchChange={setDisciplineSearch}
+                isListFetching={isDisciplineListFetching}
+                selectedLabelFallback={disciplineLabelFallback}
+                onLoadMore={() => void fetchNextPage()}
+                hasMore={Boolean(hasNextPage)}
+                isFetchingNextPage={isFetchingNextPage}
               />
               {errors.disciplineId && (
                 <FieldError>{errors.disciplineId.message}</FieldError>

@@ -5,3 +5,6 @@ export { useSyllabusDirectionOptions } from './use-syllabus-direction-options';
 export { useSyllabusTemplatesByDirection } from './use-syllabus-templates';
 export { useCreateSyllabus } from './use-create-syllabus';
 export { useAppendSemester } from './use-append-semester';
+export { useSyllabusDetail } from './use-syllabus-detail';
+export { useUpdateSyllabusVerification } from './use-update-syllabus-verification';
+export type { SyllabusVerificationPayload } from './use-update-syllabus-verification';

@@ -5,12 +5,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  Button,
+  Input,
 } from "shared/ui";
 import { Reports, Syllabus } from "entities/education-management/model/types";
 import { useState, useMemo } from "react";
-import { Input } from "shared/ui";
 import { useNavigate } from "react-router-dom";
+import { getEducationManagementPath } from "entities/education-management/lib/use-education-tab-url";
+import {
+  SyllabusVerificationBadge,
+  SyllabusVerificationDialog,
+} from "./SyllabusVerificationDialog";
 
 interface ReportsTableProps {
   data: Reports[];
@@ -18,9 +22,12 @@ interface ReportsTableProps {
 
 export const ReportsTable = ({ data }: ReportsTableProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [verificationSyllabus, setVerificationSyllabus] = useState<Syllabus | null>(
+    null
+  );
+  const [verificationInstitute, setVerificationInstitute] = useState<string>();
   const navigate = useNavigate();
 
-  // Функция для фильтрации данных по поисковому запросу
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return data;
 
@@ -41,14 +48,13 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
       .filter((institute) => institute.syllabuses.length > 0);
   }, [data, searchQuery]);
 
-  const handleDownloadExcel = (syllabus: Syllabus) => {
-    // Здесь будет логика скачивания Excel файла
-    console.log("Downloading Excel for syllabus:", syllabus);
+  const openVerification = (syllabus: Syllabus, instituteName: string) => {
+    setVerificationInstitute(instituteName);
+    setVerificationSyllabus(syllabus);
   };
 
   return (
     <div className="space-y-4">
-      {/* Поиск */}
       <div className="flex gap-4">
         <Input
           placeholder="Поиск по названию и шифру..."
@@ -58,7 +64,6 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
         />
       </div>
 
-      {/* Таблицы для каждого института */}
       {filteredData.map((institute) => (
         <div key={institute.id} className="space-y-4">
           <h2 className="text-xl font-semibold text-center mb-4">
@@ -69,36 +74,34 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/40">
-                  <TableHead className="text-center font-bold">Nº</TableHead>
-                  <TableHead className="text-center font-bold" colSpan={2}>
-                    Название специальности
-                  </TableHead>
-                  <TableHead className="text-center font-bold">
-                    Профиль
-                  </TableHead>
-                  <TableHead className="text-center font-bold">
-                    Длит.обучения
-                  </TableHead>
-                  <TableHead className="text-center font-bold">
-                    Годы обучения
-                  </TableHead>
-                  <TableHead className="text-center font-bold">
-                    Кл.Семестров
-                  </TableHead>
-                  <TableHead className="text-center font-bold">
-                    Кл.Предметов
-                  </TableHead>
-                  <TableHead className="text-center font-bold">
-                    Скачать Excel
+                  <TableHead className="text-center font-bold w-10">Nº</TableHead>
+                  <TableHead className="text-center font-bold">Шифр</TableHead>
+                  <TableHead className="text-center font-bold">Направление</TableHead>
+                  <TableHead className="text-center font-bold">Предметов</TableHead>
+                  <TableHead className="text-center font-bold">Семестров</TableHead>
+                  <TableHead className="text-center font-bold">Длительность</TableHead>
+                  <TableHead className="text-center font-bold">Форма обучения</TableHead>
+                  <TableHead className="text-center font-bold">Уровень</TableHead>
+                  <TableHead className="text-center font-bold min-w-[132px]">
+                    Статус
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {institute.syllabuses.map((syllabus, index) => (
-                  <TableRow 
-                    key={syllabus.id} 
+                  <TableRow
+                    key={syllabus.id}
                     className="hover:bg-muted/50 cursor-pointer"
-                    onClick={() => navigate(`/report-syllabus/${syllabus.id}/${syllabus.profile_id}`)}
+                    onClick={() => {
+                      navigate(
+                        `/report-syllabus/${syllabus.id}/${syllabus.profile_id}`,
+                        {
+                          state: {
+                            returnTo: getEducationManagementPath("reports"),
+                          },
+                        }
+                      );
+                    }}
                   >
                     <TableCell className="text-center">{index + 1}</TableCell>
                     <TableCell className="text-center font-mono text-sm">
@@ -107,72 +110,35 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
                     <TableCell className="text-left">
                       {syllabus.direction}
                     </TableCell>
-                    <TableCell className="text-left">
-                      {syllabus.profile}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {syllabus.duration} года
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {syllabus.years}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {syllabus.semesters}
-                    </TableCell>
                     <TableCell className="text-center">
                       {syllabus.subjects}
                     </TableCell>
                     <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                      {syllabus.semesters}
+                    </TableCell>
+                    <TableCell className="text-center whitespace-nowrap">
+                      {syllabus.duration} года
+                    </TableCell>
+                    <TableCell className="text-left">
+                      {syllabus.form_education}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {syllabus.level_education}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <button
+                        type="button"
+                        className="inline-flex justify-center rounded-full outline-none ring-offset-background transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDownloadExcel(syllabus);
+                          openVerification(syllabus, institute.institute);
                         }}
-                        className="text-primary hover:text-primary/90 hover:bg-accent p-1"
                       >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z"
-                            fill="currentColor"
-                          />
-                          <path
-                            d="M14 2V8H20"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M16 13H8"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M16 17H8"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M10 9H9H8"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </Button>
+                        <SyllabusVerificationBadge
+                          isVerified={syllabus.is_verified}
+                          className="cursor-pointer"
+                        />
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -182,7 +148,6 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
         </div>
       ))}
 
-      {/* Сообщение если нет данных */}
       {filteredData.length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
           {searchQuery
@@ -190,6 +155,18 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
             : "Нет данных для отображения"}
         </div>
       )}
+
+      <SyllabusVerificationDialog
+        open={verificationSyllabus != null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setVerificationSyllabus(null);
+            setVerificationInstitute(undefined);
+          }
+        }}
+        syllabus={verificationSyllabus}
+        instituteName={verificationInstitute}
+      />
     </div>
   );
 };
