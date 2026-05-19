@@ -3,11 +3,12 @@ import {
   SyllabusSemester,
 } from "entities/education-management/model/types";
 import { CourseEditDialog } from "features/syllabus/index";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Fragment, ReactNode, useCallback, useState } from "react";
 import { FormQuery, useFormNavigation } from "shared/lib";
 import { cn } from "shared/lib/utils";
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -21,6 +22,8 @@ interface Props {
   role?: "admin" | "user" | string;
   onAddCourse?: (profileId?: number | null) => void;
   onAddElective?: (group: string | null, profileId?: number | null) => void;
+  onDeleteSemester?: () => void;
+  isDeletingSemester?: boolean;
 }
 
 export const SyllabusTable = ({
@@ -28,6 +31,8 @@ export const SyllabusTable = ({
   role = "user",
   onAddCourse,
   onAddElective,
+  onDeleteSemester,
+  isDeletingSemester = false,
 }: Props) => {
   const openForm = useFormNavigation();
   const [selected, setSelected] = useState<SyllabusCourse | null>(null);
@@ -85,8 +90,28 @@ export const SyllabusTable = ({
           <TableBody>
           {/* Semester heading inside the table */}
           <TableRow className="border-b border-border">
-            <TableCell colSpan={13} className="py-2 px-3 bg-muted/50 text-center font-medium text-base border-r-0">
-              {semester.name_semester} — семестр
+            <TableCell colSpan={13} className="py-2 px-3 bg-muted/50 border-r-0">
+              <div className="flex items-center gap-3">
+                <span className="flex-1 text-center font-medium text-base">
+                  {semester.name_semester} — семестр
+                </span>
+                {onDeleteSemester ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto h-8 shrink-0 gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    disabled={isDeletingSemester}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteSemester();
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                    {isDeletingSemester ? "Удаление..." : "Удалить семестр"}
+                  </Button>
+                ) : null}
+              </div>
             </TableCell>
           </TableRow>
           <TableRow className="border-b border-border">

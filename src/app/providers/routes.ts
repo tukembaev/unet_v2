@@ -52,3 +52,15 @@ export function getRoute(path: RoutePath, params?: Record<string, string>): stri
   return route;
 }
 
+/** Детальный просмотр РУП из отчётов (без profile — GET /courses/{id}/). */
+export function getReportSyllabusPath(
+  syllabusId: number,
+  profileId?: number | null
+): string {
+  const base = `/${ROUTES.REPORT_SYLLABUS}/${syllabusId}`;
+  if (profileId != null && Number.isFinite(profileId) && profileId > 0) {
+    return `${base}/${profileId}`;
+  }
+  return base;
+}
+

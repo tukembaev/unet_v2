@@ -28,7 +28,10 @@ export const ROUTE_PERMISSION_RULES: RouteRule[] = [
   { pathPattern: '/education/stream/*', permission: 'streams' },
   { pathPattern: '/education/curriculum/*', permission: 'work_plan' },
   { pathPattern: '/education/curriculum', permission: 'work_plan' },
-  { pathPattern: '/report-syllabus/*', permission: 'work_plan' },
+  {
+    pathPattern: '/report-syllabus/*',
+    anyOf: ['work_plan', 'education_department:reports'],
+  },
   { pathPattern: '/education-management', anyOf: EDUCATION_DEPARTMENT_PERMISSIONS },
   { pathPattern: '/structure/it-department', permission: IT_DEPARTMENT_PERMISSION },
   { pathPattern: '/kpi-reports', permission: KPI_REPORTS_PERMISSION },

@@ -66,6 +66,10 @@ const routes: RouteObject[] = [
             element: <SyllabusReport />,
           },
           {
+            path: `${ROUTES.REPORT_SYLLABUS}/:syllabusId`,
+            element: <SyllabusReport />,
+          },
+          {
             path: ROUTES.TASK,
             element: <TaskPage />,
           },

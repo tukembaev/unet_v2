@@ -11,6 +11,7 @@ import { Reports, Syllabus } from "entities/education-management/model/types";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getEducationManagementPath } from "entities/education-management/lib/use-education-tab-url";
+import { getReportSyllabusPath } from "app/providers/routes";
 import {
   SyllabusVerificationBadge,
   SyllabusVerificationDialog,
@@ -18,6 +19,15 @@ import {
 
 interface ReportsTableProps {
   data: Reports[];
+}
+
+function syllabusSearchHaystack(syllabus: Syllabus): string {
+  const parts = [syllabus.cipher, syllabus.direction, syllabus.profile].map((value) => {
+    if (value == null) return "";
+    if (Array.isArray(value)) return value.map(String).join(" ");
+    return String(value);
+  });
+  return parts.join(" ").toLowerCase();
 }
 
 export const ReportsTable = ({ data }: ReportsTableProps) => {
@@ -29,20 +39,14 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
   const navigate = useNavigate();
 
   const filteredData = useMemo(() => {
-    if (!searchQuery.trim()) return data;
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return data;
 
     return data
       .map((institute) => ({
         ...institute,
-        syllabuses: institute.syllabuses.filter(
-          (syllabus) =>
-            syllabus.direction
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase()) ||
-            syllabus.profile
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase()) ||
-            syllabus.cipher.toLowerCase().includes(searchQuery.toLowerCase())
+        syllabuses: institute.syllabuses.filter((syllabus) =>
+          syllabusSearchHaystack(syllabus).includes(q)
         ),
       }))
       .filter((institute) => institute.syllabuses.length > 0);
@@ -55,14 +59,18 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4">
+      <form
+        className="flex gap-4"
+        onSubmit={(e) => e.preventDefault()}
+      >
         <Input
+          type="search"
           placeholder="Поиск по названию и шифру..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="flex-1"
         />
-      </div>
+      </form>
 
       {filteredData.map((institute) => (
         <div key={institute.id} className="space-y-4">
@@ -93,14 +101,11 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
                     key={syllabus.id}
                     className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => {
-                      navigate(
-                        `/report-syllabus/${syllabus.id}/${syllabus.profile_id}`,
-                        {
-                          state: {
-                            returnTo: getEducationManagementPath("reports"),
-                          },
-                        }
-                      );
+                      navigate(getReportSyllabusPath(syllabus.id, syllabus.profile_id), {
+                        state: {
+                          returnTo: getEducationManagementPath("reports"),
+                        },
+                      });
                     }}
                   >
                     <TableCell className="text-center">{index + 1}</TableCell>

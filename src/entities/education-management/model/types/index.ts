@@ -105,8 +105,8 @@ export interface Syllabus {
   duration: number
   years: string
   semesters: number
-  profile_id: number
-  profile: string
+  profile_id?: number | null
+  profile?: string | null
   subjects: number
   level_education: string
   form_education: string
@@ -162,7 +162,7 @@ export interface SyllabusSemester {
 export interface SyllabusRoot {
   id: number;
   direction: string;
-  profile: string;
+  profile: [];
   form_education: string;
   duration: number;
   start_year: number;

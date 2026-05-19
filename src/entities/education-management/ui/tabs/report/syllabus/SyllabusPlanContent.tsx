@@ -10,11 +10,21 @@ import type { SyllabusRoot } from "entities/education-management/model/types";
 import { SyllabusTable } from "./SyllabusTable";
 import { SyllabusGrandTotalTable } from "./SyllabusGrandTotalTable";
 import { CreateElectiveDialog, CreateCourseDialog, ManageProfilesDialog } from "features/syllabus/index";
-import { BookDown } from "lucide-react";
+import { AlertCircle, BookDown } from "lucide-react";
 import { FormQuery, getHttpErrorMessage, useFormNavigation } from "shared/lib";
-import { useAppendSemester } from "entities/curriculum/model/queries";
+import { useAppendSemester, useDeleteSemester } from "entities/curriculum/model/queries";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import type { SyllabusSemester } from "entities/education-management/model/types";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "shared/ui";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 export interface SyllabusPlanContentProps {
@@ -23,6 +33,8 @@ export interface SyllabusPlanContentProps {
   role?: "admin" | "user" | string;
   /** Показывать блок «добавить семестр» (админ) */
   showAddSemesterEmpty?: boolean;
+  /** Удаление семестра (только учебный план, не отчёты) */
+  allowDeleteSemester?: boolean;
 }
 
 /**
@@ -33,12 +45,18 @@ export function SyllabusPlanContent({
   data,
   role = "user",
   showAddSemesterEmpty = true,
+  allowDeleteSemester = true,
 }: SyllabusPlanContentProps) {
   const openForm = useFormNavigation();
   const appendSemester = useAppendSemester();
+  const deleteSemester = useDeleteSemester(data.id);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [semesterToDelete, setSemesterToDelete] = useState<SyllabusSemester | null>(
+    null
+  );
   const semesters = data.semesters ?? [];
+  const reasonReject = data.reason_reject?.trim() ?? "";
 
   const handleAddSemester = async () => {
     try {
@@ -48,6 +66,17 @@ export function SyllabusPlanContent({
       toast.success("Семестр добавлен");
     } catch (e) {
       toast.error(getHttpErrorMessage(e, "Не удалось добавить семестр"));
+    }
+  };
+
+  const handleConfirmDeleteSemester = async () => {
+    if (!semesterToDelete) return;
+    try {
+      await deleteSemester.mutateAsync(semesterToDelete.id);
+      toast.success(`Семестр «${semesterToDelete.name_semester}» удалён`);
+      setSemesterToDelete(null);
+    } catch (e) {
+      toast.error(getHttpErrorMessage(e, "Не удалось удалить семестр"));
     }
   };
 
@@ -88,7 +117,7 @@ export function SyllabusPlanContent({
               <b>Направление:</b> {data.direction}
             </p>
             <p>
-              <b>Профиль:</b> {data.profile}
+              <b>Профиль:</b> {data.profile.map((p) => p).join(', ')}
             </p>
             <p>
               <b>Квалификация:</b> {data.level_education}
@@ -107,6 +136,17 @@ export function SyllabusPlanContent({
             </p>
           </div>
         </div>
+
+        {reasonReject ? (
+          <div className="flex gap-2 rounded-lg border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-800 dark:text-rose-300">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+            <div>
+              <p className="font-semibold">Причина доработки</p>
+              <p className="mt-1 whitespace-pre-wrap">{reasonReject}</p>
+            </div>
+          </div>
+        ) : null}
+
         {role === "admin" && (
           <div className="flex justify-end">
             <button
@@ -129,6 +169,16 @@ export function SyllabusPlanContent({
                 <SyllabusTable
                   semester={s}
                   role={role}
+                  onDeleteSemester={
+                    allowDeleteSemester
+                      ? () => setSemesterToDelete(s)
+                      : undefined
+                  }
+                  isDeletingSemester={
+                    allowDeleteSemester &&
+                    deleteSemester.isPending &&
+                    semesterToDelete?.id === s.id
+                  }
                   onAddCourse={(profileId) =>
                     openForm(FormQuery.CREATE_COURSE, {
                       semesterId: s.id.toString(),
@@ -185,6 +235,45 @@ export function SyllabusPlanContent({
               directionId={data.id}
             />
           </>
+        ) : null}
+
+        {allowDeleteSemester ? (
+        <Dialog
+          open={semesterToDelete != null}
+          onOpenChange={(open) => !open && setSemesterToDelete(null)}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Удалить семестр?</DialogTitle>
+              <DialogDescription>
+                {semesterToDelete ? (
+                  <>
+                    Будет удалён семестр «{semesterToDelete.name_semester}» и все
+                    связанные дисциплины. Это действие нельзя отменить.
+                  </>
+                ) : null}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setSemesterToDelete(null)}
+                disabled={deleteSemester.isPending}
+              >
+                Отмена
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => void handleConfirmDeleteSemester()}
+                disabled={deleteSemester.isPending}
+              >
+                {deleteSemester.isPending ? "Удаление..." : "Удалить"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         ) : null}
       </CardContent>
     </Card>
