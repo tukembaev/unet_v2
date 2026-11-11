@@ -4,15 +4,33 @@ export const ROUTES = {
   ABOUT: '/about',
   TASK: '/task',
   TASK_DETAILS: '/task-details',
+  /** Расписание (студент / общий доступ) */
+  SCHEDULE: '/schedule',
+  /** Регистрация на дисциплины */
+  STUDENT_REGISTRATION: '/student/registration',
+  /** Мои дисциплины */
+  MY_DISCIPLINES: '/student/disciplines',
+  /** Студенческий билет */
+  STUDENT_TICKET: '/student/ticket',
+  /** Обращения (публично, без входа) */
+  SUPPORT: '/support',
 
 
   AUTH: '/',
   PERSONAL_CARD: '/profile-card',
   // Структура
   EDUCATION_MANAGEMENT: '/education-management',
+  /** Составление расписания для потока (диспетчерская) */
+  DISPATCHER_STREAM: '/education-management/dispatcher/:streamId',
 
   IT_DEPARTMENT: '/structure/it-department',
+  /** Обращения сотрудников (inbox) */
+  APPEALS: '/structure/appeals',
   KPI_REPORTS: '/kpi-reports',
+  /** Приёмная комиссия (внешний сервис) */
+  ABITURIENT_COMMISSION: 'https://abiturient.kstu.kg',
+  /** LMS (внешний сервис) */
+  LMS: 'https://lms.kstu.kg/',
   KPI_EMPLOYEE: '/kpi-employee',
   
   REPORT_SYLLABUS: 'report-syllabus',
@@ -20,6 +38,8 @@ export const ROUTES = {
   APPLICATIONS: '/documents/applications',
 
   DOCUMENT_DETAILS: '/documents/applications/:id',
+  UDOC: '/documents/udoc',
+  UDOC_DETAILS: '/documents/udoc/:id',
 
   
   // Учебный процесс
@@ -34,6 +54,14 @@ export const ROUTES = {
   // Отчетность
   TASK_REPORTS: '/reports/tasks',
   AUDITORIUM_FUND: '/reports/auditorium-fund',
+  /** Табель — матрица отработанного времени по подразделению */
+  TABEL_REPORT: '/reports/tabel',
+  /** Анкетирование (управление + результаты) */
+  SURVEYS: '/reports/surveys',
+  /** Анкетирование для студентов */
+  STUDENT_SURVEYS: '/student/surveys',
+  /** Публичное прохождение анкеты по share_token */
+  SURVEY_PUBLIC: '/s/:token',
 } as const;
 
 // Type for route paths
@@ -62,5 +90,10 @@ export function getReportSyllabusPath(
     return `${base}/${profileId}`;
   }
   return base;
+}
+
+/** Экран составления расписания потока в диспетчерской. */
+export function getDispatcherStreamPath(streamId: number): string {
+  return `/education-management/dispatcher/${streamId}`;
 }
 

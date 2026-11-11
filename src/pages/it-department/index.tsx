@@ -1,14 +1,11 @@
-import ItDepartment from "entities/it-department/ui"
-
+import ItDepartment from "entities/it-department/ui";
 
 const ItDepartmentPage = () => {
   return (
-    <div
-        className="space-y-4 p-10 rounded-2xl  "
-    >
-        < ItDepartment/>
+    <div className="space-y-3 sm:space-y-4">
+      <ItDepartment />
     </div>
-  )
-}
+  );
+};
 
-export default ItDepartmentPage
+export default ItDepartmentPage;

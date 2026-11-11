@@ -2,6 +2,7 @@ import { ROUTES } from 'app/providers/routes';
 import {
   BarChart3,
   BookOpen,
+  CalendarDays,
   GraduationCap,
   Menu,
   MessageSquare,
@@ -9,6 +10,7 @@ import {
 import { useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { usePermissions } from 'entities/user';
+import { getActiveContext, getAppHomePath } from 'shared/lib/auth-context';
 import { cn } from 'shared/lib/utils';
 import {
   AppLogo,
@@ -29,7 +31,7 @@ import { NotificationBell } from './NotificationBell';
 import { UserMenu } from './user-menu';
 import {
   NAVIGATION_SECTIONS,
-  filterNavigationForPermissions,
+  filterNavigationForContext,
 } from '../config/navigation';
 import type { NavItemConfig } from '../config/navigation';
 
@@ -37,23 +39,32 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { permissions, isLoading } = usePermissions();
+  const context = getActiveContext();
+  const homePath = getAppHomePath(context);
 
   const navigationSections = useMemo(
     () =>
-      isLoading
+      isLoading && context !== 'student'
         ? NAVIGATION_SECTIONS
-        : filterNavigationForPermissions(permissions),
-    [isLoading, permissions]
+        : filterNavigationForContext(context, permissions),
+    [isLoading, permissions, context]
   );
 
   const isActiveRoute = (href: string) => {
-    if (href === ROUTES.HOME) {
+    if (href === homePath || href === ROUTES.HOME || href === ROUTES.SCHEDULE) {
       return location.pathname === href;
     }
     return location.pathname.startsWith(href);
   };
 
   const getSectionMeta = (title: string) => {
+    if (title === 'Учёба') {
+      return {
+        BgIcon: CalendarDays,
+        iconColor: 'text-sky-500',
+        description: 'Расписание занятий и учебные сервисы студента',
+      };
+    }
     if (title === 'Структура') {
       return {
         BgIcon: GraduationCap,
@@ -96,18 +107,16 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full">
-      <div className="container mx-auto px-4">
-        <div className="flex h-14 items-center justify-between gap-4">
-          {/* Left: Logo */}
-          <div className="flex items-center gap-6">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex h-12 items-center justify-between gap-3 sm:h-14 sm:gap-4">
+          <div className="flex items-center gap-4 sm:gap-6">
             <Link
-              to={ROUTES.HOME}
+              to={homePath}
               className="flex items-center transition-opacity hover:opacity-90"
             >
               <AppLogo size="md" />
             </Link>
 
-            {/* Desktop Navigation Menu */}
             <NavigationMenu className="hidden md:flex">
               <NavigationMenuList>
                 {navigationSections.map((section) => (
@@ -116,18 +125,23 @@ export function Navbar() {
                       {section.title}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="grid w-[700px] grid-cols-[280px_1fr] gap-4 border p-4 shadow-lg">
-                        <SectionCard sectionTitle={section.title} />
+                      <div
+                        className={cn(
+                          'grid gap-4 border p-4 shadow-lg',
+                          context === 'student'
+                            ? 'w-[min(100vw-2rem,360px)] grid-cols-1'
+                            : 'w-[700px] grid-cols-[280px_1fr]'
+                        )}
+                      >
+                        {context !== 'student' && (
+                          <SectionCard sectionTitle={section.title} />
+                        )}
                         <ul className="grid gap-3">
                           {section.items.map((item) => (
                             <ListItem
-                              key={item.href}
-                              title={item.title}
-                              href={item.href}
-                              icon={item.icon}
-                            >
-                              {item.description}
-                            </ListItem>
+                              key={`${item.href}-${item.title}`}
+                              item={item}
+                            />
                           ))}
                         </ul>
                       </div>
@@ -138,42 +152,42 @@ export function Navbar() {
             </NavigationMenu>
           </div>
 
-          {/* Right: Notifications & User Menu */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <NotificationBell />
             <UserMenu />
 
-            {/* Mobile Navigation Toggle */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon" aria-label="Открыть меню">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[350px] overflow-y-auto">
+              <SheetContent
+                side="right"
+                className="w-[min(100vw-2rem,300px)] overflow-y-auto sm:w-[350px]"
+              >
                 <SheetHeader>
                   <SheetTitle>Навигация</SheetTitle>
                 </SheetHeader>
                 <nav className="mt-6 flex flex-col gap-6">
                   {navigationSections.map((section) => (
                     <div key={section.title} className="space-y-3">
-                      <h3 className="font-semibold text-sm text-muted-foreground px-2">
+                      <h3 className="px-2 text-sm font-semibold text-muted-foreground">
                         {section.title}
                       </h3>
                       <div className="flex flex-col gap-1">
                         {section.items.map((item) => {
                           const Icon = item.icon;
-                          return (
-                            <Link
-                              key={item.href}
-                              to={item.href}
-                              onClick={() => setIsOpen(false)}
-                              className={cn(
-                                'flex items-start gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
-                                isActiveRoute(item.href) && 'bg-accent'
-                              )}
-                            >
-                              <Icon className="h-5 w-5 mt-0.5 shrink-0" />
+                          const linkClassName = cn(
+                            'flex items-start gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
+                            !item.external &&
+                              isActiveRoute(item.href) &&
+                              'bg-accent'
+                          );
+
+                          const content = (
+                            <>
+                              <Icon className="mt-0.5 h-5 w-5 shrink-0" />
                               <div className="flex flex-col gap-1">
                                 <span className="font-medium">{item.title}</span>
                                 {item.description && (
@@ -182,6 +196,28 @@ export function Navbar() {
                                   </span>
                                 )}
                               </div>
+                            </>
+                          );
+
+                          return item.external ? (
+                            <a
+                              key={`${item.href}-${item.title}`}
+                              href={item.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => setIsOpen(false)}
+                              className={linkClassName}
+                            >
+                              {content}
+                            </a>
+                          ) : (
+                            <Link
+                              key={`${item.href}-${item.title}`}
+                              to={item.href}
+                              onClick={() => setIsOpen(false)}
+                              className={linkClassName}
+                            >
+                              {content}
                             </Link>
                           );
                         })}
@@ -197,7 +233,10 @@ export function Navbar() {
     </header>
   );
 
-  function sectionIconFallback(props: { className?: string; strokeWidth?: number }) {
+  function sectionIconFallback(props: {
+    className?: string;
+    strokeWidth?: number;
+  }) {
     return <BookOpen {...props} />;
   }
 
@@ -214,43 +253,58 @@ export function Navbar() {
             <BgIcon className="h-6 w-6 text-primary" />
           </div>
           <h3 className="text-lg font-semibold">{sectionTitle}</h3>
-          <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {description}
+          </p>
         </div>
       </div>
     );
   }
 }
 
-function ListItem({
-  title,
-  children,
-  href,
-  icon: Icon,
-}: {
-  title: string;
-  children?: React.ReactNode;
-  href: string;
-  icon: NavItemConfig['icon'];
-}) {
+function ListItem({ item }: { item: NavItemConfig }) {
+  const Icon = item.icon;
+  const className =
+    'flex items-center items-start gap-3 select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground';
+
+  const content = (
+    <>
+      <Icon className="mt-0.5 h-6 w-6 shrink-0" />
+      <div className="space-y-1">
+        <div className="text-sm font-medium leading-none">{item.title}</div>
+        {item.description && (
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {item.description}
+          </p>
+        )}
+      </div>
+    </>
+  );
+
+  if (item.external) {
+    return (
+      <li>
+        <NavigationMenuLink asChild>
+          <a
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={className}
+          >
+            {content}
+          </a>
+        </NavigationMenuLink>
+      </li>
+    );
+  }
+
   return (
     <li>
       <NavigationMenuLink asChild>
-        <Link
-          to={href}
-          className="flex items-center items-start gap-3 select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-        >
-          <Icon className="h-6 w-6 mt-0.5 shrink-0" />
-          <div className="space-y-1">
-            <div className="text-sm font-medium leading-none">{title}</div>
-            {children && (
-              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                {children}
-              </p>
-            )}
-          </div>
+        <Link to={item.href} className={className}>
+          {content}
         </Link>
       </NavigationMenuLink>
     </li>
   );
 }
-

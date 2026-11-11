@@ -1,34 +1,102 @@
 import { LoginForm, useGoogleOAuthCallback } from "features/auth";
+import { ensurePreferredProfile } from "features/auth/lib/preferred-context";
+import { fetchAvailableContexts } from "features/auth/model/api";
 import { useCurrentUser } from "entities/user/model/queries";
+import { useQueryClient } from "@tanstack/react-query";
 import kstuLogo from "shared/assets/img/kstu.png";
 import { AppLogo, Card, CardContent } from "shared/ui";
 import { cn } from "shared/lib/utils";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "app/providers/routes";
-import { shouldSuppressLoginAutoRedirect } from "shared/lib/auth-utils";
+import {
+  clearSuppressLoginAutoRedirect,
+  shouldHoldLoginForSafety,
+  shouldSuppressLoginAutoRedirect,
+} from "shared/lib/auth-utils";
+import { getActiveContext, getAppHomePath, hasActiveContext } from "shared/lib/auth-context";
+import { getHttpErrorMessage } from "shared/lib/http-error";
 import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 /** Только внутренние пути приложения (без open-redirect). */
 function safeRedirectPath(from: unknown): string {
-  if (typeof from !== "string" || !from.startsWith("/")) return ROUTES.HOME;
-  if (from.startsWith("//") || from.includes("://")) return ROUTES.HOME;
+  const home = getAppHomePath(getActiveContext());
+  if (typeof from !== "string" || !from.startsWith("/")) return home;
+  if (from.startsWith("//") || from.includes("://")) return home;
   const normalized = from.split("?")[0]?.split("#")[0] ?? "";
-  if (normalized === "" || normalized === ROUTES.AUTH) return ROUTES.HOME;
+  if (normalized === "" || normalized === ROUTES.AUTH) return home;
   return from;
 }
 
 /** Shell страницы входа + карточка shadcn; токены — в `.login-scope` (globals.css). */
 export const LoginPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: user, isSuccess, isPending } = useCurrentUser();
   const { processing: googleOAuthProcessing } = useGoogleOAuthCallback();
   const checkingSession = !googleOAuthProcessing && isPending;
 
   const from = (location.state as { from?: string } | null)?.from;
 
-  const suppressAutoRedirect = shouldSuppressLoginAutoRedirect();
+  const [safetyHold, setSafetyHold] = useState(shouldHoldLoginForSafety);
+  const [pickingContext, setPickingContext] = useState(false);
+  const [contextPickFailed, setContextPickFailed] = useState(false);
 
-  if (!googleOAuthProcessing && isSuccess && user && !suppressAutoRedirect) {
+  const suppressAutoRedirect = shouldSuppressLoginAutoRedirect();
+  const needsContextSelection =
+    !googleOAuthProcessing &&
+    isSuccess &&
+    Boolean(user) &&
+    !hasActiveContext() &&
+    !suppressAutoRedirect;
+
+  useEffect(() => {
+    if (!needsContextSelection || contextPickFailed) return;
+    let cancelled = false;
+    setPickingContext(true);
+    void (async () => {
+      try {
+        const contexts = await fetchAvailableContexts();
+        if (cancelled) return;
+        if (!contexts.length) {
+          setPickingContext(false);
+          setContextPickFailed(true);
+          return;
+        }
+        await ensurePreferredProfile({
+          requires_context_selection: true,
+          active_context: null,
+          available_contexts: contexts,
+        });
+        clearSuppressLoginAutoRedirect();
+        await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+        if (!cancelled) navigate(safeRedirectPath(from), { replace: true });
+      } catch (err) {
+        if (!cancelled) {
+          setPickingContext(false);
+          setContextPickFailed(true);
+          toast.error("Не удалось выбрать профиль", {
+            description: getHttpErrorMessage(err),
+          });
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [needsContextSelection, contextPickFailed, queryClient, navigate, from]);
+
+  if (
+    !googleOAuthProcessing &&
+    isSuccess &&
+    user &&
+    hasActiveContext() &&
+    !suppressAutoRedirect &&
+    !safetyHold &&
+    !shouldHoldLoginForSafety()
+  ) {
     return <Navigate to={safeRedirectPath(from)} replace />;
   }
 
@@ -131,8 +199,13 @@ export const LoginPage = () => {
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden />
                 <p className="text-sm text-muted-foreground">Проверка сессии…</p>
               </div>
+            ) : (needsContextSelection || pickingContext) && !contextPickFailed ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden />
+                <p className="text-sm text-muted-foreground">Вход в профиль…</p>
+              </div>
             ) : (
-              <LoginForm />
+              <LoginForm onSafetyHoldChange={setSafetyHold} />
             )}
           </CardContent>
         </Card>

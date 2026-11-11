@@ -5,6 +5,8 @@ import type {
   DirectionItem,
   SyllabusDirectionOption,
   SyllabusListItemDetail,
+  SyllabusStudent,
+  SyllabusStudentsResponse,
   SyllabusTemplateOption,
   UpdateSyllabusPayload,
 } from '../types';
@@ -131,4 +133,56 @@ export async function deleteSemesterFromSyllabus(
 ): Promise<unknown> {
   const { data } = await apiClient.delete(`semester/${semesterId}/`);
   return data;
+}
+
+/** DELETE /syllabus/{id}/ — удалить РУП. */
+export async function deleteSyllabus(id: number): Promise<unknown> {
+  const { data } = await apiClient.delete(`syllabus/${id}/`);
+  return data;
+}
+
+/** GET /syllabuses/{id}/students/ — студенты, прикреплённые к РУП. */
+export async function fetchSyllabusStudents(
+  syllabusId: number
+): Promise<SyllabusStudentsResponse> {
+  const { data } = await apiClient.get<unknown>(
+    `syllabuses/${syllabusId}/students/`
+  );
+
+  if (Array.isArray(data)) {
+    const results = data
+      .map(toSyllabusStudent)
+      .filter((item): item is SyllabusStudent => item != null);
+    return { count: results.length, results };
+  }
+
+  const payload = (data ?? {}) as Record<string, unknown>;
+  const rawList = Array.isArray(payload.results)
+    ? payload.results
+    : Array.isArray(payload.data)
+      ? payload.data
+      : [];
+  const results = rawList
+    .map(toSyllabusStudent)
+    .filter((item): item is SyllabusStudent => item != null);
+
+  return {
+    count: Number(payload.count ?? results.length),
+    results,
+  };
+}
+
+function toSyllabusStudent(raw: unknown): SyllabusStudent | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const item = raw as Record<string, unknown>;
+  const id = Number(item.id);
+  if (!Number.isFinite(id)) return null;
+  return {
+    id,
+    full_name: String(item.full_name ?? item.name ?? '—'),
+    student_type:
+      item.student_type != null && String(item.student_type).trim()
+        ? String(item.student_type)
+        : null,
+  };
 }

@@ -12,4 +12,6 @@ export const curriculumKeys = {
     [...curriculumKeys.root, 'select-directions'] as const,
   templatesByDirection: (directionId: number | undefined) =>
     [...curriculumKeys.root, 'discipline-templates', directionId ?? 'none'] as const,
+  students: (syllabusId: number | null) =>
+    [...curriculumKeys.root, 'students', syllabusId ?? 'none'] as const,
 };

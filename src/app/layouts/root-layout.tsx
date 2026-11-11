@@ -24,10 +24,10 @@ export function RootLayout() {
         <Navbar />
       </div>
       <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-8 pb-12 ">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-3 pb-4 sm:px-6 sm:pb-8 md:px-8 md:pb-12">
           <Card
             className={cn(
-              "thin-scrollbar h-[90vh] max-h-[90vh] min-h-0 shrink-0 overflow-y-auto rounded-2xl border-none p-6"
+              "thin-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto rounded-xl border-none p-3 sm:rounded-2xl sm:p-4 md:p-6"
             )}
           >
             <Outlet />

@@ -35,6 +35,7 @@ export const ROUTE_PERMISSION_RULES: RouteRule[] = [
   { pathPattern: '/education-management', anyOf: EDUCATION_DEPARTMENT_PERMISSIONS },
   { pathPattern: '/structure/it-department', permission: IT_DEPARTMENT_PERMISSION },
   { pathPattern: '/kpi-reports', permission: KPI_REPORTS_PERMISSION },
+  { pathPattern: '/reports/tabel', permission: 'head_depart:tabel' },
 ];
 
 export function getRequiredPermissionForPath(pathname: string): RouteAccessRequirement {

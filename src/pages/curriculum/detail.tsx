@@ -1,11 +1,13 @@
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { Badge, Button } from "shared/ui";
+import { Button } from "shared/ui";
 import { PageHeader } from "widgets/page-header";
 import { useSyllabusCourse } from "entities/curriculum/model/queries";
 import {
   SyllabusPlanContent,
   SyllabusReportSkeleton,
+  normalizeSyllabusStatus,
+  SyllabusStatusBadge,
 } from "entities/education-management";
 import { ROUTES } from "app/providers/routes";
 
@@ -35,7 +37,7 @@ export function CurriculumDetailPage() {
     );
   }
 
-  const statusLabel = data.status;
+  const status = normalizeSyllabusStatus(data.status);
 
   return (
     <div className="space-y-6">
@@ -48,9 +50,7 @@ export function CurriculumDetailPage() {
         }
       >
         <div className="flex flex-wrap items-center gap-3">
-          {statusLabel ? (
-            <Badge variant="secondary">{statusLabel}</Badge>
-          ) : null}
+          <SyllabusStatusBadge status={status} />
           <Button variant="outline" size="sm" asChild>
             <Link to={ROUTES.CURRICULUM} className="gap-2">
               <ArrowLeft className="h-4 w-4" />

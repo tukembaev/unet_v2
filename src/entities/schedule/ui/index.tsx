@@ -27,20 +27,22 @@ const getColor = (type: string) => {
 
 export const ScheduleCard: React.FC<Props> = ({ title, data, onSelect }) => {
   return (
-    <Card className=" border  rounded-2xl backdrop-blur-sm ">
-      <CardHeader>
-        <h2 className="text-lg font-semibold ">{title}</h2>
+    <Card className="rounded-2xl border border-border/70 shadow-sm">
+      <CardHeader className="pb-2 pt-4">
+        <h2 className="text-sm font-semibold sm:text-base">{title}</h2>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="pb-4">
         {!data ? (
           <div className="flex justify-center py-8">
-            <ScaleLoader color="#fff" />
+            <ScaleLoader color="#888" />
           </div>
         ) : data.length === 0 ? (
-          <p className="text-gray-400 text-center py-6">Нет занятий</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">
+            Нет занятий
+          </p>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2.5">
             {data.map((item) => {
               const isFree = item.subject === null;
               const color = getColor(item.class_type ? item.class_type : "");
@@ -50,42 +52,43 @@ export const ScheduleCard: React.FC<Props> = ({ title, data, onSelect }) => {
                   key={`${item.time}-${item.auditorium || "free"}`}
                   onClick={() => !isFree && onSelect?.(item)}
                   className={cn(
-                    "flex items-start p-3 rounded-xl transition cursor-pointer",
+                    "flex items-start rounded-xl p-2.5 transition",
                     isFree
-                      ? " border  cursor-default"
-                      : " border hover:bg-primary/10"
+                      ? "cursor-default border border-border/60"
+                      : "cursor-pointer border border-border/60 hover:bg-primary/10"
                   )}
                 >
                   {!isFree && (
-                    <div className={cn("p-2 rounded-md mr-3", color)}>
-                      <BookText className="text-white" size={18} />
+                    <div className={cn("mr-2.5 rounded-lg p-1.5", color)}>
+                      <BookText className="text-white" size={16} />
                     </div>
                   )}
 
-                  <div className="flex flex-col gap-1 w-full text-sm ">
+                  <div className="flex w-full flex-col gap-1 text-sm">
                     {isFree ? (
-                      <span>{item.time}</span>
+                      <span className="text-muted-foreground">{item.time}</span>
                     ) : (
                       <>
-                        <div className="flex items-center justify-between ">
+                        <div className="flex flex-wrap items-center justify-between gap-1.5">
                           <span
                             className={cn(
-                              "px-2 py-0.5 rounded text-xs text-white ",
+                              "rounded-md px-1.5 py-0.5 text-[11px] text-white",
                               color
                             )}
                           >
                             {item.class_type}
                           </span>
-                          <span className="flex items-center gap-1 ">
-                            <CalendarClock size={14} /> {item.time}
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <CalendarClock size={12} /> {item.time}
                           </span>
-                          <span className="flex items-center gap-1 ">
-                            <MapPin size={14} /> {item.auditorium}
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <MapPin size={12} /> {item.auditorium}
                           </span>
                         </div>
-                        <div className="font-medium ">{item.subject}</div>
-                        <div className="flex items-center gap-1">
-                          <User size={14} /> {formatTeacherName(item.teacher ?? "")}
+                        <div className="text-sm font-medium">{item.subject}</div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <User size={12} />{" "}
+                          {formatTeacherName(item.teacher ?? "")}
                         </div>
                       </>
                     )}

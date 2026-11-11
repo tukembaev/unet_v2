@@ -30,17 +30,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'shared/ui';
+import {
+  LEVEL_EDUCATION_OPTIONS,
+  levelEducationPayloadValue,
+  normalizeLevelEducationValue,
+} from 'entities/curriculum/lib/level-education-options';
 import { OptionMultiSelect } from './OptionMultiSelect';
 
 /** Stable fallback so query `data ?? x` does not produce a new `[]` every render. */
 const EMPTY_SELECT_OPTIONS: SelectOptions[] = [];
-
-const LEVEL_EDUCATIONS = [
-  { value: 1, label: 'Бакалавр', eng: 'bachelor' },
-  { value: 2, label: 'Магистр', eng: 'master' },
-  { value: 3, label: 'PhD', eng: 'phd' },
-  { value: 4, label: 'Специалист', eng: 'specialist' },
-] as const;
 
 const schema = z.object({
   title: z.string().min(1, 'Укажите наименование'),
@@ -102,7 +100,7 @@ function rowToFormValues(
     title: row.title ?? '',
     credit: row.credit ?? 0,
     credit_part_time: row.credit_part_time ?? undefined,
-    level_education: row.level_education ?? '',
+    level_education: normalizeLevelEducationValue(row.level_education),
     prerequisiteIds: fromPrereq,
     title_ky: row.title_ky ?? '',
     title_en: row.title_en ?? '',
@@ -160,7 +158,7 @@ export function DepartmentDisciplineDialog({ open, onOpenChange, mode, disciplin
         values.credit_part_time != null && !Number.isNaN(values.credit_part_time)
           ? values.credit_part_time
           : undefined,
-      level_education: values.level_education,
+      level_education: levelEducationPayloadValue(values.level_education),
       prerequisites: values.prerequisiteIds,
     };
 
@@ -248,8 +246,8 @@ export function DepartmentDisciplineDialog({ open, onOpenChange, mode, disciplin
                     <SelectValue placeholder="Выберите уровень" />
                   </SelectTrigger>
                   <SelectContent>
-                    {LEVEL_EDUCATIONS.map((lvl) => (
-                      <SelectItem key={lvl.eng} value={lvl.eng}>
+                    {LEVEL_EDUCATION_OPTIONS.map((lvl) => (
+                      <SelectItem key={lvl.value} value={lvl.value}>
                         {lvl.label}
                       </SelectItem>
                     ))}

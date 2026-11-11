@@ -26,6 +26,11 @@ import {
   DialogTitle,
 } from "shared/ui";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  normalizeSyllabusStatus,
+  SyllabusStatusBadge,
+} from "../SyllabusStatusBadge";
+import { SyllabusCommissionActions } from "./SyllabusCommissionActions";
 
 export interface SyllabusPlanContentProps {
   data: SyllabusRoot;
@@ -35,6 +40,11 @@ export interface SyllabusPlanContentProps {
   showAddSemesterEmpty?: boolean;
   /** Удаление семестра (только учебный план, не отчёты) */
   allowDeleteSemester?: boolean;
+  /**
+   * Смена статуса для комиссии в отчётах учебного управления
+   * (PATCH /all-syllabus/{id}/).
+   */
+  allowStatusChange?: boolean;
 }
 
 /**
@@ -46,6 +56,7 @@ export function SyllabusPlanContent({
   role = "user",
   showAddSemesterEmpty = true,
   allowDeleteSemester = true,
+  allowStatusChange = false,
 }: SyllabusPlanContentProps) {
   const openForm = useFormNavigation();
   const appendSemester = useAppendSemester();
@@ -57,6 +68,7 @@ export function SyllabusPlanContent({
   );
   const semesters = data.semesters ?? [];
   const reasonReject = data.reason_reject?.trim() ?? "";
+  const status = normalizeSyllabusStatus(data.status);
 
   const handleAddSemester = async () => {
     try {
@@ -137,6 +149,11 @@ export function SyllabusPlanContent({
           </div>
         </div>
 
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <span className="text-sm text-muted-foreground">Статус:</span>
+          <SyllabusStatusBadge status={status} />
+        </div>
+
         {reasonReject ? (
           <div className="flex gap-2 rounded-lg border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-800 dark:text-rose-300">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
@@ -145,6 +162,14 @@ export function SyllabusPlanContent({
               <p className="mt-1 whitespace-pre-wrap">{reasonReject}</p>
             </div>
           </div>
+        ) : null}
+
+        {allowStatusChange ? (
+          <SyllabusCommissionActions
+            syllabusId={data.id}
+            status={status}
+            reasonReject={data.reason_reject}
+          />
         ) : null}
 
         {role === "admin" && (

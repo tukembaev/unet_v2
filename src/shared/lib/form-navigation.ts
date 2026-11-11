@@ -15,6 +15,7 @@ export enum FormQuery {
   MANAGE_PROFILES = 'manage-profiles',
   SETTINGS = 'settings',
   ADD_TASK_MEMBERS = 'add-task-members',
+  SHARE_UDOC = 'share-udoc',
 }
 
 /**

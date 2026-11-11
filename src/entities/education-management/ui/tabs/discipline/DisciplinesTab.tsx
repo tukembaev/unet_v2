@@ -1,5 +1,5 @@
 import { useDisciplineTemplates } from "entities/education-management/model/queries";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AsyncSelect } from "shared/components/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Tabs, TabsContent, TabsList, TabsTrigger } from "shared/ui";
 import { DisciplinesGrid } from "./DisciplinesGrid";
@@ -32,13 +32,12 @@ export const DisciplinesTab = () => {
     getKindFromTab(activeTab)
   );
 
-  const fetchStaticData = async (query?: string) => {
-    await new Promise((res) => setTimeout(res, 200)); // просто для имитации загрузки
+  const fetchStaticData = useCallback(async (query?: string) => {
     if (!query) return staticOptions;
     return staticOptions.filter((o) =>
       o.name.toLowerCase().includes(query.toLowerCase())
     );
-  };
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -60,16 +59,13 @@ export const DisciplinesTab = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <AsyncSelect
-            // @ts-ignore
             fetcher={fetchStaticData}
             label="Специализация"
-            // @ts-ignore
             value={levelEducation}
-            // @ts-ignore
             onChange={setLevelEducation}
-            renderOption={(option: any) => <span>{option.name}</span>}
-            getOptionValue={(option: any) => option.id}
-            getDisplayValue={(option: any) => option.name}
+            renderOption={(option) => <span>{option.name}</span>}
+            getOptionValue={(option) => option.id}
+            getDisplayValue={(option) => option.name}
             placeholder="Выбери специализацию"
           />
           {levelEducation && (

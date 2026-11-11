@@ -1,93 +1,87 @@
-import { getDepartments, getSemesters, getSyllabuses } from "entities/education-management/model/api";
-import { useFaculties, useWorkPlanBySemester } from "entities/education-management/model/queries";
-import { useEffect, useState } from "react";
-import { EmptyInfo } from "shared/components";
-import { AsyncSelect } from "shared/components/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "shared/ui";
-import { DispatcherTable } from "./DispatcherTable";
+import {
+  useDepartments,
+  useFaculties,
+  useSemestersBySyllabus,
+  useSyllabusesByDepartment,
+  useWorkPlanBySemester,
+} from 'entities/education-management/model/queries';
+import type { WorkPlanItem } from 'entities/education-management/model/types';
+import { useMemo, useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getDispatcherStreamPath } from 'app/providers/routes';
+import { EmptyInfo } from 'shared/components';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Label,
+  Skeleton,
+} from 'shared/ui';
+import { DispatcherTable } from './DispatcherTable';
+import { FilterCombobox } from './FilterCombobox';
 
+function FilterField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-sm font-medium text-muted-foreground">
+        {label}
+      </Label>
+      {children}
+    </div>
+  );
+}
 
 export const DispatcherTab = () => {
-  const { data: faculties, isLoading } = useFaculties();
-  const [institute, setInstitute] = useState("");
-  const [department, setDepartment] = useState("");
-  const [syllabus, setSyllabus] = useState("");
-  const [semester, setSemester] = useState("");
-  
-  const { data: workPlanData, isLoading: isLoadingWorkPlan } = useWorkPlanBySemester(
-    parseInt(syllabus) || 0, 
-    parseInt(semester) || ''
-  );
+  const navigate = useNavigate();
+  const [institute, setInstitute] = useState<string | null>(null);
+  const [department, setDepartment] = useState<string | null>(null);
+  const [syllabus, setSyllabus] = useState<string | null>(null);
+  const [semester, setSemester] = useState<string | null>(null);
 
+  const instituteId = institute != null ? Number(institute) : null;
+  const departmentId = department != null ? Number(department) : null;
+  const syllabusId = syllabus != null ? Number(syllabus) : null;
+  const semesterId = semester != null ? Number(semester) : null;
 
-  const handleScheduleAction = (id: number) => {
-    console.log("Составить расписание для записи с ID:", id);
-    // Здесь можно добавить логику для создания расписания
+  const facultiesQuery = useFaculties();
+  const departmentsQuery = useDepartments(instituteId);
+  const syllabusesQuery = useSyllabusesByDepartment(departmentId);
+  const semestersQuery = useSemestersBySyllabus(syllabusId);
+  const workPlanQuery = useWorkPlanBySemester(syllabusId, semesterId);
+
+  const filtersReady = syllabusId != null && semesterId != null;
+  const workPlanData = workPlanQuery.data ?? [];
+
+  const filtersLabel = useMemo(() => {
+    const parts = [
+      facultiesQuery.data?.find((f) => f.value === instituteId)?.label,
+      departmentsQuery.data?.find((d) => d.value === departmentId)?.label,
+      syllabusesQuery.data?.find((s) => s.value === syllabusId)?.label,
+      semestersQuery.data?.find((s) => s.value === semesterId)?.label,
+    ].filter(Boolean);
+    return parts.join(' · ');
+  }, [
+    facultiesQuery.data,
+    departmentsQuery.data,
+    syllabusesQuery.data,
+    semestersQuery.data,
+    instituteId,
+    departmentId,
+    syllabusId,
+    semesterId,
+  ]);
+
+  const openSchedule = (item: WorkPlanItem) => {
+    navigate(getDispatcherStreamPath(item.id), { state: { stream: item } });
   };
-  
-  const fetchFaculties = async (query?: string) => {
-    if (!faculties) return [];
-    if (!query) return faculties;
-    return faculties.filter((faculty) =>
-      faculty.label.toLowerCase().includes(query.toLowerCase())
-    );
-  };
-
-  const fetchDepartments = async (query?: string) => {
-    if (!institute) return [];
-    try {
-      const departments = await getDepartments(parseInt(institute));
-      if (!query) return departments;
-      return departments.filter((dept) =>
-        dept.label.toLowerCase().includes(query.toLowerCase())
-      );
-    } catch (error) {
-      console.error("Error fetching departments:", error);
-      return [];
-    }
-  };
-
-  const fetchSyllabuses = async (query?: string) => {
-    if (!department) return [];
-    try {
-      const syllabuses = await getSyllabuses(parseInt(department));
-      if (!query) return syllabuses;
-      return syllabuses.filter((syll) =>
-        syll.label.toLowerCase().includes(query.toLowerCase())
-      );
-    } catch (error) {
-      console.error("Error fetching syllabuses:", error);
-      return [];
-    }
-  };
-
-  const fetchSemesters = async (query?: string) => {
-    if (!syllabus) return [];
-    try {
-      const semesters = await getSemesters(parseInt(syllabus));
-      if (!query) return semesters;
-      return semesters.filter((sem) =>
-        sem.label.toLowerCase().includes(query.toLowerCase())
-      );
-    } catch (error) {
-      console.error("Error fetching semesters:", error);
-      return [];
-    }
-  };
-
-  // Сброс зависимых селектов при изменении родительского
-  useEffect(() => {
-    if (!institute) {
-      setDepartment("");
-      setSyllabus("");
-      setSemester("");
-    } else if (!department) {
-      setSyllabus("");
-      setSemester("");
-    } else if (!syllabus) {
-      setSemester("");
-    }
-  }, [institute, department, syllabus]);
 
   return (
     <div className="space-y-4">
@@ -95,112 +89,127 @@ export const DispatcherTab = () => {
         <CardHeader>
           <CardTitle>Диспетчерская</CardTitle>
           <CardDescription>
-            Диспетчерская для создания и просмотра учебных планов
+            Центр управления учебным процессом — назначение пар потокам
           </CardDescription>
         </CardHeader>
         <CardContent>
-        <div className="flex gap-4 flex-wrap"> 
-          <AsyncSelect
-            // @ts-ignore
-            fetcher={fetchFaculties}
-            label="Институт"
-            // @ts-ignore
-            value={institute}
-            // @ts-ignore
-            onChange={setInstitute}
-            renderOption={(option: any) => <span>{option.label}</span>}
-            getOptionValue={(option: any) => option.value.toString()}
-            getDisplayValue={(option: any) => option.label}
-            placeholder="Выберите институт"
-            disabled={isLoading}
-          />
-          <AsyncSelect
-            // @ts-ignore
-            fetcher={fetchDepartments}
-            label="Кафедра"
-            // @ts-ignore
-            value={department}
-            // @ts-ignore
-            onChange={setDepartment}
-            renderOption={(option: any) => <span>{option.label}</span>}
-            getOptionValue={(option: any) => option.value.toString()}
-            getDisplayValue={(option: any) => option.label}
-            placeholder="Выберите кафедру"
-            disabled={!institute}
-          />
-          <AsyncSelect
-            // @ts-ignore
-            fetcher={fetchSyllabuses}
-            label="РУП"
-            // @ts-ignore
-            value={syllabus}
-            // @ts-ignore
-            onChange={setSyllabus}
-            renderOption={(option: any) => <span>{option.label}</span>}
-            getOptionValue={(option: any) => option.value.toString()}
-            getDisplayValue={(option: any) => option.label}
-            placeholder="Выберите РУП"
-            disabled={!department}
-            />
-          <AsyncSelect
-            // @ts-ignore
-            fetcher={fetchSemesters}
-            label="Семестр"
-            // @ts-ignore
-            value={semester}
-            // @ts-ignore
-            onChange={setSemester}
-            renderOption={(option: any) => <span>{option.label}</span>}
-            getOptionValue={(option: any) => option.value.toString()}
-            getDisplayValue={(option: any) => option.label}
-            placeholder="Выберите семестр"
-            disabled={!syllabus}
-            />
-        </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <FilterField label="Институт">
+              <FilterCombobox
+                options={facultiesQuery.data ?? []}
+                value={institute}
+                onChange={(value) => {
+                  setInstitute(value);
+                  setDepartment(null);
+                  setSyllabus(null);
+                  setSemester(null);
+                }}
+                disabled={facultiesQuery.isLoading}
+                placeholder="Выберите институт"
+                searchPlaceholder="Поиск института…"
+              />
+            </FilterField>
+
+            <FilterField label="Кафедра">
+              <FilterCombobox
+                options={departmentsQuery.data ?? []}
+                value={department}
+                onChange={(value) => {
+                  setDepartment(value);
+                  setSyllabus(null);
+                  setSemester(null);
+                }}
+                disabled={instituteId == null || departmentsQuery.isLoading}
+                placeholder={
+                  instituteId == null
+                    ? 'Сначала выберите институт'
+                    : 'Выберите кафедру'
+                }
+                searchPlaceholder="Поиск кафедры…"
+              />
+            </FilterField>
+
+            <FilterField label="РУП">
+              <FilterCombobox
+                options={syllabusesQuery.data ?? []}
+                value={syllabus}
+                onChange={(value) => {
+                  setSyllabus(value);
+                  setSemester(null);
+                }}
+                disabled={departmentId == null || syllabusesQuery.isLoading}
+                placeholder={
+                  departmentId == null
+                    ? 'Сначала выберите кафедру'
+                    : 'Выберите РУП'
+                }
+                searchPlaceholder="Поиск РУП…"
+              />
+            </FilterField>
+
+            <FilterField label="Семестр">
+              <FilterCombobox
+                options={semestersQuery.data ?? []}
+                value={semester}
+                onChange={setSemester}
+                disabled={syllabusId == null || semestersQuery.isLoading}
+                placeholder={
+                  syllabusId == null
+                    ? 'Сначала выберите РУП'
+                    : 'Выберите семестр'
+                }
+                searchPlaceholder="Поиск семестра…"
+              />
+            </FilterField>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Таблица с результатами */}
-      {workPlanData && workPlanData.length > 0 && (
+      {filtersReady && workPlanQuery.isLoading ? (
         <Card>
           <CardHeader>
-            <CardTitle>Учебный план</CardTitle>
+            <CardTitle>Потоки</CardTitle>
+            <CardDescription>{filtersLabel || 'Загрузка…'}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-3/4" />
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {filtersReady && !workPlanQuery.isLoading && workPlanData.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Потоки</CardTitle>
             <CardDescription>
-              Результаты по выбранным параметрам
+              {filtersLabel || 'Результаты по выбранным параметрам'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <DispatcherTable 
-              data={workPlanData} 
-              onScheduleAction={handleScheduleAction}
+            <DispatcherTable
+              data={workPlanData}
+              onScheduleAction={openSchedule}
             />
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
-      {/* Индикатор загрузки */}
-      {isLoadingWorkPlan && (
+      {filtersReady &&
+      !workPlanQuery.isLoading &&
+      workPlanData.length === 0 ? (
+        <EmptyInfo />
+      ) : null}
+
+      {!filtersReady ? (
         <Card>
-          <CardHeader>
-            <CardTitle>Учебный план</CardTitle>
-            <CardDescription>
-              Результаты по выбранным параметрам
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-5/6" />
-            <Skeleton className="h-4 w-2/3" />
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            Нет данных… Выберите параметры фильтрации: институт → кафедра → РУП
+            → семестр.
           </CardContent>
         </Card>
-      )}
-
-      {/* Сообщение когда все селекты выбраны но данных нет */}
-      {syllabus && semester && !isLoadingWorkPlan && (!workPlanData || workPlanData.length === 0) && (
-        <EmptyInfo />
-      )}
+      ) : null}
     </div>
   );
 };

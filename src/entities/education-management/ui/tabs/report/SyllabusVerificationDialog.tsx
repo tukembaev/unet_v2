@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Badge,
   Button,
   Dialog,
   DialogContent,
@@ -16,48 +15,19 @@ import {
   useSyllabusDetail,
   useUpdateSyllabusVerification,
 } from "entities/curriculum/model";
-import { CheckCircle2, Clock, AlertCircle } from "lucide-react";
-import { cn } from "shared/lib/utils";
+import { AlertCircle } from "lucide-react";
 import { getHttpErrorMessage } from "shared/lib";
 import { toast } from "sonner";
+import {
+  normalizeSyllabusStatus,
+  SyllabusStatusBadge,
+} from "./SyllabusStatusBadge";
 
-export function SyllabusVerificationBadge({
-  isVerified,
-  className,
-}: {
-  isVerified: boolean;
-  className?: string;
-}) {
-  if (isVerified) {
-    return (
-      <Badge
-        variant="outline"
-        className={cn(
-          "gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium",
-          "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-          className
-        )}
-      >
-        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
-        Подтверждено
-      </Badge>
-    );
-  }
-
-  return (
-    <Badge
-      variant="outline"
-      className={cn(
-        "gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium",
-        "border-amber-500/25 bg-amber-500/10 text-amber-800 dark:text-amber-400",
-        className
-      )}
-    >
-      <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden />
-      В рассмотрении
-    </Badge>
-  );
-}
+export {
+  SyllabusStatusBadge,
+  SyllabusStatusBadge as SyllabusVerificationBadge,
+  normalizeSyllabusStatus,
+} from "./SyllabusStatusBadge";
 
 type InfoRow = { label: string; value: string | number | null | undefined };
 
@@ -102,7 +72,10 @@ export function SyllabusVerificationDialog({
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
 
-  const isVerified = detail?.is_verified ?? syllabus?.is_verified ?? false;
+  const status = normalizeSyllabusStatus(
+    detail?.status ?? syllabus?.status,
+    detail?.is_verified ?? syllabus?.is_verified
+  );
   const reasonReject = detail?.reason_reject ?? null;
 
   useEffect(() => {
@@ -162,8 +135,7 @@ export function SyllabusVerificationDialog({
     if (!syllabusId) return;
     try {
       await updateVerification.mutateAsync({
-        is_verified: true,
-        reason_reject: null,
+        status: "confirmed",
       });
       toast.success("Учебный план подтверждён");
       onOpenChange(false);
@@ -183,7 +155,7 @@ export function SyllabusVerificationDialog({
     if (!syllabusId) return;
     try {
       await updateVerification.mutateAsync({
-        is_verified: false,
+        status: "revision",
         reason_reject: reason,
       });
       toast.success("Учебный план отправлен на доработку");
@@ -211,7 +183,7 @@ export function SyllabusVerificationDialog({
             <div>
               <p className="text-xs text-muted-foreground">Текущий статус</p>
               <div className="mt-1.5">
-                <SyllabusVerificationBadge isVerified={isVerified} />
+                <SyllabusStatusBadge status={status} />
               </div>
             </div>
             {syllabus?.cipher ? (
@@ -265,7 +237,7 @@ export function SyllabusVerificationDialog({
             <Button
               type="button"
               onClick={() => void handleConfirm()}
-              disabled={updateVerification.isPending || isLoading || isVerified}
+              disabled={updateVerification.isPending || isLoading || status === "confirmed"}
             >
               Подтвердить
             </Button>

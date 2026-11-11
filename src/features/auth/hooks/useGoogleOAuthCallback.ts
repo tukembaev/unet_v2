@@ -2,9 +2,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ROUTES } from "app/providers/routes";
+import { ensurePreferredProfile } from "../lib/preferred-context";
 import { googleAuthRequest } from "../model/api";
 import { consumeExpectedGoogleNonce } from "../lib/google-oauth";
+import { getAppHomePath } from "shared/lib/auth-context";
 import { clearSuppressLoginAutoRedirect } from "shared/lib/auth-utils";
 import { getHttpErrorMessage } from "shared/lib/http-error";
 import { toast } from "sonner";
@@ -71,12 +72,14 @@ export function useGoogleOAuthCallback() {
     void (async () => {
       try {
         setProcessing(true);
-        await googleAuthRequest(idToken);
+        const authResult = await googleAuthRequest(idToken);
         googleOAuthTokenFromHash = null;
+        await ensurePreferredProfile(authResult);
         clearSuppressLoginAutoRedirect();
         await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+
         toast.success("Вход через Google выполнен");
-        navigate(ROUTES.HOME);
+        navigate(getAppHomePath());
       } catch (err) {
         googleOAuthExchangeStarted = false;
         googleOAuthTokenFromHash = null;

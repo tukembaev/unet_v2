@@ -113,7 +113,9 @@ export function GenericTabsContent<T>({
                 );
               })}
             </TabsList>
-            <GenericFilter filterGroups={filterGroups} onClearAll={onClearFilters} />
+            {filterGroups.length > 0 ? (
+              <GenericFilter filterGroups={filterGroups} onClearAll={onClearFilters} />
+            ) : null}
           </div>
 
           {buttons.length > 0 && (

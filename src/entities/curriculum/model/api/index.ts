@@ -8,4 +8,6 @@ export {
   updateSyllabusById,
   appendSemesterToSyllabus,
   deleteSemesterFromSyllabus,
+  deleteSyllabus,
+  fetchSyllabusStudents,
 } from './syllabus.api';

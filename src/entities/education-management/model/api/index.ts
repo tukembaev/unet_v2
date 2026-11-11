@@ -1,6 +1,65 @@
 
+import axios from 'axios';
 import { apiClient } from 'shared/config';
-import { Direction, Discipline, FamilyDirection, FamilyDirectionItem, Reports, SelectOptions, SyllabusRoot, WorkLoad, WorkPlanItem } from '../types';
+import type {
+  CreateScheduleSlot,
+  Direction,
+  Discipline,
+  FamilyDirection,
+  FamilyDirectionItem,
+  GeoSelectOption,
+  Reports,
+  SelectOptions,
+  SyllabusRoot,
+  WeeklyScheduleMap,
+  WorkLoad,
+  WorkPlanItem,
+} from '../types';
+
+function normalizeSelectOptions(raw: unknown): SelectOptions[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((row) => {
+      const item = row as Record<string, unknown>;
+      const value = Number(item.value ?? item.id);
+      const label = String(
+        item.label ?? item.name ?? item.title ?? item.direction ?? value
+      );
+      return { value, label };
+    })
+    .filter((item) => Number.isFinite(item.value));
+}
+
+function normalizeGeoOptions(raw: unknown): GeoSelectOption[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((row) => {
+      const item = row as Record<string, unknown>;
+      const value = String(
+        item.value ??
+          item.qr_id ??
+          item.campus_qr_id ??
+          item.korpus_qr_id ??
+          item.audit_qr_id ??
+          item.id ??
+          ''
+      ).trim();
+      const label = String(
+        item.label ??
+          item.name ??
+          item.title ??
+          item.cumpus ??
+          item.campus ??
+          item.korpus ??
+          item.audit ??
+          item.num_audit ??
+          value
+      ).trim();
+      if (!value) return null;
+      return { value, label: label || value };
+    })
+    .filter((item): item is GeoSelectOption => item != null);
+}
 
 export const getUsers = async (): Promise<Direction[]> => {
   const { data } = await apiClient.get('api/kind');
@@ -40,7 +99,7 @@ export const getDisciplineTemplates = async (
 };
 export const getFaculties = async (): Promise<SelectOptions[]> => {
   const { data } = await apiClient.get('faculties/');
-  return data;
+  return normalizeSelectOptions(data);
 };
 export const getKindDirections = async (kind: number): Promise<Direction> => {
   const { data } = await apiClient.get(`kind/${kind}/`);
@@ -48,28 +107,103 @@ export const getKindDirections = async (kind: number): Promise<Direction> => {
 };
 export const getDepartments = async (value: number): Promise<SelectOptions[]> => {
   const { data } = await apiClient.get(`departments/${value}/`);
-  return data;
+  return normalizeSelectOptions(data);
 };
 
 export const getSyllabuses = async (value: number): Promise<SelectOptions[]> => {
   const { data } = await apiClient.get(`syllabuses/caphedra/${value}/`);
-  return data;
+  return normalizeSelectOptions(data);
 };
 export const getSemesters = async (value: number): Promise<SelectOptions[]> => {
   const { data } = await apiClient.get(`semesters/${value}/`);
-  return data;
+  return normalizeSelectOptions(data);
 };
 
-export const getWorkPlanBySemester = async (syllabus: number, semester: number|string): Promise<WorkPlanItem[]> => {
+export const getWorkPlanBySemester = async (
+  syllabus: number,
+  semester: number | string
+): Promise<WorkPlanItem[]> => {
   const { data } = await apiClient.get(`streams/by-work-plan/${syllabus}/`, {
     params: {
-      semester: semester ? semester : ''
-    }
+      semester: semester ? semester : '',
+    },
   });
+  return Array.isArray(data) ? (data as WorkPlanItem[]) : [];
+};
+
+const qrClient = axios.create({
+  baseURL: 'https://qr.kstu.kg/api',
+  timeout: 20000,
+  headers: { Accept: 'application/json' },
+});
+
+/** GET qr /campuses/?form=select */
+export const getScheduleCampuses = async (): Promise<GeoSelectOption[]> => {
+  const { data } = await qrClient.get('campuses/', {
+    params: { form: 'select' },
+  });
+  return normalizeGeoOptions(data);
+};
+
+/** GET qr /korpuses/?form=select&campus= */
+export const getScheduleKorpuses = async (
+  campusId: string
+): Promise<GeoSelectOption[]> => {
+  const { data } = await qrClient.get('korpuses/', {
+    params: { form: 'select', campus: campusId },
+  });
+  return normalizeGeoOptions(data);
+};
+
+/** GET qr /audit/?form=select&korpus=&kind=study */
+export const getScheduleAudits = async (
+  korpusId: string
+): Promise<GeoSelectOption[]> => {
+  const { data } = await qrClient.get('audit/', {
+    params: { form: 'select', korpus: korpusId, kind: 'study' },
+  });
+  return normalizeGeoOptions(data);
+};
+
+/** GET /teacher/{id}/schedule/ */
+export const getTeacherEmployment = async (
+  teacherId: number
+): Promise<WeeklyScheduleMap> => {
+  const { data } = await apiClient.get(`teacher/${teacherId}/schedule/`);
+  return (data ?? {}) as WeeklyScheduleMap;
+};
+
+/** GET /auditorium/{id}/schedule/ */
+export const getAudienceOccupancy = async (
+  auditoriumId: string
+): Promise<WeeklyScheduleMap> => {
+  const { data } = await apiClient.get(`auditorium/${auditoriumId}/schedule/`);
+  return (data ?? {}) as WeeklyScheduleMap;
+};
+
+/** POST /schedules/ — тело: массив слотов */
+export const postSchedules = async (
+  schedules: CreateScheduleSlot[]
+): Promise<unknown> => {
+  const { data } = await apiClient.post('schedules/', schedules);
   return data;
 };
 
-export const getWorkLoadBySemester = async (year: number, department_id: number, report_type: string, semester_type: string): Promise<WorkLoad> => {
+/** GET /v1/workload-years/ — учебные годы для селекта нагрузки. */
+export const getWorkloadYears = async (): Promise<{ value: string; label: string }[]> => {
+  const { data } = await apiClient.get<unknown>('v1/workload-years/');
+  if (!Array.isArray(data)) return [];
+  return data.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+    const row = item as Record<string, unknown>;
+    const value = String(row.value ?? '').trim();
+    const label = String(row.label ?? value).trim();
+    if (!value) return [];
+    return [{ value, label: label || value }];
+  });
+};
+
+export const getWorkLoadBySemester = async (year: string, department_id: number, report_type: string, semester_type: string): Promise<WorkLoad> => {
   const { data } = await apiClient.get(`v1/workload/`, {
     params: {
       year: year ? year : '',

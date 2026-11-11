@@ -26,18 +26,11 @@ import {
   useSyllabusDirectionOptions,
 } from "entities/curriculum/model/queries";
 import { toast } from "sonner";
-
-const FORM_EDUCATION_OPTIONS = [
-  { value: "full_time", label: "Очная" },
-  { value: "part_time", label: "Заочная" },
-] as const;
-
-const LEVEL_EDUCATION_OPTIONS = [
-  { value: "bachelor", label: "Бакалавр" },
-  { value: "master", label: "Магистр" },
-  { value: "phd", label: "PhD" },
-  { value: "specialist", label: "Специалист" },
-] as const;
+import {
+  FORM_EDUCATION_OPTIONS,
+  formEducationPayloadValue,
+} from "entities/curriculum/lib/form-education-options";
+import { LEVEL_EDUCATION_OPTIONS } from "entities/curriculum/lib/level-education-options";
 
 const createRupFormSchema = z
   .object({
@@ -114,7 +107,7 @@ export function CreateRupDialog() {
         name_direction,
         start_year: data.startYear,
         end_year: data.endYear,
-        form_education: data.form_education,
+        form_education: formEducationPayloadValue(data.form_education),
         level_education: data.level_education,
       });
       toast.success("Учебный план создан");

@@ -1,20 +1,36 @@
-import { useInfiniteQuery, useQuery, type InfiniteData } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  type InfiniteData,
+} from '@tanstack/react-query';
 import {
   getUsers,
   getDisciplineTemplates,
   getFaculties,
+  getDepartments,
+  getSyllabuses,
+  getSemesters,
   getReports,
   getWorkPlanBySemester,
   getWorkLoadBySemester,
+  getWorkloadYears,
   getFamilyDirection,
   getDirections,
   getSyllabusReport,
   getAllDisciplinePage,
   getProfilesInDirections,
+  getScheduleCampuses,
+  getScheduleKorpuses,
+  getScheduleAudits,
+  getTeacherEmployment,
+  getAudienceOccupancy,
+  postSchedules,
   ALL_DISCIPLINE_PAGE_SIZE,
   type AllDisciplinePageResult,
   type DisciplineOption,
 } from '../api';
+import type { CreateScheduleSlot } from '../types';
 
 export function useUsers() {
   return useQuery({
@@ -52,6 +68,30 @@ export function useFaculties() {
   });
 }
 
+export function useDepartments(instituteId: number | null) {
+  return useQuery({
+    queryKey: ['departments', instituteId],
+    queryFn: () => getDepartments(instituteId!),
+    enabled: instituteId != null && instituteId > 0,
+  });
+}
+
+export function useSyllabusesByDepartment(departmentId: number | null) {
+  return useQuery({
+    queryKey: ['syllabuses-caphedra', departmentId],
+    queryFn: () => getSyllabuses(departmentId!),
+    enabled: departmentId != null && departmentId > 0,
+  });
+}
+
+export function useSemestersBySyllabus(syllabusId: number | null) {
+  return useQuery({
+    queryKey: ['semesters', syllabusId],
+    queryFn: () => getSemesters(syllabusId!),
+    enabled: syllabusId != null && syllabusId > 0,
+  });
+}
+
 export function useReports() {
   return useQuery({
     queryKey: ['reports'],
@@ -59,15 +99,71 @@ export function useReports() {
   });
 }
 
-export function useWorkPlanBySemester(syllabus: number, semester: number|string) {
+export function useWorkPlanBySemester(
+  syllabus: number | null,
+  semester: number | string | null
+) {
   return useQuery({
     queryKey: ['work-plan', syllabus, semester],
-    queryFn: () => getWorkPlanBySemester(syllabus, semester),
-    enabled: !!syllabus || !!semester,
+    queryFn: () => getWorkPlanBySemester(syllabus!, semester!),
+    enabled: syllabus != null && syllabus > 0 && semester != null && semester !== '',
   });
 }
 
-export function useWorkLoadBySemester(year: number, department_id: number, report_type: string, semester_type: string) {
+export function useScheduleCampuses() {
+  return useQuery({
+    queryKey: ['schedule-campuses'],
+    queryFn: getScheduleCampuses,
+  });
+}
+
+export function useScheduleKorpuses(campusId: string | null) {
+  return useQuery({
+    queryKey: ['schedule-korpuses', campusId],
+    queryFn: () => getScheduleKorpuses(campusId!),
+    enabled: Boolean(campusId),
+  });
+}
+
+export function useScheduleAudits(korpusId: string | null) {
+  return useQuery({
+    queryKey: ['schedule-audits', korpusId],
+    queryFn: () => getScheduleAudits(korpusId!),
+    enabled: Boolean(korpusId),
+  });
+}
+
+export function useTeacherEmployment(teacherId: number | null) {
+  return useQuery({
+    queryKey: ['teacher-employment', teacherId],
+    queryFn: () => getTeacherEmployment(teacherId!),
+    enabled: teacherId != null && teacherId > 0,
+  });
+}
+
+export function useAudienceOccupancy(auditoriumId: string | null) {
+  return useQuery({
+    queryKey: ['audience-occupancy', auditoriumId],
+    queryFn: () => getAudienceOccupancy(auditoriumId!),
+    enabled: Boolean(auditoriumId),
+  });
+}
+
+export function useCreateSchedules() {
+  return useMutation({
+    mutationFn: (schedules: CreateScheduleSlot[]) => postSchedules(schedules),
+  });
+}
+
+export function useWorkloadYears() {
+  return useQuery({
+    queryKey: ['workload-years'],
+    queryFn: getWorkloadYears,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function useWorkLoadBySemester(year: string, department_id: number, report_type: string, semester_type: string) {
   return useQuery({
     queryKey: ['work-load', year, department_id, report_type, semester_type],
     queryFn: () => getWorkLoadBySemester(year, department_id, report_type, semester_type),

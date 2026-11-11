@@ -1,3 +1,15 @@
+/** Студент, прикреплённый к РУП (GET /syllabuses/{id}/students/) */
+export type SyllabusStudent = {
+  id: number;
+  full_name: string;
+  student_type: string | null;
+};
+
+export type SyllabusStudentsResponse = {
+  count: number;
+  results: SyllabusStudent[];
+};
+
 /** Элемент списка РУП (GET /all-syllabus/) */
 export interface DirectionItem {
   id: number;
@@ -10,6 +22,9 @@ export interface DirectionItem {
   start_year: string | null;
   end_year: string | null;
   form_education: string | null;
+  status?: 'under_review' | 'confirmed' | 'revision' | string;
+  is_verified?: boolean;
+  reason_reject?: string | null;
 }
 
 export type Directions = DirectionItem[];
@@ -24,6 +39,7 @@ export interface SyllabusListItemDetail {
   creator_id: number | null;
   start_year: string | null;
   end_year: string | null;
+  status?: 'under_review' | 'confirmed' | 'revision' | string;
   is_verified?: boolean;
   reason_reject?: string | null;
   cipher?: string | null;
@@ -44,7 +60,7 @@ export interface UpdateSyllabusPayload {
   creator_id?: number | null;
   start_year?: string;
   end_year?: string;
-  is_verified?: boolean;
+  status?: 'under_review' | 'confirmed' | 'revision' | string;
   reason_reject?: string | null;
 }
 
@@ -55,9 +71,9 @@ export interface CreateSyllabusPayload {
   name_direction: number;
   start_year: string;
   end_year: string;
-  /** Форма обучения: full_time | part_time | distance */
+  /** Форма обучения: full_time | dual | part_time */
   form_education: string;
-  /** Уровень: bachelor | master | phd | specialist */
+  /** Уровень: bachelor | master | phd | specialist | technic */
   level_education: string;
 }
 

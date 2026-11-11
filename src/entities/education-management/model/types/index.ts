@@ -48,17 +48,69 @@ export type SelectOptions = {
   label: string;
 };
 
+/** Опции кампус/корпус/аудитория (value = qr_id или id). */
+export type GeoSelectOption = {
+  value: string;
+  label: string;
+};
+
 export type WorkPlanItem = {
   id: number;
-  number: number;
+  number: number | string;
   name_subject: string;
   stream_type: string;
-  teacher: number;
+  /** Id преподавателя (канон для занятости). */
+  teacher?: number | null;
+  teacher_id?: number | null;
   teacher_name: string;
-  status: string;
+  status?: string;
   students_count: number;
   capacity: number;
 };
+
+export type ScheduleWeekday =
+  | 'mon'
+  | 'tue'
+  | 'wed'
+  | 'thu'
+  | 'fri'
+  | 'sat'
+  | 'sun';
+
+export type ScheduleWeekType = 'weekly' | 'even' | 'odd' | 'biweekly';
+
+export type CreateScheduleSlot = {
+  stream: number;
+  weekday: ScheduleWeekday;
+  time: string;
+  weeks: string;
+  date: string | null;
+  week_type: ScheduleWeekType;
+  campus_qr_id: string;
+  campus_name: string;
+  korpus_qr_id: string;
+  korpus_name: string;
+  audit_qr_id: string;
+  audit_name: string;
+};
+
+export type WeeklyScheduleSubject = {
+  time: string;
+  subject: string;
+  auditorium?: string;
+  class_type?: string;
+  week_type?: string;
+  weeks?: string;
+  teacher?: string;
+};
+
+export type WeeklyScheduleSlot = {
+  time: string;
+  subjects: WeeklyScheduleSubject[];
+};
+
+/** Ключи — названия дней (Понедельник, …) или иные строки. */
+export type WeeklyScheduleMap = Record<string, WeeklyScheduleSlot[]>;
 export interface TeacherHours {
   [teacherName: string]: {
     aud: number
@@ -94,9 +146,18 @@ export interface Subject {
   total: number
 }
 
-export interface WorkLoad {
+export interface WorkLoadForm {
   subjects: Subject[]
-  teachers: string[]
+  /** Итоговая строка формы обучения. */
+  total?: Subject | null
+}
+
+export interface WorkLoad {
+  teachers?: string[]
+  /** Старый плоский ответ. */
+  subjects?: Subject[]
+  full_time?: WorkLoadForm
+  part_time?: WorkLoadForm
 }
 export interface Syllabus {
   id: number
@@ -110,7 +171,9 @@ export interface Syllabus {
   subjects: number
   level_education: string
   form_education: string
+  status?: 'under_review' | 'confirmed' | 'revision' | string
   is_verified: boolean
+  reason_reject?: string | null
 }
 
 export interface Reports {

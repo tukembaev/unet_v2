@@ -60,20 +60,18 @@ export const DirectionCard = ({ title, data, isLoading, error }: DirectionCardPr
       <CardContent className="space-y-4">
         <div className="flex flex-row gap-2">
           <AsyncSelect
-            // @ts-ignore
             fetcher={fetchSelectData}
             label="Добавить направление"
-            // @ts-ignore
             value={value}
-            onChange={(v: any) => setValue(v)}
-            renderOption={(option: any) => (
+            onChange={setValue}
+            renderOption={(option) => (
               <div className="flex items-center gap-2">
                 <span className="font-mono text-sm">{option.cipher}</span>
                 <span>{option.direction_name}</span>
               </div>
             )}
-            getOptionValue={(option: any) => option.id.toString()}
-            getDisplayValue={(option: any) => `${option.cipher} - ${option.direction_name}`}
+            getOptionValue={(option) => option.id.toString()}
+            getDisplayValue={(option) => `${option.cipher} - ${option.direction_name}`}
             placeholder="Выберите направление для добавления"
           />
 

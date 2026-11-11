@@ -3,8 +3,8 @@ import { updateSyllabusById } from '../api';
 import { curriculumKeys } from './keys';
 
 export type SyllabusVerificationPayload =
-  | { is_verified: true; reason_reject: null }
-  | { is_verified: false; reason_reject: string };
+  | { status: 'confirmed' }
+  | { status: 'revision'; reason_reject: string };
 
 export function useUpdateSyllabusVerification(syllabusId: number | null) {
   const queryClient = useQueryClient();
@@ -14,6 +14,7 @@ export function useUpdateSyllabusVerification(syllabusId: number | null) {
       updateSyllabusById(syllabusId!, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['reports'] });
+      void queryClient.invalidateQueries({ queryKey: ['syllabus-report'] });
       void queryClient.invalidateQueries({ queryKey: curriculumKeys.list() });
       if (syllabusId != null) {
         void queryClient.invalidateQueries({

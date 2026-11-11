@@ -1,14 +1,23 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { BookOpen, Download, Eye, EyeOff, QrCode } from "lucide-react";
-import { useState } from "react";
+import { BookOpen, Eye, EyeOff, LifeBuoy, QrCode } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CurrentUser } from "entities/user";
 import { cn } from "shared/lib/utils";
 import { getCurrentUser } from "entities/user/model/api";
-import { clearSuppressLoginAutoRedirect } from "shared/lib/auth-utils";
+import { ROUTES } from "app/providers/routes";
+import { getAppHomePath } from "shared/lib/auth-context";
+import {
+  clearLoginSafetyHold,
+  clearStaleLoginSafetyHold,
+  clearSuppressLoginAutoRedirect,
+  holdLoginForSafety,
+  isPinUsedAsPassword,
+  shouldHoldLoginForSafety,
+} from "shared/lib/auth-utils";
 import { getHttpErrorMessage } from "shared/lib/http-error";
 import { toast } from "sonner";
 import {
@@ -19,10 +28,11 @@ import {
   Label,
   Separator
 } from "shared/ui";
+import { ensurePreferredProfile } from "../lib/preferred-context";
 import { useLogin } from "../model/queries";
 import { LoginFormValues, loginSchema } from "../model/schema";
-import { AccountSafetyAfterLoginDialog } from "./AccountSafetyAfterLoginDialog";
 
+import { AccountSafetyAfterLoginDialog } from "./AccountSafetyAfterLoginDialog";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import { GoogleLoginButton } from "./GoogleLoginButton";
 
@@ -35,7 +45,11 @@ const inputClassName = cn(
   "disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-65"
 );
 
-export const LoginForm = () => {
+type LoginFormProps = {
+  onSafetyHoldChange?: (hold: boolean) => void;
+};
+
+export const LoginForm = ({ onSafetyHoldChange }: LoginFormProps) => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -54,26 +68,57 @@ export const LoginForm = () => {
   } | null>(null);
   const navigate = useNavigate();
 
-  const handleLogin = async (values: LoginFormValues) => {
-    try {
-      await login(values);
-      const user = await queryClient.fetchQuery({
-        queryKey: ["currentUser"],
-        queryFn: getCurrentUser,
+  useEffect(() => {
+    clearStaleLoginSafetyHold();
+    if (!shouldHoldLoginForSafety()) onSafetyHoldChange?.(false);
+    // Только остаток флага после перезагрузки, не текущий вход.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const releaseSafetyHold = () => {
+    clearLoginSafetyHold();
+    onSafetyHoldChange?.(false);
+  };
+
+  const finishLogin = () => {
+    releaseSafetyHold();
+    clearSuppressLoginAutoRedirect();
+    navigate(getAppHomePath());
+  };
+
+  const completeLogin = async (values: LoginFormValues) => {
+    const user = await queryClient.fetchQuery({
+      queryKey: ["currentUser"],
+      queryFn: getCurrentUser,
+    });
+    if (isPinUsedAsPassword(values.username, values.password)) {
+      holdLoginForSafety();
+      onSafetyHoldChange?.(true);
+      setPostAuth({
+        user,
+        loginUsername: values.username,
+        loginPassword: values.password,
       });
-      const pinMatchesPassword =
-        values.username.trim() === values.password.trim();
-      if (pinMatchesPassword) {
-        setPostAuth({
-          user,
-          loginUsername: values.username,
-          loginPassword: values.password,
-        });
-      } else {
-        clearSuppressLoginAutoRedirect();
-        navigate("/home");
-      }
+      return;
+    }
+    finishLogin();
+  };
+
+  const handleLogin = async (values: LoginFormValues) => {
+    const pinMatchesPassword = isPinUsedAsPassword(
+      values.username,
+      values.password
+    );
+    if (pinMatchesPassword) {
+      holdLoginForSafety();
+      onSafetyHoldChange?.(true);
+    }
+    try {
+      const authResult = await login(values);
+      await ensurePreferredProfile(authResult);
+      await completeLogin(values);
     } catch (err) {
+      releaseSafetyHold();
       toast.error("Не удалось войти", {
         description: getHttpErrorMessage(
           err,
@@ -101,8 +146,7 @@ export const LoginForm = () => {
           loginPassword={postAuth.loginPassword}
           onComplete={() => {
             setPostAuth(null);
-            clearSuppressLoginAutoRedirect();
-            navigate("/home");
+            finishLogin();
           }}
         />
       )}
@@ -238,13 +282,10 @@ export const LoginForm = () => {
                   className="unet-btn flex min-h-[48px] min-w-[calc(50%-6px)] flex-1 justify-between rounded-xl py-3 pl-3 pr-3 text-sm font-semibold shadow-sm transition-[border-color,box-shadow] hover:border-primary/35 hover:shadow-md hover:[&_.unet-ico]:text-primary"
                   asChild
                 >
-                  <a
-                    href="http://uadmin.kstu.kg/media/media/task_docs/UNET_user_guide.pdf"
-                    download
-                  >
-                    <span>Скачать</span>
-                    <Download className="unet-ico ml-3 h-[22px] w-[22px] shrink-0 text-muted-foreground" />
-                  </a>
+                  <Link to={ROUTES.SUPPORT}>
+                    <span>Обращения</span>
+                    <LifeBuoy className="unet-ico ml-3 h-[22px] w-[22px] shrink-0 text-muted-foreground" />
+                  </Link>
                 </Button>
               </div>
             </div>

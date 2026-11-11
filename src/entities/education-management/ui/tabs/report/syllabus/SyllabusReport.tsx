@@ -74,6 +74,7 @@ export const SyllabusReport = () => {
         role={role}
         showAddSemesterEmpty={false}
         allowDeleteSemester={false}
+        allowStatusChange
       />
     </div>
   );

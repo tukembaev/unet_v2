@@ -1,82 +1,192 @@
-import { Check, ChevronsUpDown, RefreshCw } from "lucide-react";
-import { useState, useCallback, useMemo } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { useUsersList } from "entities/user/model/queries";
-import { UserListItem } from "entities/user/model/types";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
 import { cn } from "shared/lib";
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
   Button,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "shared/ui";
-import { SelectSkeleton } from "./SelectSkeleton";
 
-interface AsyncSelectProps {
-  value: UserListItem | null;
-  onChange: (value: UserListItem | null) => void;
-  placeholder?: string;
+export interface Option {
+  value: string;
+  label: string;
   disabled?: boolean;
+  description?: string;
+  icon?: React.ReactNode;
 }
 
-const ITEM_HEIGHT = 48;
-const LIST_MAX_HEIGHT = 300;
+export interface AsyncSelectProps<T> {
+  /** Async function to fetch options */
+  fetcher: (query?: string) => Promise<T[]>;
+  /** Preload all data ahead of time */
+  preload?: boolean;
+  /** Function to filter options */
+  filterFn?: (option: T, query: string) => boolean;
+  /** Function to render each option */
+  renderOption: (option: T) => React.ReactNode;
+  /** Function to get the value from an option */
+  getOptionValue: (option: T) => string;
+  /** Function to get the display value for the selected option */
+  getDisplayValue: (option: T) => React.ReactNode;
+  /** Custom not found message */
+  notFound?: React.ReactNode;
+  /** Custom loading skeleton */
+  loadingSkeleton?: React.ReactNode;
+  /** Currently selected value */
+  value: string;
+  /** Callback when selection changes */
+  onChange: (value: string) => void;
+  /** Label for the select field */
+  label: string;
+  /** Placeholder text when no selection */
+  placeholder?: string;
+  /** Disable the entire select */
+  disabled?: boolean;
+  /** Custom width for the popover */
+  width?: string | number;
+  /** Auto-size width based on content */
+  autoSize?: boolean;
+  /** Custom class names */
+  className?: string;
+  /** Custom trigger button class names */
+  triggerClassName?: string;
+  /** Custom no results message */
+  noResultsMessage?: string;
+  /** Allow clearing the selection */
+  clearable?: boolean;
+}
 
-const EMPTY_USERS: UserListItem[] = [];
+function useDebounce<T>(value: T, delay = 300): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
-export function AsyncSelect({
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+export function AsyncSelect<T>({
+  fetcher,
+  preload,
+  filterFn,
+  renderOption,
+  getOptionValue,
+  getDisplayValue,
+  notFound,
+  loadingSkeleton,
+  label,
+  placeholder = "Найти...",
   value,
   onChange,
-  placeholder = "Выбрать пользователя",
   disabled = false,
-}: AsyncSelectProps) {
+  width = "200px",
+  autoSize = true,
+  className,
+  triggerClassName,
+  noResultsMessage,
+  clearable = true,
+}: AsyncSelectProps<T>) {
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
+  const [options, setOptions] = useState<T[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedValue, setSelectedValue] = useState(value);
+  const [selectedOption, setSelectedOption] = useState<T | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, preload ? 0 : 300);
+  const [originalOptions, setOriginalOptions] = useState<T[]>([]);
 
-  const { data: usersData, isLoading, isError, refetch, isFetching } = useUsersList();
-  const users = usersData ?? EMPTY_USERS;
+  useEffect(() => {
+    setMounted(true);
+    setSelectedValue(value);
+    if (!value) {
+      setSelectedOption(null);
+    }
+  }, [value]);
 
-  const filteredUsers = useMemo(() => {
-    if (!search) return users;
-    const searchLower = search.toLowerCase();
-    return users.filter(
-      (user) =>
-        user.full_name?.toLowerCase().includes(searchLower) ||
-        user.email?.toLowerCase().includes(searchLower)
-    );
-  }, [users, search]);
+  // Initialize selectedOption when options are loaded and value exists
+  useEffect(() => {
+    if (value && options.length > 0) {
+      const option = options.find((opt) => getOptionValue(opt) === value);
+      if (option) {
+        setSelectedOption(option);
+      }
+    } else if (!value) {
+      setSelectedOption(null);
+    }
+  }, [value, options, getOptionValue]);
 
-  const virtualizer = useVirtualizer({
-    count: filteredUsers.length,
-    getScrollElement: () => scrollElement,
-    estimateSize: () => ITEM_HEIGHT,
-    overscan: 5,
-  });
+  // Effect for fetching options
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  const getInitials = useCallback((name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  }, []);
+        // Clear options when starting search to show only loading state
+        if (debouncedSearchTerm && !preload) {
+          setOptions([]);
+        }
+
+        if (preload && originalOptions.length > 0) {
+          // Use preloaded data and filter locally
+          if (debouncedSearchTerm) {
+            setOptions(
+              originalOptions.filter((option) =>
+                filterFn ? filterFn(option, debouncedSearchTerm) : true
+              )
+            );
+          } else {
+            setOptions(originalOptions);
+          }
+        } else {
+          // Fetch from API
+          const data = await fetcher(debouncedSearchTerm);
+          setOriginalOptions(data);
+          setOptions(data);
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Не удалось загрузить данные"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Only fetch when mounted and either not preloaded or search term changed
+    if (mounted) {
+      if (!preload || originalOptions.length === 0) {
+        fetchOptions();
+      } else if (preload && debouncedSearchTerm !== undefined) {
+        fetchOptions();
+      }
+    }
+  }, [mounted, debouncedSearchTerm, preload, filterFn, fetcher]);
 
   const handleSelect = useCallback(
-    (user: UserListItem) => {
-      onChange(user.user_id === value?.user_id ? null : user);
+    (currentValue: string) => {
+      const newValue =
+        clearable && currentValue === selectedValue ? "" : currentValue;
+      setSelectedValue(newValue);
+      setSelectedOption(
+        options.find((option) => getOptionValue(option) === newValue) || null
+      );
+      onChange(newValue);
       setOpen(false);
     },
-    [onChange, value?.user_id]
-  );
-
-  const listHeight = Math.min(
-    filteredUsers.length * ITEM_HEIGHT,
-    LIST_MAX_HEIGHT
+    [selectedValue, onChange, clearable, options, getOptionValue]
   );
 
   return (
@@ -86,148 +196,96 @@ export function AsyncSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className={cn(
+            "justify-between",
+            autoSize && "w-auto min-w-fit",
+            disabled && "opacity-50 cursor-not-allowed",
+            triggerClassName
+          )}
+          style={autoSize ? {} : { width: width }}
           disabled={disabled}
         >
-          {value ? (
-            <div className="flex items-center gap-2">
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={value.avatar_url || value.avatar} />
-                <AvatarFallback className="text-xs">
-                  {getInitials(value.full_name)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="truncate">{value.full_name}</span>
-            </div>
-          ) : (
-            <span className="text-muted-foreground">{placeholder}</span>
-          )}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          {selectedOption ? getDisplayValue(selectedOption) : placeholder}
+          <ChevronsUpDown className="opacity-50" size={10} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className="p-0 w-[var(--radix-popover-trigger-width)]"
-        align="start"
+      <PopoverContent 
+        style={autoSize ? {} : { width: width }} 
+        className={cn("p-0", autoSize && "w-auto min-w-fit", className)}
       >
-        <div className="flex flex-col">
-          {/* Search input */}
-          <div className="flex items-center border-b px-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2 h-4 w-4 shrink-0 opacity-50"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
-            <input
-              className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder="Поиск пользователя..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          {/* Virtualized list */}
-          {isLoading ? (
-            <SelectSkeleton />
-          ) : isError ? (
-            <div className="flex flex-col items-center gap-2 py-6">
-              <p className="text-sm text-destructive">
-                Ошибка загрузки пользователей
-              </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => refetch()}
-                disabled={isFetching}
-                className="gap-1.5"
-              >
-                <RefreshCw className={cn("h-3.5 w-3.5", isFetching && "animate-spin")} />
-                Повторить
-              </Button>
-            </div>
-          ) : filteredUsers.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted-foreground">
-              Пользователи не найдены
-            </p>
-          ) : (
-            <div
-              ref={setScrollElement}
-              className="overflow-y-auto overflow-x-hidden themed-scrollbar"
-              style={{
-                height: listHeight,
-                maxHeight: LIST_MAX_HEIGHT,
-                overscrollBehavior: "contain",
-                WebkitOverflowScrolling: "touch",
+        <Command shouldFilter={false}>
+          <div className="relative border-b w-full">
+            <CommandInput
+              placeholder={`Найти ${label.toLowerCase()}...`}
+              value={searchTerm}
+              onValueChange={(value) => {
+                setSearchTerm(value);
               }}
-              onWheel={(e) => e.stopPropagation()}
-              onTouchMove={(e) => e.stopPropagation()}
-            >
-              <div
-                style={{
-                  height: `${virtualizer.getTotalSize()}px`,
-                  width: "100%",
-                  position: "relative",
-                }}
-              >
-                {virtualizer.getVirtualItems().map((virtualItem) => {
-                  const user = filteredUsers[virtualItem.index];
-                  const isSelected = value?.user_id === user.user_id;
+            />
+            {loading && (
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+                <Loader2 className="h-4 w-4 animate-spin" />
+              </div>
+            )}
+          </div>
+          <CommandList>
+            {error && (
+              <div className="p-4 text-destructive text-center">{error}</div>
+            )}
+            {loading && (loadingSkeleton || <DefaultLoadingSkeleton />)}
+            {!loading &&
+              !error &&
+              options.length === 0 &&
+              (notFound || (
+                <CommandEmpty>
+                  {noResultsMessage ?? `No ${label.toLowerCase()} found.`}
+                </CommandEmpty>
+              ))}
+            {!loading && !error && options.length > 0 && (
+              <CommandGroup>
+                {options.map((option) => {
+                  const optionValue = getOptionValue(option);
                   return (
-                    <div
-                      key={user.user_id}
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: `${virtualItem.size}px`,
-                        transform: `translateY(${virtualItem.start}px)`,
-                      }}
-                      className={cn(
-                        "flex items-center gap-3 px-2 py-1.5 cursor-pointer rounded-sm text-sm select-none",
-                        isSelected
-                          ? "bg-accent text-accent-foreground"
-                          : "hover:bg-accent hover:text-accent-foreground"
-                      )}
-                      onClick={() => handleSelect(user)}
+                    <CommandItem
+                      key={optionValue}
+                      value={optionValue}
+                      onSelect={() => handleSelect(optionValue)}
                     >
-                      <Avatar className="h-8 w-8 shrink-0">
-                        <AvatarImage src={user.avatar_url || user.avatar} />
-                        <AvatarFallback className="text-xs">
-                          {getInitials(user.full_name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span className="font-medium truncate">
-                          {user.full_name}
-                        </span>
-                        <span className="text-xs text-muted-foreground truncate">
-                          {user.email}
-                        </span>
-                      </div>
+                      {renderOption(option)}
                       <Check
                         className={cn(
-                          "ml-auto h-4 w-4 shrink-0",
-                          isSelected ? "opacity-100" : "opacity-0"
+                          "ml-auto h-3 w-3",
+                          selectedValue === optionValue
+                            ? "opacity-100"
+                            : "opacity-0"
                         )}
                       />
-                    </div>
+                    </CommandItem>
                   );
                 })}
-              </div>
-            </div>
-          )}
-        </div>
+              </CommandGroup>
+            )}
+          </CommandList>
+        </Command>
       </PopoverContent>
     </Popover>
+  );
+}
+
+function DefaultLoadingSkeleton() {
+  return (
+    <CommandGroup>
+      {[1, 2, 3].map((i) => (
+        <CommandItem key={i} disabled>
+          <div className="flex items-center gap-2 w-full">
+            <div className="h-6 w-6 rounded-full animate-pulse bg-muted" />
+            <div className="flex flex-col flex-1 gap-1">
+              <div className="h-4 w-24 animate-pulse bg-muted rounded" />
+              <div className="h-3 w-16 animate-pulse bg-muted rounded" />
+            </div>
+          </div>
+        </CommandItem>
+      ))}
+    </CommandGroup>
   );
 }

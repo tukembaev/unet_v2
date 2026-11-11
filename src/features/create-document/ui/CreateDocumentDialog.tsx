@@ -1,7 +1,7 @@
 import { FileText, X, Paperclip, FileUp, Type } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useWatch } from 'react-hook-form';
-import { AsyncSelect } from 'shared/components/select/AsyncSelect';
+import { UserAsyncSelect } from 'shared/components/select';
 import { UserListItem } from 'entities/user/model/types';
 import { useCurrentUser } from 'entities/user/model/queries';
 import { FormQuery, useFormClose, useIsFormOpen } from 'shared/lib';
@@ -362,7 +362,7 @@ export function CreateDocumentDialog() {
                 {/* Форма добавления нового участника */}
                 <div className="flex gap-2">
                   <div className="flex-1">
-                    <AsyncSelect
+                    <UserAsyncSelect
                       value={selectedMemberUser}
                       onChange={setSelectedMemberUser}
                       placeholder="Выберите пользователя"

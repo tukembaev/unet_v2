@@ -1,4 +1,5 @@
 import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import { hasActiveContext } from 'shared/lib/auth-context';
 import { performLogout } from 'shared/lib/auth-utils';
 import { refreshTokensOrLogout } from 'shared/lib/refresh-token';
 
@@ -37,7 +38,7 @@ export function attachRefreshInterceptor(
         return Promise.reject(error);
       }
 
-      if (!localStorage.getItem('user')) {
+      if (!hasActiveContext() && !localStorage.getItem('user')) {
         return Promise.reject(error);
       }
 

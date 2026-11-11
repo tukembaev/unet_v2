@@ -1,83 +1,91 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AsyncSelect } from "shared/components/select";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "shared/ui";
 import { WorkloadTable, WorkloadTableSkeleton } from "./";
-import { useFaculties, useWorkLoadBySemester } from "entities/education-management/model/queries";
+import { useFaculties, useWorkLoadBySemester, useWorkloadYears } from "entities/education-management/model/queries";
 import { getDepartments } from "entities/education-management/model/api";
 import { usePrintArea } from "shared/lib";
-import { Printer } from "lucide-react";
+import { Printer, RefreshCcw } from "lucide-react";
+
+const WORKLOAD_OPTIONS = [
+  { value: "pre", label: "Предварительная нагрузка" },
+  { value: "final", label: "Окончательная нагрузка" },
+];
+
+const SEMESTER_OPTIONS = [
+  { value: "осенний", label: "Осенний семестр" },
+  { value: "весенний", label: "Весенний семестр" },
+];
 
 export const WorkloadTab = () => {
   const { data: faculties } = useFaculties();
+  const { data: years = [] } = useWorkloadYears();
   const [workload, setWorkload] = useState("");
   const [institute, setInstitute] = useState("");
   const [department, setDepartment] = useState("");
   const [year, setYear] = useState("");
   const [semester, setSemester] = useState("");
 
-  const { data: workLoadData, isLoading: isLoadingWorkLoad } = useWorkLoadBySemester(
-    parseInt(year) || 0, 
+  const {
+    data: workLoadData,
+    isLoading: isLoadingWorkLoad,
+    isFetching: isFetchingWorkLoad,
+    refetch: refetchWorkLoad,
+  } = useWorkLoadBySemester(
+    year, 
     parseInt(department) || 0,
     workload,
     semester
   );
 
-  // Заглушки для AsyncSelect без API
-  const fetchWorkload = async (query?: string) => {
-    const mockData = [
-      { value: "pre", label: "Предварительная нагрузка" },
-      { value: "final", label: "Окончательная нагрузка" },
-    ];
-    if (!query) return mockData;
-    return mockData.filter((item) =>
+  const fetchWorkload = useCallback(async (query?: string) => {
+    if (!query) return WORKLOAD_OPTIONS;
+    return WORKLOAD_OPTIONS.filter((item) =>
       item.label.toLowerCase().includes(query.toLowerCase())
     );
-  };
+  }, []);
 
-  const fetchFaculties = async (query?: string) => {
-    if (!faculties) return [];
-    if (!query) return faculties;
-    return faculties.filter((faculty) =>
-      faculty.label.toLowerCase().includes(query.toLowerCase())
-    );
-  };
-
-  const fetchDepartments = async (query?: string) => {
-    if (!institute) return [];
-    try {
-      const departments = await getDepartments(parseInt(institute));
-      if (!query) return departments;
-      return departments.filter((dept) =>
-        dept.label.toLowerCase().includes(query.toLowerCase())
+  const fetchFaculties = useCallback(
+    async (query?: string) => {
+      if (!faculties) return [];
+      if (!query) return faculties;
+      return faculties.filter((faculty) =>
+        faculty.label.toLowerCase().includes(query.toLowerCase())
       );
-    } catch (error) {
-      console.error("Error fetching departments:", error);
-      return [];
-    }
-  };
+    },
+    [faculties]
+  );
 
-  const fetchYear = async (query?: string) => {
-    const mockData = [
-      { value: "2023/2024", label: "2023/2024" },
-      { value: "2024/2025", label: "2024/2025" },
+  const fetchDepartments = useCallback(
+    async (query?: string) => {
+      if (!institute) return [];
+      try {
+        const departments = await getDepartments(parseInt(institute));
+        if (!query) return departments;
+        return departments.filter((dept) =>
+          dept.label.toLowerCase().includes(query.toLowerCase())
+        );
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+        return [];
+      }
+    },
+    [institute]
+  );
 
-    ];
-    if (!query) return mockData;
-    return mockData.filter((item) =>
+  const fetchYear = useCallback(async (query?: string) => {
+    if (!query) return years;
+    return years.filter((item) =>
       item.label.toLowerCase().includes(query.toLowerCase())
     );
-  };
+  }, [years]);
 
-  const fetchSemester = async (query?: string) => {
-    const mockData = [
-      { value: "осений", label: "Осенний семестр" },
-      { value: "весенний", label: "Весенний семестр" },
-    ];
-    if (!query) return mockData;
-    return mockData.filter((item) =>
+  const fetchSemester = useCallback(async (query?: string) => {
+    if (!query) return SEMESTER_OPTIONS;
+    return SEMESTER_OPTIONS.filter((item) =>
       item.label.toLowerCase().includes(query.toLowerCase())
     );
-  };
+  }, []);
 
   useEffect(() => {
     if (!institute) {
@@ -112,77 +120,71 @@ const { ref: printRef, print } = usePrintArea<HTMLDivElement>({
         <CardContent className="space-y-4">
           <div className="flex gap-4 flex-wrap">
             <AsyncSelect
-              // @ts-ignore
               fetcher={fetchWorkload}
               label="Нагрузка"
-              // @ts-ignore
               value={workload}
-              // @ts-ignore
               onChange={setWorkload}
-              renderOption={(option: any) => <span>{option.label}</span>}
-              getOptionValue={(option: any) => option.value.toString()}
-              getDisplayValue={(option: any) => option.label}
+              renderOption={(option) => <span>{option.label}</span>}
+              getOptionValue={(option) => option.value.toString()}
+              getDisplayValue={(option) => option.label}
               placeholder="Нагрузка"
             />
             <AsyncSelect
-              // @ts-ignore
+              key={`institute-${workload}`}
               fetcher={fetchFaculties}
               label="Институт"
-              // @ts-ignore
               value={institute}
-              // @ts-ignore
               onChange={setInstitute}
-              renderOption={(option: any) => <span>{option.label}</span>}
-              getOptionValue={(option: any) => option.value.toString()}
-              getDisplayValue={(option: any) => option.label}
+              renderOption={(option) => <span>{option.label}</span>}
+              getOptionValue={(option) => option.value.toString()}
+              getDisplayValue={(option) => option.label}
               placeholder="Институт"
               disabled={!workload}
-
             />
             <AsyncSelect
-              // @ts-ignore
+              key={`dept-${institute}`}
               fetcher={fetchDepartments}
               label="Кафедра"
-              // @ts-ignore
               value={department}
-              // @ts-ignore
               onChange={setDepartment}
-              renderOption={(option: any) => <span>{option.label}</span>}
-              getOptionValue={(option: any) => option.value.toString()}
-              getDisplayValue={(option: any) => option.label}
+              renderOption={(option) => <span>{option.label}</span>}
+              getOptionValue={(option) => option.value.toString()}
+              getDisplayValue={(option) => option.label}
               placeholder="Кафедра"
               disabled={!institute}
-
             />
             <AsyncSelect
-              // @ts-ignore
+              key={`year-${department}`}
               fetcher={fetchYear}
               label="Год"
-              // @ts-ignore
               value={year}
-              // @ts-ignore
               onChange={setYear}
-              renderOption={(option: any) => <span>{option.label}</span>}
-              getOptionValue={(option: any) => option.value.toString()}
-              getDisplayValue={(option: any) => option.label}
+              renderOption={(option) => <span>{option.label}</span>}
+              getOptionValue={(option) => option.value.toString()}
+              getDisplayValue={(option) => option.label}
               placeholder="Год"
               disabled={!department}
-
             />
             <AsyncSelect
-              // @ts-ignore
+              key={`semester-${year}`}
               fetcher={fetchSemester}
               label="Семестр"
-              // @ts-ignore
               value={semester}
-              // @ts-ignore
               onChange={setSemester}
-              renderOption={(option: any) => <span>{option.label}</span>}
-              getOptionValue={(option: any) => option.value.toString()}
-              getDisplayValue={(option: any) => option.label}
+              renderOption={(option) => <span>{option.label}</span>}
+              getOptionValue={(option) => option.value.toString()}
+              getDisplayValue={(option) => option.label}
               placeholder="Семестр"
               disabled={!year}
             />
+            <Button
+              variant="outline"
+              onClick={() => void refetchWorkLoad()}
+              disabled={!year || !department || !workload || !semester || isFetchingWorkLoad}
+            >
+              <RefreshCcw className={`mr-2 h-4 w-4 ${isFetchingWorkLoad ? "animate-spin" : ""}`} />
+              Обновить
+            </Button>
             <Button
             variant="outline"
             onClick={() =>

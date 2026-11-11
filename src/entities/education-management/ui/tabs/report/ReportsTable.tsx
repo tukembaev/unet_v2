@@ -13,9 +13,10 @@ import { useNavigate } from "react-router-dom";
 import { getEducationManagementPath } from "entities/education-management/lib/use-education-tab-url";
 import { getReportSyllabusPath } from "app/providers/routes";
 import {
-  SyllabusVerificationBadge,
-  SyllabusVerificationDialog,
-} from "./SyllabusVerificationDialog";
+  normalizeSyllabusStatus,
+  SyllabusStatusBadge,
+} from "./SyllabusStatusBadge";
+import { SyllabusVerificationDialog } from "./SyllabusVerificationDialog";
 
 interface ReportsTableProps {
   data: Reports[];
@@ -85,6 +86,7 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
                   <TableHead className="text-center font-bold w-10">Nº</TableHead>
                   <TableHead className="text-center font-bold">Шифр</TableHead>
                   <TableHead className="text-center font-bold">Направление</TableHead>
+                  <TableHead className="text-center font-bold">Года обучения</TableHead>
                   <TableHead className="text-center font-bold">Предметов</TableHead>
                   <TableHead className="text-center font-bold">Семестров</TableHead>
                   <TableHead className="text-center font-bold">Длительность</TableHead>
@@ -116,6 +118,9 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
                       {syllabus.direction}
                     </TableCell>
                     <TableCell className="text-center">
+                      {syllabus.years}
+                    </TableCell>
+                    <TableCell className="text-center">
                       {syllabus.subjects}
                     </TableCell>
                     <TableCell className="text-center">
@@ -139,8 +144,11 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
                           openVerification(syllabus, institute.institute);
                         }}
                       >
-                        <SyllabusVerificationBadge
-                          isVerified={syllabus.is_verified}
+                        <SyllabusStatusBadge
+                          status={normalizeSyllabusStatus(
+                            syllabus.status,
+                            syllabus.is_verified
+                          )}
                           className="cursor-pointer"
                         />
                       </button>

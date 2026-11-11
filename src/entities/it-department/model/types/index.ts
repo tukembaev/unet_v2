@@ -33,6 +33,8 @@ export interface EmployeeDetail extends Employee {
   middle_name?: string | null;
   birth_date?: string | null;
   gender?: string | null;
+  /** Активные права (`GET /employees/{id}`) */
+  permissions?: string[];
 }
 
 export interface EmployeesResponse {
@@ -46,4 +48,17 @@ export interface EmployeeFilters {
   search?: string;
   page?: number;
   size?: number;
+}
+
+export interface PermissionOption {
+  slug: string;
+  label: string;
+}
+
+export interface UserPermissionsResponse {
+  permission_slugs: string[];
+}
+
+export interface UpdateUserPermissionsPayload {
+  permission_slugs: string[];
 }

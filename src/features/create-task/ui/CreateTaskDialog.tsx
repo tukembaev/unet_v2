@@ -4,7 +4,7 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import React from 'react';
 import { useWatch } from 'react-hook-form';
 import { AsyncMultiSelect } from 'shared/components/select/AsyncMultiSelect';
-import { AsyncSelect } from 'shared/components/select/AsyncSelect';
+import { UserAsyncSelect } from 'shared/components/select';
 import {
   Button,
   Calendar,
@@ -154,7 +154,7 @@ export function CreateTaskDialog() {
               Ответственный
               <span className="text-red-500">*</span>
             </Label>
-            <AsyncSelect
+            <UserAsyncSelect
               value={responsible}
               onChange={(value) => form.setValue('responsible', value as any)}
               placeholder="Выбрать ответственного"

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "shared/ui/dialog";
 import { Button } from "shared/ui";
+import { getAppHomePath } from "shared/lib/auth-context";
 import { checkPin } from "../model/helpers";
 import { PinInput } from "./PinInput";
 
@@ -24,7 +25,7 @@ export const PinModal: React.FC<PinModalProps> = ({ open, onClose }) => {
         description: "Добро пожаловать!",
       });
       onClose();
-      navigate("/home");
+      navigate(getAppHomePath());
     } else {
       toast.error("Неверный ПИН-код", {
         description: "Пожалуйста, попробуйте снова.",

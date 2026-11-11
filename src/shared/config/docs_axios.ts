@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { attachRefreshInterceptor } from 'shared/lib/axios-auth-refresh';
+import { attachAuthRequestInterceptor } from 'shared/lib/axios-request-auth';
 
 export const apiDocsClient = axios.create({
   baseURL: 'https://uadmin.kstu.kg/document-flow/api/document/',
@@ -10,31 +11,9 @@ export const apiDocsClient = axios.create({
   },
 });
 
-// Request interceptor
 apiDocsClient.interceptors.request.use(
-  (config) => {
-    // Add auth token if available
-      type AuthData = {
-  access_token: string;
-  refresh_token: string;
-  csrf_token: string;
-};
-
-
-    const userStr = localStorage.getItem('user');
-
-    const user: AuthData | null = userStr ? JSON.parse(userStr) : null;
-
-
-    if (user) {
-      config.headers.Authorization = `Bearer ${user.access_token}`;
-  }
-    return config;
-  },
-  (error: unknown) => {
-    return Promise.reject(error);
-  }
+  (config) => attachAuthRequestInterceptor(config),
+  (error: unknown) => Promise.reject(error)
 );
 
 attachRefreshInterceptor(apiDocsClient);
-

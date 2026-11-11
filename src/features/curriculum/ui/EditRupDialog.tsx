@@ -35,37 +35,16 @@ import {
   updateSyllabusById,
 } from "entities/curriculum/model";
 import { toast } from "sonner";
-
-const FORM_EDUCATION_OPTIONS = [
-  { value: "full_time", label: "Очная" },
-  { value: "part_time", label: "Заочная" },
-] as const;
-
-const LEVEL_EDUCATION_OPTIONS = [
-  { value: "bachelor", label: "Бакалавр" },
-  { value: "master", label: "Магистр" },
-  { value: "phd", label: "PhD" },
-  { value: "specialist", label: "Специалист" },
-] as const;
-
-function normalizeOptionValue(
-  rawValue: string | null | undefined,
-  options: readonly { value: string; label: string }[]
-): string {
-  const normalized = (rawValue ?? "").trim().toLowerCase();
-  if (!normalized) return "";
-  const byValue = options.find((o) => o.value.toLowerCase() === normalized);
-  if (byValue) return byValue.value;
-  const byLabel = options.find((o) => o.label.toLowerCase() === normalized);
-  return byLabel ? byLabel.value : "";
-}
-
-function optionLabelByValue(
-  value: string,
-  options: readonly { value: string; label: string }[]
-): string {
-  return options.find((o) => o.value === value)?.label ?? value;
-}
+import {
+  FORM_EDUCATION_OPTIONS,
+  formEducationPayloadValue,
+  normalizeFormEducationValue,
+} from "entities/curriculum/lib/form-education-options";
+import {
+  LEVEL_EDUCATION_OPTIONS,
+  levelEducationPayloadValue,
+  normalizeLevelEducationValue,
+} from "entities/curriculum/lib/level-education-options";
 
 const editRupSchema = z
   .object({
@@ -117,8 +96,8 @@ export function EditRupDialog() {
   useEffect(() => {
     if (!data) return;
     form.reset({
-      form_education: normalizeOptionValue(data.form_education, FORM_EDUCATION_OPTIONS),
-      level_education: normalizeOptionValue(data.level_education, LEVEL_EDUCATION_OPTIONS),
+      form_education: normalizeFormEducationValue(data.form_education),
+      level_education: normalizeLevelEducationValue(data.level_education),
       start_year: data.start_year ?? "",
       end_year: data.end_year ?? "",
     });
@@ -128,8 +107,8 @@ export function EditRupDialog() {
     mutationFn: (values: EditRupFormData) =>
       updateSyllabusById(rupId, {
         name_direction: data?.name_direction,
-        form_education: optionLabelByValue(values.form_education, FORM_EDUCATION_OPTIONS),
-        level_education: optionLabelByValue(values.level_education, LEVEL_EDUCATION_OPTIONS),
+        form_education: formEducationPayloadValue(values.form_education),
+        level_education: levelEducationPayloadValue(values.level_education),
         creator_id: data?.creator_id ?? null,
         start_year: values.start_year,
         end_year: values.end_year,
