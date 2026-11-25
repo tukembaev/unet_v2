@@ -27,6 +27,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from 'shared/ui';
+import { AppsLauncher } from './AppsLauncher';
 import { NotificationBell } from './NotificationBell';
 import { UserMenu } from './user-menu';
 import {
@@ -153,6 +154,7 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
+            <AppsLauncher />
             <NotificationBell />
             <UserMenu />
 

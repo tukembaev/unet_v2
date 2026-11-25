@@ -29,6 +29,7 @@ const GROUP_ORDER = [
   "Учебный процесс",
   "Учебное управление",
   "Приемная комиссия",
+  "ADM-сервисы",
   "IT департамент",
   "KPI",
   "Прочее",
@@ -55,6 +56,10 @@ function getPermissionGroup(opt: PermissionOption): (typeof GROUP_ORDER)[number]
 
   if (opt.slug.startsWith("abiturient:")) {
     return "Приемная комиссия";
+  }
+
+  if (opt.slug.startsWith("adm:") || opt.slug === "permission:antiplag") {
+    return "ADM-сервисы";
   }
 
   if (opt.slug.startsWith("it:")) {

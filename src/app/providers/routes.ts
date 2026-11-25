@@ -29,6 +29,14 @@ export const ROUTES = {
   KPI_REPORTS: '/kpi-reports',
   /** Приёмная комиссия (внешний сервис) */
   ABITURIENT_COMMISSION: 'https://abiturient.kstu.kg',
+  /** Портал ADM (кадры, администратор и др.) */
+  ADM_PORTAL: 'https://adm.kstu.kg/',
+  /** Отдел кадров / УЧР (внешний сервис) */
+  HR_DEPARTMENT: 'https://adm.kstu.kg/',
+  /** Общежитие (uPortal) */
+  DORMITORY: 'https://uportal.kstu.kg/',
+  /** QR / аудитории */
+  QR_AUDITORIUMS: 'https://qr.kstu.kg',
   /** LMS (внешний сервис) */
   LMS: 'https://lms.kstu.kg/',
   KPI_EMPLOYEE: '/kpi-employee',

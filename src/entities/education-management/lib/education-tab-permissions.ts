@@ -11,13 +11,17 @@ export const EDUCATION_TAB_PERMISSIONS = {
 
 export type EducationTabId = keyof typeof EDUCATION_TAB_PERMISSIONS;
 
+/** Порядок вкладок; reports первым — основной экран учебного управления. */
 export const EDUCATION_TAB_ORDER: EducationTabId[] = [
-  'families',
-  'disciplines',
   'reports',
+  'disciplines',
   'dispatcher',
   'workload',
+  'families',
 ];
+
+/** Временно скрыты в UI (права и код остаются). */
+const HIDDEN_EDUCATION_TABS = new Set<EducationTabId>(['families']);
 
 const LABELS: Record<EducationTabId, string> = {
   families: 'Семейства',
@@ -38,8 +42,10 @@ export function getVisibleEducationTabIds(
   userPermissions: readonly string[] | undefined
 ): EducationTabId[] {
   const list = userPermissions ?? [];
-  return EDUCATION_TAB_ORDER.filter((id) =>
-    list.includes(EDUCATION_TAB_PERMISSIONS[id])
+  return EDUCATION_TAB_ORDER.filter(
+    (id) =>
+      !HIDDEN_EDUCATION_TABS.has(id) &&
+      list.includes(EDUCATION_TAB_PERMISSIONS[id])
   );
 }
 

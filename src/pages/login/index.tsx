@@ -10,6 +10,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "app/providers/routes";
 import {
   clearSuppressLoginAutoRedirect,
+  readSafetyLoginDraft,
   shouldHoldLoginForSafety,
   shouldSuppressLoginAutoRedirect,
 } from "shared/lib/auth-utils";
@@ -29,6 +30,14 @@ function safeRedirectPath(from: unknown): string {
   return from;
 }
 
+function isSafetyFlowActive(safetyHold: boolean): boolean {
+  return (
+    safetyHold ||
+    shouldHoldLoginForSafety() ||
+    Boolean(readSafetyLoginDraft())
+  );
+}
+
 /** Shell страницы входа + карточка shadcn; токены — в `.login-scope` (globals.css). */
 export const LoginPage = () => {
   const location = useLocation();
@@ -36,24 +45,36 @@ export const LoginPage = () => {
   const queryClient = useQueryClient();
   const { data: user, isSuccess, isPending } = useCurrentUser();
   const { processing: googleOAuthProcessing } = useGoogleOAuthCallback();
-  const checkingSession = !googleOAuthProcessing && isPending;
 
   const from = (location.state as { from?: string } | null)?.from;
 
-  const [safetyHold, setSafetyHold] = useState(shouldHoldLoginForSafety);
+  const [safetyHold, setSafetyHold] = useState(
+    () => shouldHoldLoginForSafety() || Boolean(readSafetyLoginDraft())
+  );
+  const [sessionResolved, setSessionResolved] = useState(
+    () => !isPending || isSafetyFlowActive(safetyHold)
+  );
   const [pickingContext, setPickingContext] = useState(false);
   const [contextPickFailed, setContextPickFailed] = useState(false);
 
+  const safetyFlow = isSafetyFlowActive(safetyHold);
   const suppressAutoRedirect = shouldSuppressLoginAutoRedirect();
   const needsContextSelection =
     !googleOAuthProcessing &&
     isSuccess &&
     Boolean(user) &&
     !hasActiveContext() &&
-    !suppressAutoRedirect;
+    !suppressAutoRedirect &&
+    !safetyFlow;
 
   useEffect(() => {
-    if (!needsContextSelection || contextPickFailed) return;
+    if (!isPending || safetyFlow) {
+      setSessionResolved(true);
+    }
+  }, [isPending, safetyFlow]);
+
+  useEffect(() => {
+    if (!needsContextSelection || contextPickFailed || safetyFlow) return;
     let cancelled = false;
     setPickingContext(true);
     void (async () => {
@@ -70,9 +91,21 @@ export const LoginPage = () => {
           active_context: null,
           available_contexts: contexts,
         });
+        if (cancelled || shouldHoldLoginForSafety() || readSafetyLoginDraft()) {
+          setPickingContext(false);
+          return;
+        }
         clearSuppressLoginAutoRedirect();
         await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-        if (!cancelled) navigate(safeRedirectPath(from), { replace: true });
+        if (
+          !cancelled &&
+          !shouldHoldLoginForSafety() &&
+          !readSafetyLoginDraft()
+        ) {
+          navigate(safeRedirectPath(from), { replace: true });
+        } else if (!cancelled) {
+          setPickingContext(false);
+        }
       } catch (err) {
         if (!cancelled) {
           setPickingContext(false);
@@ -86,7 +119,14 @@ export const LoginPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [needsContextSelection, contextPickFailed, queryClient, navigate, from]);
+  }, [
+    needsContextSelection,
+    contextPickFailed,
+    safetyFlow,
+    queryClient,
+    navigate,
+    from,
+  ]);
 
   if (
     !googleOAuthProcessing &&
@@ -94,11 +134,17 @@ export const LoginPage = () => {
     user &&
     hasActiveContext() &&
     !suppressAutoRedirect &&
-    !safetyHold &&
-    !shouldHoldLoginForSafety()
+    !safetyFlow
   ) {
     return <Navigate to={safeRedirectPath(from)} replace />;
   }
+
+  const showSessionLoader =
+    !sessionResolved && isPending && !safetyFlow && !googleOAuthProcessing;
+  const showContextLoader =
+    (needsContextSelection || pickingContext) &&
+    !contextPickFailed &&
+    !safetyFlow;
 
   return (
     <div
@@ -193,19 +239,27 @@ export const LoginPage = () => {
             "backdrop-blur-[16px]"
           )}
         >
-          <CardContent className="bg-card p-[clamp(24px,4vw,36px)]">
-            {checkingSession ? (
+          <CardContent className="relative bg-card p-[clamp(24px,4vw,36px)]">
+            {showSessionLoader ? (
               <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden />
                 <p className="text-sm text-muted-foreground">Проверка сессии…</p>
               </div>
-            ) : (needsContextSelection || pickingContext) && !contextPickFailed ? (
-              <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden />
-                <p className="text-sm text-muted-foreground">Вход в профиль…</p>
-              </div>
             ) : (
-              <LoginForm onSafetyHoldChange={setSafetyHold} />
+              <>
+                <LoginForm onSafetyHoldChange={setSafetyHold} />
+                {showContextLoader ? (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-card/90 px-[clamp(24px,4vw,36px)] text-center backdrop-blur-[2px]">
+                    <Loader2
+                      className="h-8 w-8 animate-spin text-muted-foreground"
+                      aria-hidden
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Вход в профиль…
+                    </p>
+                  </div>
+                ) : null}
+              </>
             )}
           </CardContent>
         </Card>

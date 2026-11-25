@@ -18,6 +18,11 @@ export const PERMISSION_LABELS: Record<string, string> = {
   'abiturient:subject_commission': 'Приёмная комиссия — предметная комиссия',
   'abiturient:chairman': 'Приёмная комиссия — председатель',
   'abiturient:deputy_chairman': 'Приёмная комиссия — зам. председателя',
+  'adm:permissions': 'Админ ADM',
+  'adm:hr:service': 'Отдел кадров',
+  'adm:support:service': 'ADM — поддержка',
+  'adm:cos:service': 'ADM — COS',
+  'permission:antiplag': 'Антиплагиат',
 };
 
 export function permissionLabel(slug: string, apiLabel?: string): string {

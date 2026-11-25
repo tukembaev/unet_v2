@@ -20,6 +20,10 @@ import { SyllabusVerificationDialog } from "./SyllabusVerificationDialog";
 
 interface ReportsTableProps {
   data: Reports[];
+  /** Путь назад с сохранёнными фильтрами отчёта. */
+  returnTo?: string;
+  /** Перед уходом на карточку РУП — записать фильтры в URL. */
+  onBeforeOpen?: () => void;
 }
 
 function syllabusSearchHaystack(syllabus: Syllabus): string {
@@ -31,13 +35,19 @@ function syllabusSearchHaystack(syllabus: Syllabus): string {
   return parts.join(" ").toLowerCase();
 }
 
-export const ReportsTable = ({ data }: ReportsTableProps) => {
+export const ReportsTable = ({
+  data,
+  returnTo,
+  onBeforeOpen,
+}: ReportsTableProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [verificationSyllabus, setVerificationSyllabus] = useState<Syllabus | null>(
     null
   );
   const [verificationInstitute, setVerificationInstitute] = useState<string>();
   const navigate = useNavigate();
+
+  const returnToReports = returnTo ?? getEducationManagementPath("reports");
 
   const filteredData = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -59,41 +69,54 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <form
         className="flex gap-4"
         onSubmit={(e) => e.preventDefault()}
       >
         <Input
           type="search"
-          placeholder="Поиск по названию и шифру..."
+          placeholder="Поиск по шифру и направлению…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1"
+          className="h-10 max-w-md"
         />
       </form>
 
       {filteredData.map((institute) => (
-        <div key={institute.id} className="space-y-4">
-          <h2 className="text-xl font-semibold text-center mb-4">
-            {institute.institute}
-          </h2>
+        <div key={institute.id} className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-muted/30 px-4 py-2.5">
+            <h2 className="text-base font-semibold tracking-tight">
+              {institute.institute}
+            </h2>
+            <span className="text-xs font-medium text-muted-foreground">
+              {institute.syllabuses.length} РУП
+            </span>
+          </div>
 
-          <div className="rounded-md border">
+          <div className="overflow-x-auto rounded-xl border">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/40">
-                  <TableHead className="text-center font-bold w-10">Nº</TableHead>
-                  <TableHead className="text-center font-bold">Шифр</TableHead>
-                  <TableHead className="text-center font-bold">Направление</TableHead>
-                  <TableHead className="text-center font-bold">Года обучения</TableHead>
-                  <TableHead className="text-center font-bold">Предметов</TableHead>
-                  <TableHead className="text-center font-bold">Семестров</TableHead>
-                  <TableHead className="text-center font-bold">Длительность</TableHead>
-                  <TableHead className="text-center font-bold">Форма обучения</TableHead>
-                  <TableHead className="text-center font-bold">Уровень</TableHead>
-                  <TableHead className="text-center font-bold min-w-[132px]">
+                <TableRow className="bg-muted/40 hover:bg-muted/40">
+                  <TableHead className="w-10 text-center font-semibold">№</TableHead>
+                  <TableHead className="text-center font-semibold">Шифр</TableHead>
+                  <TableHead className="min-w-[220px] font-semibold">
+                    Направление
+                  </TableHead>
+                  <TableHead className="text-center font-semibold">Форма</TableHead>
+                  <TableHead className="text-center font-semibold">Уровень</TableHead>
+                  <TableHead className="text-center font-semibold">Годы</TableHead>
+                  <TableHead className="text-center font-semibold">
+                    Длительность
+                  </TableHead>
+                  <TableHead className="min-w-[132px] text-center font-semibold">
                     Статус
+                  </TableHead>
+                  <TableHead className="text-center font-semibold">
+                    Семестры
+                  </TableHead>
+                  <TableHead className="text-center font-semibold">
+                    Предметы
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -103,9 +126,10 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
                     key={syllabus.id}
                     className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => {
+                      onBeforeOpen?.();
                       navigate(getReportSyllabusPath(syllabus.id, syllabus.profile_id), {
                         state: {
-                          returnTo: getEducationManagementPath("reports"),
+                          returnTo: returnToReports,
                         },
                       });
                     }}
@@ -117,23 +141,17 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
                     <TableCell className="text-left">
                       {syllabus.direction}
                     </TableCell>
-                    <TableCell className="text-center">
-                      {syllabus.years}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {syllabus.subjects}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {syllabus.semesters}
-                    </TableCell>
-                    <TableCell className="text-center whitespace-nowrap">
-                      {syllabus.duration} года
-                    </TableCell>
-                    <TableCell className="text-left">
+                    <TableCell className="text-center text-sm">
                       {syllabus.form_education}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center text-sm">
                       {syllabus.level_education}
+                    </TableCell>
+                    <TableCell className="text-center tabular-nums">
+                      {syllabus.years}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-center">
+                      {syllabus.duration} г.
                     </TableCell>
                     <TableCell className="text-center">
                       <button
@@ -152,6 +170,12 @@ export const ReportsTable = ({ data }: ReportsTableProps) => {
                           className="cursor-pointer"
                         />
                       </button>
+                    </TableCell>
+                    <TableCell className="text-center tabular-nums">
+                      {syllabus.semesters}
+                    </TableCell>
+                    <TableCell className="text-center tabular-nums">
+                      {syllabus.subjects}
                     </TableCell>
                   </TableRow>
                 ))}

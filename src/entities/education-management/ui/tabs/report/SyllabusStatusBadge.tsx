@@ -4,6 +4,24 @@ import { cn } from 'shared/lib/utils';
 
 export type SyllabusReviewStatus = 'under_review' | 'confirmed' | 'revision';
 
+export type SyllabusStatusFilter = 'all' | SyllabusReviewStatus;
+
+export const SYLLABUS_STATUS_FILTER_OPTIONS: {
+  value: SyllabusStatusFilter;
+  label: string;
+}[] = [
+  { value: 'all', label: 'Все' },
+  { value: 'under_review', label: 'На рассмотрении' },
+  { value: 'revision', label: 'На доработку' },
+  { value: 'confirmed', label: 'Подтверждено' },
+];
+
+export function syllabusStatusLabel(status: SyllabusReviewStatus): string {
+  if (status === 'confirmed') return 'Подтверждено';
+  if (status === 'revision') return 'На доработку';
+  return 'На рассмотрении';
+}
+
 export function normalizeSyllabusStatus(
   input?: string | null,
   isVerified?: boolean
@@ -32,7 +50,7 @@ export function SyllabusStatusBadge({
         )}
       >
         <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
-        Подтверждено
+        {syllabusStatusLabel('confirmed')}
       </Badge>
     );
   }
@@ -48,7 +66,7 @@ export function SyllabusStatusBadge({
         )}
       >
         <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden />
-        На доработку
+        {syllabusStatusLabel('revision')}
       </Badge>
     );
   }
@@ -63,7 +81,7 @@ export function SyllabusStatusBadge({
       )}
     >
       <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden />
-      В рассмотрении
+      {syllabusStatusLabel('under_review')}
     </Badge>
   );
 }

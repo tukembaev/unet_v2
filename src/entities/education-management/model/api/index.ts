@@ -80,7 +80,7 @@ export const getFamilyDirection = async (kind: number): Promise<FamilyDirection>
 export const getSyllabusReport = async (
   syllabus: number,
 ): Promise<SyllabusRoot> => {
-  const { data } = await apiClient.get(`courses/${syllabus}`);
+  const { data } = await apiClient.get(`courses/${syllabus}/`);
   return data;
 };
 
@@ -215,8 +215,66 @@ export const getWorkLoadBySemester = async (year: string, department_id: number,
   return data;
 };
 
-export const getReports = async (): Promise<Reports[]> => {
-  const { data } = await apiClient.get('institutes-syllabuses/');
+export type InstitutesSyllabusesParams = {
+  institute_id?: number | null;
+  department_id?: number | null;
+  status?: 'all' | 'under_review' | 'revision' | 'confirmed' | null;
+  form?: string | null;
+  years?: string | null;
+};
+
+function cleanInstitutesSyllabusesParams(
+  params?: InstitutesSyllabusesParams
+): Record<string, string | number> {
+  if (!params) return {};
+  const query: Record<string, string | number> = {};
+  if (params.institute_id != null && params.institute_id > 0) {
+    query.institute_id = params.institute_id;
+  }
+  if (params.department_id != null && params.department_id > 0) {
+    query.department_id = params.department_id;
+  }
+  if (params.status && params.status !== 'all') {
+    query.status = params.status;
+  }
+  const form = params.form?.trim();
+  if (form) query.form = form;
+  const years = params.years?.trim();
+  if (years) query.years = years;
+  return query;
+}
+
+function normalizeReportsResponse(data: unknown): Reports[] {
+  if (Array.isArray(data)) return data as Reports[];
+  if (
+    data &&
+    typeof data === 'object' &&
+    'syllabuses' in data &&
+    Array.isArray((data as Reports).syllabuses)
+  ) {
+    return [data as Reports];
+  }
+  return [];
+}
+
+export const getReports = async (
+  params?: InstitutesSyllabusesParams
+): Promise<Reports[]> => {
+  const { data } = await apiClient.get('institutes-syllabuses/', {
+    params: cleanInstitutesSyllabusesParams(params),
+  });
+  return normalizeReportsResponse(data);
+};
+
+/** GET /institutes-syllabuses/export/ — Excel по текущим фильтрам. */
+export const exportInstitutesSyllabuses = async (
+  params?: InstitutesSyllabusesParams
+): Promise<Blob> => {
+  const { data } = await apiClient.get<Blob>('institutes-syllabuses/export/', {
+    params: cleanInstitutesSyllabusesParams(params),
+    responseType: 'blob',
+    timeout: 60_000,
+  });
   return data;
 };
 

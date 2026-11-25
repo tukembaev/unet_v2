@@ -25,9 +25,18 @@ export function clearSuppressLoginAutoRedirect(): void {
   }
 }
 
-/** Пока открыта модалка «ПИН = пароль», не уводить со страницы входа. */
+/** Пока форма «ПИН = пароль», не уводить со страницы входа. */
 const HOLD_LOGIN_SAFETY_KEY = 'unet_hold_login_safety';
+/** Черновик входа для восстановления формы после ремаунта (только когда ПИН = пароль). */
+const SAFETY_LOGIN_DRAFT_KEY = 'unet_safety_login_draft';
 let safetyHoldOwned = false;
+/** Идёт loginRequest в safety-flow — не сбрасывать draft при гонке ремаунта. */
+let safetyAuthInFlight = false;
+
+export type SafetyLoginDraft = {
+  username: string;
+  password: string;
+};
 
 export function shouldHoldLoginForSafety(): boolean {
   try {
@@ -48,17 +57,73 @@ export function holdLoginForSafety(): void {
 
 export function clearLoginSafetyHold(): void {
   safetyHoldOwned = false;
+  safetyAuthInFlight = false;
   try {
     sessionStorage.removeItem(HOLD_LOGIN_SAFETY_KEY);
   } catch {
     /* noop */
   }
+  clearSafetyLoginDraft();
 }
 
-/** Флаг после перезагрузки страницы, когда модалки уже нет. */
+export function markSafetyAuthInFlight(inFlight: boolean): void {
+  safetyAuthInFlight = inFlight;
+  if (inFlight) safetyHoldOwned = true;
+}
+
+export function isSafetyAuthInFlight(): boolean {
+  return safetyAuthInFlight;
+}
+
+/** Флаг после перезагрузки страницы, когда формы safety уже нет. */
 export function clearStaleLoginSafetyHold(): void {
   if (safetyHoldOwned) return;
+  if (readSafetyLoginDraft()) {
+    safetyHoldOwned = true;
+    return;
+  }
   clearLoginSafetyHold();
+}
+
+export function saveSafetyLoginDraft(
+  username: string,
+  password: string
+): void {
+  try {
+    const draft: SafetyLoginDraft = {
+      username: username.trim(),
+      password,
+    };
+    sessionStorage.setItem(SAFETY_LOGIN_DRAFT_KEY, JSON.stringify(draft));
+  } catch {
+    /* noop */
+  }
+}
+
+export function readSafetyLoginDraft(): SafetyLoginDraft | null {
+  try {
+    const raw = sessionStorage.getItem(SAFETY_LOGIN_DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<SafetyLoginDraft>;
+    if (
+      typeof parsed.username !== 'string' ||
+      typeof parsed.password !== 'string' ||
+      !parsed.username.trim()
+    ) {
+      return null;
+    }
+    return { username: parsed.username, password: parsed.password };
+  } catch {
+    return null;
+  }
+}
+
+export function clearSafetyLoginDraft(): void {
+  try {
+    sessionStorage.removeItem(SAFETY_LOGIN_DRAFT_KEY);
+  } catch {
+    /* noop */
+  }
 }
 
 export function isPinUsedAsPassword(username: string, password: string): boolean {

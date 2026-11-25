@@ -1,7 +1,6 @@
 import { ROUTES } from 'app/providers/routes';
 import {
   BarChart3,
-  BookMarked,
   BookOpen,
   CalendarDays,
   CheckSquare,
@@ -21,7 +20,6 @@ import {
 import type { ProfileContext } from 'shared/lib/auth-context';
 import type { AppPermission } from 'shared/lib/permissions';
 import {
-  ABITURIENT_COMMISSION_PERMISSIONS,
   EDUCATION_DEPARTMENT_PERMISSIONS,
   hasPermission,
   IT_DEPARTMENT_PERMISSION,
@@ -84,13 +82,6 @@ export const STUDENT_NAVIGATION_SECTIONS: NavSectionConfig[] = [
         description: 'Вопросы по приложению, учёбе и сервисам университета',
         icon: LifeBuoy,
       },
-      {
-        title: 'LMS',
-        href: ROUTES.LMS,
-        description: 'Moodle KSTU',
-        icon: BookMarked,
-        external: true,
-      },
     ],
   },
 ];
@@ -126,15 +117,6 @@ export const NAVIGATION_SECTIONS: NavSectionConfig[] = [
         description: 'Ключевые показатели эффективности',
         icon: BarChart3,
         permission: KPI_REPORTS_PERMISSION,
-      },
-      {
-        title: 'Приёмная комиссия',
-        href: ROUTES.ABITURIENT_COMMISSION,
-        description: 'Онлайн-сервис приёмной комиссии',
-        icon: ClipboardList,
-        permission: ABITURIENT_COMMISSION_PERMISSIONS,
-        permissionMode: 'any',
-        external: true,
       },
     ],
   },
@@ -191,13 +173,6 @@ export const NAVIGATION_SECTIONS: NavSectionConfig[] = [
         description: 'Учебная нагрузка',
         icon: Clock,
         permission: 'education_department:workload',
-      },
-      {
-        title: 'LMS',
-        href: ROUTES.LMS,
-        description: 'Moodle KSTU',
-        icon: BookMarked,
-        external: true,
       },
     ],
   },

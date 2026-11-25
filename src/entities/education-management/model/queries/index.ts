@@ -29,6 +29,7 @@ import {
   ALL_DISCIPLINE_PAGE_SIZE,
   type AllDisciplinePageResult,
   type DisciplineOption,
+  type InstitutesSyllabusesParams,
 } from '../api';
 import type { CreateScheduleSlot } from '../types';
 
@@ -92,10 +93,10 @@ export function useSemestersBySyllabus(syllabusId: number | null) {
   });
 }
 
-export function useReports() {
+export function useReports(params?: InstitutesSyllabusesParams) {
   return useQuery({
-    queryKey: ['reports'],
-    queryFn: getReports,
+    queryKey: ['reports', params ?? {}],
+    queryFn: () => getReports(params),
   });
 }
 

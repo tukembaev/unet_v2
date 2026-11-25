@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { BookOpen, Eye, EyeOff, LifeBuoy, QrCode } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { CurrentUser } from "entities/user";
@@ -16,6 +16,10 @@ import {
   clearSuppressLoginAutoRedirect,
   holdLoginForSafety,
   isPinUsedAsPassword,
+  isSafetyAuthInFlight,
+  markSafetyAuthInFlight,
+  readSafetyLoginDraft,
+  saveSafetyLoginDraft,
   shouldHoldLoginForSafety,
 } from "shared/lib/auth-utils";
 import { getHttpErrorMessage } from "shared/lib/http-error";
@@ -32,7 +36,7 @@ import { ensurePreferredProfile } from "../lib/preferred-context";
 import { useLogin } from "../model/queries";
 import { LoginFormValues, loginSchema } from "../model/schema";
 
-import { AccountSafetyAfterLoginDialog } from "./AccountSafetyAfterLoginDialog";
+import { AccountSafetyAfterLoginForm } from "./AccountSafetyAfterLoginForm";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import { GoogleLoginButton } from "./GoogleLoginButton";
 
@@ -44,6 +48,12 @@ const inputClassName = cn(
   "focus-visible:border-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
   "disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-65"
 );
+
+type PostAuthState = {
+  user: CurrentUser;
+  loginUsername: string;
+  loginPassword: string;
+};
 
 type LoginFormProps = {
   onSafetyHoldChange?: (hold: boolean) => void;
@@ -61,19 +71,12 @@ export const LoginForm = ({ onSafetyHoldChange }: LoginFormProps) => {
   const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
-  const [postAuth, setPostAuth] = useState<{
-    user: CurrentUser;
-    loginUsername: string;
-    loginPassword: string;
-  } | null>(null);
+  const [postAuth, setPostAuth] = useState<PostAuthState | null>(null);
+  const [restoringSafety, setRestoringSafety] = useState(() =>
+    Boolean(readSafetyLoginDraft() && shouldHoldLoginForSafety())
+  );
+  const restoreStarted = useRef(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    clearStaleLoginSafetyHold();
-    if (!shouldHoldLoginForSafety()) onSafetyHoldChange?.(false);
-    // Только остаток флага после перезагрузки, не текущий вход.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const releaseSafetyHold = () => {
     clearLoginSafetyHold();
@@ -86,22 +89,83 @@ export const LoginForm = ({ onSafetyHoldChange }: LoginFormProps) => {
     navigate(getAppHomePath());
   };
 
+  const beginSafetyHold = (
+    username: string,
+    password: string,
+    options?: { inFlight?: boolean }
+  ) => {
+    holdLoginForSafety();
+    saveSafetyLoginDraft(username, password);
+    if (options?.inFlight) markSafetyAuthInFlight(true);
+    onSafetyHoldChange?.(true);
+  };
+
+  const showSafetyForm = (state: PostAuthState) => {
+    markSafetyAuthInFlight(false);
+    beginSafetyHold(state.loginUsername, state.loginPassword);
+    setPostAuth(state);
+    setRestoringSafety(false);
+  };
+
+  useEffect(() => {
+    if (restoreStarted.current) return;
+    const draft = readSafetyLoginDraft();
+    if (draft) {
+      // Черновик = незавершённый safety-flow; не сбрасываем hold при ремаунте.
+      if (!shouldHoldLoginForSafety()) {
+        holdLoginForSafety();
+      }
+      onSafetyHoldChange?.(true);
+      restoreStarted.current = true;
+      setRestoringSafety(true);
+      void (async () => {
+        try {
+          const user = await queryClient.fetchQuery({
+            queryKey: ["currentUser"],
+            queryFn: getCurrentUser,
+          });
+          setPostAuth({
+            user,
+            loginUsername: draft.username,
+            loginPassword: draft.password,
+          });
+        } catch {
+          if (isSafetyAuthInFlight()) {
+            // Логин ещё идёт — не трогаем draft, форма восстановится после completeLogin.
+            setRestoringSafety(false);
+            return;
+          }
+          releaseSafetyHold();
+          setPostAuth(null);
+        } finally {
+          setRestoringSafety(false);
+        }
+      })();
+      return;
+    }
+
+    clearStaleLoginSafetyHold();
+    if (!shouldHoldLoginForSafety()) onSafetyHoldChange?.(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const completeLogin = async (values: LoginFormValues) => {
     const user = await queryClient.fetchQuery({
       queryKey: ["currentUser"],
       queryFn: getCurrentUser,
     });
     if (isPinUsedAsPassword(values.username, values.password)) {
-      holdLoginForSafety();
-      onSafetyHoldChange?.(true);
-      setPostAuth({
+      showSafetyForm({
         user,
         loginUsername: values.username,
         loginPassword: values.password,
       });
       return;
     }
-    finishLogin();
+    markSafetyAuthInFlight(false);
+    releaseSafetyHold();
+    clearSuppressLoginAutoRedirect();
+    navigate(getAppHomePath());
   };
 
   const handleLogin = async (values: LoginFormValues) => {
@@ -110,15 +174,17 @@ export const LoginForm = ({ onSafetyHoldChange }: LoginFormProps) => {
       values.password
     );
     if (pinMatchesPassword) {
-      holdLoginForSafety();
-      onSafetyHoldChange?.(true);
+      beginSafetyHold(values.username, values.password, { inFlight: true });
     }
     try {
       const authResult = await login(values);
       await ensurePreferredProfile(authResult);
       await completeLogin(values);
     } catch (err) {
+      markSafetyAuthInFlight(false);
       releaseSafetyHold();
+      setPostAuth(null);
+      setRestoringSafety(false);
       toast.error("Не удалось войти", {
         description: getHttpErrorMessage(
           err,
@@ -136,11 +202,18 @@ export const LoginForm = ({ onSafetyHoldChange }: LoginFormProps) => {
     );
   }
 
-  return (
-    <div className="mx-auto w-full max-w-[400px] font-['Nunito',system-ui,sans-serif]">
-      {postAuth && (
-        <AccountSafetyAfterLoginDialog
-          open
+  if (restoringSafety && !postAuth) {
+    return (
+      <div className="mx-auto flex w-full max-w-[400px] flex-col items-center gap-3 py-8 text-center">
+        <p className="text-sm text-muted-foreground">Загрузка…</p>
+      </div>
+    );
+  }
+
+  if (postAuth) {
+    return (
+      <div className="mx-auto w-full max-w-[400px] font-['Nunito',system-ui,sans-serif]">
+        <AccountSafetyAfterLoginForm
           user={postAuth.user}
           loginUsername={postAuth.loginUsername}
           loginPassword={postAuth.loginPassword}
@@ -149,7 +222,12 @@ export const LoginForm = ({ onSafetyHoldChange }: LoginFormProps) => {
             finishLogin();
           }}
         />
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[400px] font-['Nunito',system-ui,sans-serif]">
       <section className="w-full">
         <h2 className="mb-5 text-[22px] font-bold leading-[1.25] tracking-[-0.02em] text-foreground">
           Вход
@@ -214,8 +292,7 @@ export const LoginForm = ({ onSafetyHoldChange }: LoginFormProps) => {
               disabled={isPending || form.formState.isSubmitting}
               className="h-auto min-h-[42px] w-full rounded-xl px-[18px] py-3 text-[15px] font-semibold shadow-sm"
             >
-
-                Войти
+              Войти
             </Button>
 
             <Button
